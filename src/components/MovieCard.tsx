@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { Star } from "lucide-react";
+import { Star, TrendingUp } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
 
 interface MovieCardProps {

@@ -1,7 +1,6 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, Edit, Trash2, Plus, Star, Trending } from "lucide-react";
+import { Search, Edit, Trash2, Plus, Star, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { mockMovies, genres } from "@/data/mockMovies";
@@ -195,7 +194,7 @@ const AdminMovies = () => {
                         )}
                         {movie.isTrending && (
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-red-600 text-white">
-                            <Trending className="w-3 h-3 mr-1" />
+                            <TrendingUp className="w-3 h-3 mr-1" />
                             Trending
                           </span>
                         )}

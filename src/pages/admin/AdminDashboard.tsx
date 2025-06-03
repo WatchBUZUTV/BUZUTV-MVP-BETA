@@ -1,7 +1,7 @@
 
 import AdminLayout from "@/components/admin/AdminLayout";
 import { mockMovies, genres } from "@/data/mockMovies";
-import { Film, Star, Trending, Users } from "lucide-react";
+import { Film, Star, TrendingUp, Users } from "lucide-react";
 
 const AdminDashboard = () => {
   const totalMovies = mockMovies.length;
@@ -34,7 +34,7 @@ const AdminDashboard = () => {
     {
       title: "Trending Movies",
       value: trendingCount,
-      icon: Trending,
+      icon: TrendingUp,
       color: "text-red-500",
       bgColor: "bg-red-500/10"
     }
