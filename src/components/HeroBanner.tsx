@@ -33,7 +33,7 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
   const currentMovie = movies[currentIndex];
 
   return (
-    <div className="relative h-screen overflow-hidden">
+    <div className="relative h-[40vh] overflow-hidden">
       {/* Background */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -49,36 +49,36 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
       {/* Content */}
       <div className="relative z-10 flex items-center h-full">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <div className="max-w-2xl">
-            <h1 className="text-4xl md:text-6xl font-bold mb-4 text-white">
+          <div className="max-w-xl">
+            <h1 className="text-3xl md:text-4xl font-bold mb-3 text-white">
               {currentMovie.title}
             </h1>
-            <p className="text-lg md:text-xl text-gray-200 mb-6 line-clamp-3">
+            <p className="text-base md:text-lg text-gray-200 mb-4 line-clamp-2">
               {currentMovie.description}
             </p>
-            <div className="flex items-center space-x-4 mb-8">
-              <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm">
+            <div className="flex items-center space-x-3 mb-6">
+              <span className="bg-blue-600 text-white px-2 py-1 rounded text-sm">
                 {currentMovie.genre}
               </span>
-              <span className="text-gray-300">{currentMovie.year}</span>
+              <span className="text-gray-300 text-sm">{currentMovie.year}</span>
               <div className="flex items-center space-x-1">
                 <span className="text-yellow-400">★</span>
-                <span className="text-white">{currentMovie.rating}</span>
+                <span className="text-white text-sm">{currentMovie.rating}</span>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3">
               <Link
                 to={`/movie/${currentMovie.id}`}
-                className="flex items-center space-x-2 bg-white text-black px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
+                className="flex items-center space-x-2 bg-white text-black px-4 py-2 rounded-lg font-semibold hover:bg-gray-200 transition-colors text-sm"
               >
-                <Play className="w-5 h-5" />
+                <Play className="w-4 h-4" />
                 <span>Watch Now</span>
               </Link>
               <Link
                 to={`/movie/${currentMovie.id}`}
-                className="flex items-center space-x-2 bg-gray-800/80 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-700/80 transition-colors"
+                className="flex items-center space-x-2 bg-gray-800/80 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-700/80 transition-colors text-sm"
               >
-                <Info className="w-5 h-5" />
+                <Info className="w-4 h-4" />
                 <span>More Info</span>
               </Link>
             </div>
@@ -93,22 +93,22 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
             onClick={prevSlide}
             className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
           >
-            <ChevronLeft className="w-6 h-6" />
+            <ChevronLeft className="w-5 h-5" />
           </button>
           <button
             onClick={nextSlide}
             className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
           >
-            <ChevronRight className="w-6 h-6" />
+            <ChevronRight className="w-5 h-5" />
           </button>
 
           {/* Indicators */}
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex space-x-2">
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20 flex space-x-2">
             {movies.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentIndex(index)}
-                className={`w-3 h-3 rounded-full transition-colors ${
+                className={`w-2 h-2 rounded-full transition-colors ${
                   index === currentIndex ? "bg-white" : "bg-white/50"
                 }`}
               />

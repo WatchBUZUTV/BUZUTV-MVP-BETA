@@ -5,11 +5,19 @@ export interface Movie {
   description: string;
   posterUrl: string;
   youtubeId: string;
-  genre: string;
   rating: number;
   year: number;
+  genre: string;
   isFeatured: boolean;
   isTrending: boolean;
+  type: 'movie' | 'tv';
+}
+
+export interface Channel {
+  id: string;
+  name: string;
+  logoUrl: string;
+  description: string;
 }
 
 export const mockMovies: Movie[] = [
@@ -17,74 +25,130 @@ export const mockMovies: Movie[] = [
     id: "1",
     title: "The Dark Knight",
     description: "When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.",
-    posterUrl: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=500&h=750&fit=crop",
+    posterUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400",
     youtubeId: "EXeTwQWrcwY",
-    genre: "Action",
     rating: 9.0,
     year: 2008,
+    genre: "Action",
     isFeatured: true,
-    isTrending: true
+    isTrending: false,
+    type: "movie"
   },
   {
     id: "2",
-    title: "Inception",
-    description: "A thief who steals corporate secrets through dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.",
-    posterUrl: "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=500&h=750&fit=crop",
-    youtubeId: "YoHD9XEInc0",
+    title: "Stranger Things",
+    description: "When a young boy disappears, his mother, a police chief and his friends must confront terrifying supernatural forces in order to get him back.",
+    posterUrl: "https://images.unsplash.com/photo-1489599904821-97473bfa5d34?w=400",
+    youtubeId: "mnd7sFt5c3A",
+    rating: 8.7,
+    year: 2016,
     genre: "Sci-Fi",
-    rating: 8.8,
-    year: 2010,
     isFeatured: true,
-    isTrending: false
+    isTrending: true,
+    type: "tv"
   },
   {
     id: "3",
-    title: "The Lion King",
-    description: "Lion prince Simba and his father are targeted by his bitter uncle, who wants to ascend the throne himself.",
-    posterUrl: "https://images.unsplash.com/photo-1523712999610-f77fbcfc3843?w=500&h=750&fit=crop",
-    youtubeId: "7TavVZMewpY",
-    genre: "Family",
-    rating: 8.5,
-    year: 2019,
+    title: "The Matrix",
+    description: "A computer programmer is led to fight an underground war against powerful computers who have constructed his entire reality with a system called the Matrix.",
+    posterUrl: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400",
+    youtubeId: "vKQi3bBA1y8",
+    rating: 8.7,
+    year: 1999,
+    genre: "Action",
     isFeatured: false,
-    isTrending: true
+    isTrending: true,
+    type: "movie"
   },
   {
     id: "4",
-    title: "Interstellar",
-    description: "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.",
-    posterUrl: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=500&h=750&fit=crop",
-    youtubeId: "zSWdZVtXT7E",
-    genre: "Sci-Fi",
-    rating: 8.6,
-    year: 2014,
+    title: "Breaking Bad",
+    description: "A high school chemistry teacher diagnosed with inoperable lung cancer turns to manufacturing and selling methamphetamine in order to secure his family's future.",
+    posterUrl: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400",
+    youtubeId: "HhesaQXLuRY",
+    rating: 9.5,
+    year: 2008,
+    genre: "Drama",
     isFeatured: false,
-    isTrending: false
+    isTrending: false,
+    type: "tv"
   },
   {
     id: "5",
-    title: "Guardians of the Galaxy",
-    description: "A group of intergalactic criminals must pull together to stop a fanatical warrior with plans to purge the universe.",
-    posterUrl: "https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?w=500&h=750&fit=crop",
-    youtubeId: "d96cjJhvlMA",
-    genre: "Action",
-    rating: 8.0,
-    year: 2014,
-    isFeatured: false,
-    isTrending: true
+    title: "Inception",
+    description: "A thief who enters people's dreams and steals their secrets from their subconscious is given the chance to regain his old life.",
+    posterUrl: "https://images.unsplash.com/photo-1460467820054-c87ab43e9b59?w=400",
+    youtubeId: "YoHD9XEInc0",
+    rating: 8.8,
+    year: 2010,
+    genre: "Sci-Fi",
+    isFeatured: true,
+    isTrending: false,
+    type: "movie"
   },
   {
     id: "6",
-    title: "The Shawshank Redemption",
-    description: "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
-    posterUrl: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=500&h=750&fit=crop",
-    youtubeId: "6hB3S9bIaco",
+    title: "The Crown",
+    description: "Follows the political rivalries and romance of Queen Elizabeth II's reign and the events that shaped the second half of the 20th century.",
+    posterUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400",
+    youtubeId: "JWtnJjn6ng0",
+    rating: 8.6,
+    year: 2016,
     genre: "Drama",
-    rating: 9.3,
-    year: 1994,
-    isFeatured: true,
-    isTrending: false
+    isFeatured: false,
+    isTrending: true,
+    type: "tv"
   }
 ];
 
-export const genres = ["All", "Action", "Comedy", "Drama", "Sci-Fi", "Family", "Crime"];
+export const channels: Channel[] = [
+  {
+    id: "1",
+    name: "HBO Max",
+    logoUrl: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=200",
+    description: "Premium entertainment with blockbuster movies, HBO originals, and more."
+  },
+  {
+    id: "2",
+    name: "Disney+",
+    logoUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=200",
+    description: "The ultimate Disney destination with Pixar, Marvel, Star Wars, and National Geographic."
+  },
+  {
+    id: "3",
+    name: "Netflix",
+    logoUrl: "https://images.unsplash.com/photo-1489599904821-97473bfa5d34?w=200",
+    description: "Original series, documentaries and feature films across a variety of genres."
+  },
+  {
+    id: "4",
+    name: "Amazon Prime",
+    logoUrl: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=200",
+    description: "Prime Video originals, movies, and TV shows with your Prime membership."
+  },
+  {
+    id: "5",
+    name: "Hulu",
+    logoUrl: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=200",
+    description: "Stream current season episodes, classic series, and acclaimed Hulu Originals."
+  },
+  {
+    id: "6",
+    name: "Apple TV+",
+    logoUrl: "https://images.unsplash.com/photo-1460467820054-c87ab43e9b59?w=200",
+    description: "Original shows and movies from Apple with new premieres every month."
+  }
+];
+
+export const genres = [
+  "All",
+  "Action",
+  "Comedy",
+  "Drama",
+  "Horror",
+  "Romance",
+  "Sci-Fi",
+  "Thriller",
+  "Documentary",
+  "Animation"
+];
