@@ -128,7 +128,7 @@ const TvShows = () => {
               <h2 className="text-2xl font-bold mb-6">
                 {searchQuery ? `Search Results (${filteredShows.length})` : selectedGenre}
               </h2>
-              <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 {filteredShows.map((show) => (
                   <MovieCard key={show.id} movie={show} />
                 ))}
@@ -139,7 +139,7 @@ const TvShows = () => {
               {/* Featured Shows */}
               <section className="mb-12">
                 <h2 className="text-2xl font-bold mb-6">Featured TV Shows</h2>
-                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                   {featuredShows.map((show) => (
                     <MovieCard key={show.id} movie={show} />
                   ))}
@@ -149,7 +149,7 @@ const TvShows = () => {
               {/* Trending Shows */}
               <section className="mb-12">
                 <h2 className="text-2xl font-bold mb-6">Trending TV Shows</h2>
-                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                   {trendingShows.map((show) => (
                     <MovieCard key={show.id} movie={show} />
                   ))}
@@ -161,7 +161,7 @@ const TvShows = () => {
                 genreShows.length > 0 && (
                   <section key={genre} className="mb-12">
                     <h2 className="text-2xl font-bold mb-6">{genre}</h2>
-                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                       {genreShows.map((show) => (
                         <MovieCard key={show.id} movie={show} />
                       ))}

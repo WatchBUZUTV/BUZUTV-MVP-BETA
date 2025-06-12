@@ -133,7 +133,7 @@ const Index = () => {
               <h2 className="text-2xl font-bold mb-6">
                 Search Results ({filteredMovies.length})
               </h2>
-              <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 {filteredMovies.map((movie) => (
                   <MovieCard key={movie.id} movie={movie} />
                 ))}
@@ -148,7 +148,7 @@ const Index = () => {
               <div className="overflow-x-auto">
                 <div className="flex space-x-4 pb-4">
                   {trendingMovies.filter(movie => selectedType === "all" || movie.type === selectedType).map((movie) => (
-                    <div key={movie.id} className="flex-shrink-0 w-40">
+                    <div key={movie.id} className="flex-shrink-0 w-64">
                       <MovieCard movie={movie} />
                     </div>
                   ))}
@@ -181,7 +181,7 @@ const Index = () => {
                 <div className="overflow-x-auto">
                   <div className="flex space-x-4 pb-4">
                     {actionMovies.filter(movie => selectedType === "all" || movie.type === selectedType).map((movie) => (
-                      <div key={movie.id} className="flex-shrink-0 w-40">
+                      <div key={movie.id} className="flex-shrink-0 w-64">
                         <MovieCard movie={movie} />
                       </div>
                     ))}
@@ -194,7 +194,7 @@ const Index = () => {
                 <div className="overflow-x-auto">
                   <div className="flex space-x-4 pb-4">
                     {dramaMovies.filter(movie => selectedType === "all" || movie.type === selectedType).map((movie) => (
-                      <div key={movie.id} className="flex-shrink-0 w-40">
+                      <div key={movie.id} className="flex-shrink-0 w-64">
                         <MovieCard movie={movie} />
                       </div>
                     ))}
@@ -207,7 +207,7 @@ const Index = () => {
                 <div className="overflow-x-auto">
                   <div className="flex space-x-4 pb-4">
                     {sciFiMovies.filter(movie => selectedType === "all" || movie.type === selectedType).map((movie) => (
-                      <div key={movie.id} className="flex-shrink-0 w-40">
+                      <div key={movie.id} className="flex-shrink-0 w-64">
                         <MovieCard movie={movie} />
                       </div>
                     ))}

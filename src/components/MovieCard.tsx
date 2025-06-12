@@ -21,7 +21,7 @@ const MovieCard = ({ movie, showSaveButton = true }: MovieCardProps) => {
     <div className="group">
       <Link to={`/movie/${movie.id}`} className="block">
         <div className="relative overflow-hidden rounded-lg bg-gray-800 shadow-lg transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl">
-          <div className="aspect-square overflow-hidden">
+          <div className="aspect-[3/2] overflow-hidden">
             <img
               src={movie.posterUrl}
               alt={movie.title}
