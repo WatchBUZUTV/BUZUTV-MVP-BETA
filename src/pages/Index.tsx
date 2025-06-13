@@ -9,21 +9,19 @@ import HeroBanner from "@/components/HeroBanner";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedType, setSelectedType] = useState<"all" | "movie" | "tv">("all");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const featuredMovies = mockMovies.filter(movie => movie.isFeatured);
   const trendingMovies = mockMovies.filter(movie => movie.isTrending);
   
   const filteredMovies = mockMovies.filter(movie => {
-    const matchesSearch = movie.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesType = selectedType === "all" || movie.type === selectedType;
-    return matchesSearch && matchesType;
+    return movie.title.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
   const actionMovies = mockMovies.filter(movie => movie.genre === "Action");
   const dramaMovies = mockMovies.filter(movie => movie.genre === "Drama");
-  const sciFiMovies = mockMovies.filter(movie => movie.genre === "Sci-Fi");
+  const romanceMovies = mockMovies.filter(movie => movie.genre === "Romance");
+  const comedyMovies = mockMovies.filter(movie => movie.genre === "Comedy");
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -42,7 +40,7 @@ const Index = () => {
             <div className="hidden md:flex items-center space-x-8">
               <Link to="/" className="hover:text-blue-400 transition-colors">Home</Link>
               <Link to="/movies" className="hover:text-blue-400 transition-colors">Movies</Link>
-              <Link to="/tv-shows" className="hover:text-blue-400 transition-colors">TV Shows</Link>
+              <Link to="/series" className="hover:text-blue-400 transition-colors">Series</Link>
               <Link to="/my-list" className="hover:text-blue-400 transition-colors">My List</Link>
             </div>
 
@@ -90,7 +88,7 @@ const Index = () => {
               <div className="space-y-2">
                 <Link to="/" className="block hover:text-blue-400 transition-colors">Home</Link>
                 <Link to="/movies" className="block hover:text-blue-400 transition-colors">Movies</Link>
-                <Link to="/tv-shows" className="block hover:text-blue-400 transition-colors">TV Shows</Link>
+                <Link to="/series" className="block hover:text-blue-400 transition-colors">Series</Link>
                 <Link to="/my-list" className="block hover:text-blue-400 transition-colors">My List</Link>
                 <Link to="/admin" className="block text-gray-400 hover:text-white transition-colors">Admin</Link>
               </div>
@@ -104,55 +102,16 @@ const Index = () => {
         <HeroBanner movies={featuredMovies} />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Type Filter Pills (only on home page) */}
-          <div className="mb-8">
-            <div className="flex flex-wrap gap-2">
-              {[
-                { key: "all", label: "All" },
-                { key: "movie", label: "Movies" },
-                { key: "tv", label: "TV Shows" }
-              ].map((type) => (
-                <button
-                  key={type.key}
-                  onClick={() => setSelectedType(type.key as "all" | "movie" | "tv")}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                    selectedType === type.key
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                  }`}
-                >
-                  {type.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* Search Results */}
           {searchQuery && (
             <section className="mb-12">
               <h2 className="text-2xl font-bold mb-6">
                 Search Results ({filteredMovies.length})
               </h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredMovies.map((movie) => (
                   <MovieCard key={movie.id} movie={movie} />
                 ))}
-              </div>
-            </section>
-          )}
-
-          {/* Trending Now */}
-          {!searchQuery && (
-            <section className="mb-12">
-              <h2 className="text-2xl font-bold mb-6">Trending Now</h2>
-              <div className="overflow-x-auto">
-                <div className="flex space-x-4 pb-4">
-                  {trendingMovies.filter(movie => selectedType === "all" || movie.type === selectedType).map((movie) => (
-                    <div key={movie.id} className="flex-shrink-0 w-64">
-                      <MovieCard movie={movie} />
-                    </div>
-                  ))}
-                </div>
               </div>
             </section>
           )}
@@ -173,6 +132,22 @@ const Index = () => {
             </section>
           )}
 
+          {/* Trending Now */}
+          {!searchQuery && (
+            <section className="mb-12">
+              <h2 className="text-2xl font-bold mb-6">Trending Now</h2>
+              <div className="overflow-x-auto">
+                <div className="flex space-x-4 pb-4">
+                  {trendingMovies.map((movie) => (
+                    <div key={movie.id} className="flex-shrink-0 w-64">
+                      <MovieCard movie={movie} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
+
           {/* Genre Sections */}
           {!searchQuery && (
             <>
@@ -180,7 +155,7 @@ const Index = () => {
                 <h2 className="text-2xl font-bold mb-6">Action</h2>
                 <div className="overflow-x-auto">
                   <div className="flex space-x-4 pb-4">
-                    {actionMovies.filter(movie => selectedType === "all" || movie.type === selectedType).map((movie) => (
+                    {actionMovies.map((movie) => (
                       <div key={movie.id} className="flex-shrink-0 w-64">
                         <MovieCard movie={movie} />
                       </div>
@@ -193,7 +168,7 @@ const Index = () => {
                 <h2 className="text-2xl font-bold mb-6">Drama</h2>
                 <div className="overflow-x-auto">
                   <div className="flex space-x-4 pb-4">
-                    {dramaMovies.filter(movie => selectedType === "all" || movie.type === selectedType).map((movie) => (
+                    {dramaMovies.map((movie) => (
                       <div key={movie.id} className="flex-shrink-0 w-64">
                         <MovieCard movie={movie} />
                       </div>
@@ -203,10 +178,23 @@ const Index = () => {
               </section>
 
               <section className="mb-12">
-                <h2 className="text-2xl font-bold mb-6">Sci-Fi</h2>
+                <h2 className="text-2xl font-bold mb-6">Romance</h2>
                 <div className="overflow-x-auto">
                   <div className="flex space-x-4 pb-4">
-                    {sciFiMovies.filter(movie => selectedType === "all" || movie.type === selectedType).map((movie) => (
+                    {romanceMovies.map((movie) => (
+                      <div key={movie.id} className="flex-shrink-0 w-64">
+                        <MovieCard movie={movie} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              <section className="mb-12">
+                <h2 className="text-2xl font-bold mb-6">Comedy</h2>
+                <div className="overflow-x-auto">
+                  <div className="flex space-x-4 pb-4">
+                    {comedyMovies.map((movie) => (
                       <div key={movie.id} className="flex-shrink-0 w-64">
                         <MovieCard movie={movie} />
                       </div>

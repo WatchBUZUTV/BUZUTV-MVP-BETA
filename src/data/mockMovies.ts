@@ -42,7 +42,7 @@ export const mockMovies: Movie[] = [
     youtubeId: "mnd7sFt5c3A",
     rating: 8.7,
     year: 2016,
-    genre: "Sci-Fi",
+    genre: "Drama",
     isFeatured: true,
     isTrending: true,
     type: "tv"
@@ -81,7 +81,7 @@ export const mockMovies: Movie[] = [
     youtubeId: "YoHD9XEInc0",
     rating: 8.8,
     year: 2010,
-    genre: "Sci-Fi",
+    genre: "Action",
     isFeatured: true,
     isTrending: false,
     type: "movie"
@@ -95,6 +95,32 @@ export const mockMovies: Movie[] = [
     rating: 8.6,
     year: 2016,
     genre: "Drama",
+    isFeatured: false,
+    isTrending: true,
+    type: "tv"
+  },
+  {
+    id: "7",
+    title: "Pride and Prejudice",
+    description: "Sparks fly when spirited Elizabeth Bennet meets single, rich, and proud Mr. Darcy.",
+    posterUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400",
+    youtubeId: "1dYv5u6v55Y",
+    rating: 8.1,
+    year: 2005,
+    genre: "Romance",
+    isFeatured: false,
+    isTrending: false,
+    type: "movie"
+  },
+  {
+    id: "8",
+    title: "The Office",
+    description: "A mockumentary on a group of typical office workers, where the workday consists of ego clashes, inappropriate behavior, and tedium.",
+    posterUrl: "https://images.unsplash.com/photo-1497032628192-86f99bcd76bc?w=400",
+    youtubeId: "LHhbdXCzt_A",
+    rating: 9.0,
+    year: 2005,
+    genre: "Comedy",
     isFeatured: false,
     isTrending: true,
     type: "tv"
@@ -141,14 +167,8 @@ export const channels: Channel[] = [
 ];
 
 export const genres = [
-  "All",
   "Action",
-  "Comedy",
-  "Drama",
-  "Horror",
+  "Drama", 
   "Romance",
-  "Sci-Fi",
-  "Thriller",
-  "Documentary",
-  "Animation"
+  "Comedy"
 ];

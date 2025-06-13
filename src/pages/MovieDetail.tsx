@@ -2,6 +2,7 @@
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Star, Play } from "lucide-react";
 import { mockMovies } from "@/data/mockMovies";
+import MovieCard from "@/components/MovieCard";
 
 const MovieDetail = () => {
   const { id } = useParams();
@@ -19,6 +20,11 @@ const MovieDetail = () => {
       </div>
     );
   }
+
+  // Get recommended items (same genre, excluding current movie)
+  const recommendedItems = mockMovies
+    .filter(m => m.id !== movie.id && m.genre === movie.genre)
+    .slice(0, 6);
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -76,20 +82,6 @@ const MovieDetail = () => {
                     <span className="text-white">{movie.rating}</span>
                   </div>
                 </div>
-                
-                {/* Badges */}
-                <div className="flex space-x-2 mb-4">
-                  {movie.isFeatured && (
-                    <span className="bg-blue-600 text-white text-xs px-3 py-1 rounded-full">
-                      Featured
-                    </span>
-                  )}
-                  {movie.isTrending && (
-                    <span className="bg-red-600 text-white text-xs px-3 py-1 rounded-full">
-                      Trending
-                    </span>
-                  )}
-                </div>
               </div>
 
               <div>
@@ -103,6 +95,22 @@ const MovieDetail = () => {
               </button>
             </div>
           </div>
+
+          {/* Recommended Section */}
+          {recommendedItems.length > 0 && (
+            <div className="mt-16">
+              <h2 className="text-2xl font-bold mb-6">More Like This</h2>
+              <div className="overflow-x-auto">
+                <div className="flex space-x-4 pb-4">
+                  {recommendedItems.map((item) => (
+                    <div key={item.id} className="flex-shrink-0 w-64">
+                      <MovieCard movie={item} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

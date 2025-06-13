@@ -4,12 +4,19 @@ import { Search, Menu, X } from "lucide-react";
 import { useState } from "react";
 import MovieCard from "@/components/MovieCard";
 import { mockMovies } from "@/data/mockMovies";
+import HeroBanner from "@/components/HeroBanner";
 
 const MyList = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // For demo purposes, showing first few movies as "saved"
   const savedMovies = mockMovies.slice(0, 4);
+  const continueWatching = mockMovies.slice(0, 3);
+  const outNow = mockMovies.slice(2, 5);
+  const recommended = mockMovies.slice(3, 6);
+  
+  // Use the most recent saved item for header
+  const recentItem = savedMovies[0];
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -26,7 +33,7 @@ const MyList = () => {
             <div className="hidden md:flex items-center space-x-8">
               <Link to="/" className="hover:text-blue-400 transition-colors">Home</Link>
               <Link to="/movies" className="hover:text-blue-400 transition-colors">Movies</Link>
-              <Link to="/tv-shows" className="hover:text-blue-400 transition-colors">TV Shows</Link>
+              <Link to="/series" className="hover:text-blue-400 transition-colors">Series</Link>
               <Link to="/my-list" className="text-blue-400">My List</Link>
             </div>
 
@@ -47,28 +54,62 @@ const MyList = () => {
       </nav>
 
       <div className="pt-16">
-        {/* Hero Section */}
-        <div className="bg-gradient-to-r from-green-900 to-blue-900 py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 className="text-4xl md:text-6xl font-bold mb-4">My List</h1>
-            <p className="text-lg text-gray-300">Your saved movies and TV shows</p>
+        {/* Header with recent item */}
+        {recentItem && (
+          <div className="mb-8">
+            <HeroBanner movies={[recentItem]} />
           </div>
-        </div>
+        )}
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {savedMovies.length > 0 ? (
-            <section>
-              <h2 className="text-2xl font-bold mb-6">Saved ({savedMovies.length})</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                {savedMovies.map((movie) => (
-                  <MovieCard key={movie.id} movie={movie} showSaveButton={false} />
-                ))}
-              </div>
-            </section>
+            <>
+              {/* Continue Watching */}
+              <section className="mb-12">
+                <h2 className="text-2xl font-bold mb-6">Continue Watching</h2>
+                <div className="overflow-x-auto">
+                  <div className="flex space-x-4 pb-4">
+                    {continueWatching.map((movie) => (
+                      <div key={movie.id} className="flex-shrink-0 w-64">
+                        <MovieCard movie={movie} showSaveButton={false} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              {/* Out Now */}
+              <section className="mb-12">
+                <h2 className="text-2xl font-bold mb-6">Out Now</h2>
+                <div className="overflow-x-auto">
+                  <div className="flex space-x-4 pb-4">
+                    {outNow.map((movie) => (
+                      <div key={movie.id} className="flex-shrink-0 w-64">
+                        <MovieCard movie={movie} showSaveButton={false} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              {/* Recommended */}
+              <section className="mb-12">
+                <h2 className="text-2xl font-bold mb-6">Recommended</h2>
+                <div className="overflow-x-auto">
+                  <div className="flex space-x-4 pb-4">
+                    {recommended.map((movie) => (
+                      <div key={movie.id} className="flex-shrink-0 w-64">
+                        <MovieCard movie={movie} showSaveButton={false} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            </>
           ) : (
             <div className="text-center py-16">
               <h2 className="text-2xl font-bold mb-4">Your list is empty</h2>
-              <p className="text-gray-400 mb-8">Start adding movies and TV shows to your list</p>
+              <p className="text-gray-400 mb-8">Start adding movies and series to your list</p>
               <Link
                 to="/"
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
