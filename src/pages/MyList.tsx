@@ -42,6 +42,16 @@ const MyList = () => {
             </div>
 
             <div className="hidden md:flex items-center space-x-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Search your list..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="bg-gray-800 border border-gray-700 rounded-lg pl-10 pr-4 py-2 w-64 focus:outline-none focus:border-blue-500 transition-colors"
+                />
+              </div>
               <Link to="/admin" className="text-gray-400 hover:text-white transition-colors text-sm">
                 Admin
               </Link>
@@ -55,6 +65,31 @@ const MyList = () => {
             </button>
           </div>
         </div>
+
+        {/* Mobile menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden bg-gray-800 border-t border-gray-700">
+            <div className="px-4 py-4 space-y-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Search your list..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="bg-gray-700 border border-gray-600 rounded-lg pl-10 pr-4 py-2 w-full focus:outline-none focus:border-blue-500 transition-colors"
+                />
+              </div>
+              <div className="space-y-2">
+                <Link to="/" className="block hover:text-blue-400 transition-colors">Home</Link>
+                <Link to="/movies" className="block hover:text-blue-400 transition-colors">Movies</Link>
+                <Link to="/series" className="block hover:text-blue-400 transition-colors">Series</Link>
+                <Link to="/my-list" className="block text-blue-400">My List</Link>
+                <Link to="/admin" className="block text-gray-400 hover:text-white transition-colors">Admin</Link>
+              </div>
+            </div>
+          </div>
+        )}
       </nav>
 
       <div className="pt-16">
@@ -103,20 +138,6 @@ const MyList = () => {
         )}
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Search Bar */}
-          <div className="mb-8">
-            <div className="relative max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Search your list..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-gray-800 border border-gray-700 rounded-lg pl-10 pr-4 py-2 w-full focus:outline-none focus:border-blue-500 transition-colors"
-              />
-            </div>
-          </div>
-
           {savedMovies.length > 0 ? (
             <>
               {/* Continue Watching */}
