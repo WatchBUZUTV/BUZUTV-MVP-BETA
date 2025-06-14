@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, Menu, X } from "lucide-react";
@@ -45,13 +46,16 @@ const Index = () => {
 
             {/* Search */}
             <div className="hidden md:flex items-center space-x-4">
-              <button
-                onClick={() => setIsSearchOpen(true)}
-                className="flex items-center space-x-2 bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 hover:border-blue-500 transition-colors"
-              >
-                <Search className="w-4 h-4 text-gray-400" />
-                <span className="text-gray-400">Search</span>
-              </button>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Search"
+                  onClick={() => setIsSearchOpen(true)}
+                  className="bg-gray-800 border border-gray-700 rounded-lg pl-10 pr-4 py-2 w-64 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
+                  readOnly
+                />
+              </div>
               <Link to="/admin" className="text-gray-400 hover:text-white transition-colors text-sm">
                 Admin
               </Link>
@@ -71,16 +75,19 @@ const Index = () => {
         {isMobileMenuOpen && (
           <div className="md:hidden bg-gray-800 border-t border-gray-700">
             <div className="px-4 py-4 space-y-4">
-              <button
-                onClick={() => {
-                  setIsSearchOpen(true);
-                  setIsMobileMenuOpen(false);
-                }}
-                className="flex items-center space-x-2 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 w-full"
-              >
-                <Search className="w-4 h-4 text-gray-400" />
-                <span className="text-gray-400">Search</span>
-              </button>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Search"
+                  onClick={() => {
+                    setIsSearchOpen(true);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="bg-gray-700 border border-gray-600 rounded-lg pl-10 pr-4 py-2 w-full cursor-pointer"
+                  readOnly
+                />
+              </div>
               <div className="space-y-2">
                 <Link to="/" className="block hover:text-blue-400 transition-colors">Home</Link>
                 <Link to="/movies" className="block hover:text-blue-400 transition-colors">Movies</Link>
@@ -154,7 +161,7 @@ const Index = () => {
           </section>
 
           <section className="mb-12">
-            <h2 class="text-2xl font-bold mb-6">Romance</h2>
+            <h2 className="text-2xl font-bold mb-6">Romance</h2>
             <div className="overflow-x-auto">
               <div className="flex space-x-4 pb-4">
                 {romanceMovies.map((movie) => (
