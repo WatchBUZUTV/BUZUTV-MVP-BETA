@@ -1,15 +1,24 @@
 
 import { Link } from "react-router-dom";
-import { Star, Bookmark, BookmarkPlus } from "lucide-react";
+import { Star, Bookmark, BookmarkPlus, Play } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
 import { useState } from "react";
 
 interface MovieCardProps {
   movie: Movie;
   showSaveButton?: boolean;
+  showProgress?: boolean;
+  progressPercent?: number;
+  showResumeButton?: boolean;
 }
 
-const MovieCard = ({ movie, showSaveButton = true }: MovieCardProps) => {
+const MovieCard = ({ 
+  movie, 
+  showSaveButton = true, 
+  showProgress = false, 
+  progressPercent = 0,
+  showResumeButton = false 
+}: MovieCardProps) => {
   const [isSaved, setIsSaved] = useState(false);
 
   const handleSave = (e: React.MouseEvent) => {
@@ -29,6 +38,16 @@ const MovieCard = ({ movie, showSaveButton = true }: MovieCardProps) => {
             />
           </div>
           
+          {/* Progress Bar */}
+          {showProgress && (
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-600">
+              <div 
+                className="h-full bg-red-600 transition-all duration-300"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+          )}
+          
           {/* Save Button */}
           {showSaveButton && (
             <button
@@ -41,6 +60,16 @@ const MovieCard = ({ movie, showSaveButton = true }: MovieCardProps) => {
                 <BookmarkPlus className="w-4 h-4" />
               )}
             </button>
+          )}
+
+          {/* Resume Button Overlay */}
+          {showResumeButton && (
+            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+              <button className="bg-white text-black px-4 py-2 rounded-lg font-semibold flex items-center space-x-2">
+                <Play className="w-4 h-4" />
+                <span>Resume</span>
+              </button>
+            </div>
           )}
 
           {/* Overlay */}

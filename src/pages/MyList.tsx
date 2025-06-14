@@ -1,21 +1,25 @@
 
 import { Link } from "react-router-dom";
-import { Search, Menu, X } from "lucide-react";
+import { Search, Menu, X, Play } from "lucide-react";
 import { useState } from "react";
 import MovieCard from "@/components/MovieCard";
 import { mockMovies } from "@/data/mockMovies";
-import HeroBanner from "@/components/HeroBanner";
 
 const MyList = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   
   // For demo purposes, showing first few movies as "saved"
   const savedMovies = mockMovies.slice(0, 4);
   const continueWatching = mockMovies.slice(0, 3);
-  const outNow = mockMovies.slice(2, 5);
   const recommended = mockMovies.slice(3, 6);
   
-  // Use the most recent saved item for header
+  // Filter saved movies based on search
+  const filteredSavedMovies = savedMovies.filter(movie =>
+    movie.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  
+  // Use the most recent saved item for header with progress
   const recentItem = savedMovies[0];
 
   return (
@@ -54,14 +58,65 @@ const MyList = () => {
       </nav>
 
       <div className="pt-16">
-        {/* Header with recent item */}
+        {/* Resume Header */}
         {recentItem && (
-          <div className="mb-8">
-            <HeroBanner movies={[recentItem]} />
+          <div className="relative h-[40vh] overflow-hidden mb-8">
+            {/* Background */}
+            <div
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              style={{
+                backgroundImage: `url(${recentItem.posterUrl})`,
+              }}
+            >
+              <div className="absolute inset-0 bg-black/60" />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent" />
+            </div>
+
+            {/* Content */}
+            <div className="relative z-10 flex items-center h-full">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+                <div className="max-w-xl">
+                  <p className="text-sm text-gray-300 mb-2">Continue Watching</p>
+                  <h1 className="text-3xl md:text-4xl font-bold mb-3 text-white">
+                    {recentItem.title}
+                  </h1>
+                  <p className="text-base text-gray-200 mb-4 line-clamp-2">
+                    {recentItem.description}
+                  </p>
+                  
+                  {/* Progress Bar */}
+                  <div className="w-full bg-gray-600 rounded-full h-1 mb-4">
+                    <div className="bg-red-600 h-1 rounded-full" style={{ width: '35%' }}></div>
+                  </div>
+                  
+                  <Link
+                    to={`/movie/${recentItem.id}`}
+                    className="flex items-center space-x-2 bg-white text-black px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors inline-flex"
+                  >
+                    <Play className="w-5 h-5" />
+                    <span>Resume</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Search Bar */}
+          <div className="mb-8">
+            <div className="relative max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <input
+                type="text"
+                placeholder="Search your list..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-gray-800 border border-gray-700 rounded-lg pl-10 pr-4 py-2 w-full focus:outline-none focus:border-blue-500 transition-colors"
+              />
+            </div>
+          </div>
+
           {savedMovies.length > 0 ? (
             <>
               {/* Continue Watching */}
@@ -71,19 +126,25 @@ const MyList = () => {
                   <div className="flex space-x-4 pb-4">
                     {continueWatching.map((movie) => (
                       <div key={movie.id} className="flex-shrink-0 w-64">
-                        <MovieCard movie={movie} showSaveButton={false} />
+                        <MovieCard 
+                          movie={movie} 
+                          showSaveButton={false} 
+                          showProgress={true}
+                          progressPercent={Math.floor(Math.random() * 70) + 10}
+                          showResumeButton={true}
+                        />
                       </div>
                     ))}
                   </div>
                 </div>
               </section>
 
-              {/* Out Now */}
+              {/* Saved */}
               <section className="mb-12">
-                <h2 className="text-2xl font-bold mb-6">Out Now</h2>
+                <h2 className="text-2xl font-bold mb-6">Saved ({filteredSavedMovies.length})</h2>
                 <div className="overflow-x-auto">
                   <div className="flex space-x-4 pb-4">
-                    {outNow.map((movie) => (
+                    {filteredSavedMovies.map((movie) => (
                       <div key={movie.id} className="flex-shrink-0 w-64">
                         <MovieCard movie={movie} showSaveButton={false} />
                       </div>

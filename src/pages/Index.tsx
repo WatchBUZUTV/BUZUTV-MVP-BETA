@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, Menu, X } from "lucide-react";
@@ -6,17 +5,14 @@ import { mockMovies, channels } from "@/data/mockMovies";
 import MovieCard from "@/components/MovieCard";
 import ChannelCard from "@/components/ChannelCard";
 import HeroBanner from "@/components/HeroBanner";
+import SearchOverlay from "@/components/SearchOverlay";
 
 const Index = () => {
-  const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const featuredMovies = mockMovies.filter(movie => movie.isFeatured);
   const trendingMovies = mockMovies.filter(movie => movie.isTrending);
-  
-  const filteredMovies = mockMovies.filter(movie => {
-    return movie.title.toLowerCase().includes(searchQuery.toLowerCase());
-  });
 
   const actionMovies = mockMovies.filter(movie => movie.genre === "Action");
   const dramaMovies = mockMovies.filter(movie => movie.genre === "Drama");
@@ -25,6 +21,9 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
+      {/* Search Overlay */}
+      <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -46,16 +45,13 @@ const Index = () => {
 
             {/* Search */}
             <div className="hidden md:flex items-center space-x-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <input
-                  type="text"
-                  placeholder="Search movies..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-gray-800 border border-gray-700 rounded-lg pl-10 pr-4 py-2 w-64 focus:outline-none focus:border-blue-500 transition-colors"
-                />
-              </div>
+              <button
+                onClick={() => setIsSearchOpen(true)}
+                className="flex items-center space-x-2 bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 hover:border-blue-500 transition-colors"
+              >
+                <Search className="w-4 h-4 text-gray-400" />
+                <span className="text-gray-400">Search</span>
+              </button>
               <Link to="/admin" className="text-gray-400 hover:text-white transition-colors text-sm">
                 Admin
               </Link>
@@ -75,16 +71,16 @@ const Index = () => {
         {isMobileMenuOpen && (
           <div className="md:hidden bg-gray-800 border-t border-gray-700">
             <div className="px-4 py-4 space-y-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <input
-                  type="text"
-                  placeholder="Search movies..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-gray-700 border border-gray-600 rounded-lg pl-10 pr-4 py-2 w-full focus:outline-none focus:border-blue-500 transition-colors"
-                />
-              </div>
+              <button
+                onClick={() => {
+                  setIsSearchOpen(true);
+                  setIsMobileMenuOpen(false);
+                }}
+                className="flex items-center space-x-2 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 w-full"
+              >
+                <Search className="w-4 h-4 text-gray-400" />
+                <span className="text-gray-400">Search</span>
+              </button>
               <div className="space-y-2">
                 <Link to="/" className="block hover:text-blue-400 transition-colors">Home</Link>
                 <Link to="/movies" className="block hover:text-blue-400 transition-colors">Movies</Link>
@@ -102,108 +98,86 @@ const Index = () => {
         <HeroBanner movies={featuredMovies} />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Search Results */}
-          {searchQuery && (
-            <section className="mb-12">
-              <h2 className="text-2xl font-bold mb-6">
-                Search Results ({filteredMovies.length})
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredMovies.map((movie) => (
-                  <MovieCard key={movie.id} movie={movie} />
+          {/* Popular Channels */}
+          <section className="mb-12">
+            <h2 className="text-2xl font-bold mb-6">Popular Channels</h2>
+            <div className="overflow-x-auto">
+              <div className="flex space-x-4 pb-4">
+                {channels.map((channel) => (
+                  <div key={channel.id} className="flex-shrink-0 w-48">
+                    <ChannelCard channel={channel} />
+                  </div>
                 ))}
               </div>
-            </section>
-          )}
-
-          {/* Popular Channels */}
-          {!searchQuery && (
-            <section className="mb-12">
-              <h2 className="text-2xl font-bold mb-6">Popular Channels</h2>
-              <div className="overflow-x-auto">
-                <div className="flex space-x-4 pb-4">
-                  {channels.map((channel) => (
-                    <div key={channel.id} className="flex-shrink-0 w-48">
-                      <ChannelCard channel={channel} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-          )}
+            </div>
+          </section>
 
           {/* Trending Now */}
-          {!searchQuery && (
-            <section className="mb-12">
-              <h2 className="text-2xl font-bold mb-6">Trending Now</h2>
-              <div className="overflow-x-auto">
-                <div className="flex space-x-4 pb-4">
-                  {trendingMovies.map((movie) => (
-                    <div key={movie.id} className="flex-shrink-0 w-64">
-                      <MovieCard movie={movie} />
-                    </div>
-                  ))}
-                </div>
+          <section className="mb-12">
+            <h2 className="text-2xl font-bold mb-6">Trending Now</h2>
+            <div className="overflow-x-auto">
+              <div className="flex space-x-4 pb-4">
+                {trendingMovies.map((movie) => (
+                  <div key={movie.id} className="flex-shrink-0 w-64">
+                    <MovieCard movie={movie} />
+                  </div>
+                ))}
               </div>
-            </section>
-          )}
+            </div>
+          </section>
 
           {/* Genre Sections */}
-          {!searchQuery && (
-            <>
-              <section className="mb-12">
-                <h2 className="text-2xl font-bold mb-6">Action</h2>
-                <div className="overflow-x-auto">
-                  <div className="flex space-x-4 pb-4">
-                    {actionMovies.map((movie) => (
-                      <div key={movie.id} className="flex-shrink-0 w-64">
-                        <MovieCard movie={movie} />
-                      </div>
-                    ))}
+          <section className="mb-12">
+            <h2 className="text-2xl font-bold mb-6">Action</h2>
+            <div className="overflow-x-auto">
+              <div className="flex space-x-4 pb-4">
+                {actionMovies.map((movie) => (
+                  <div key={movie.id} className="flex-shrink-0 w-64">
+                    <MovieCard movie={movie} />
                   </div>
-                </div>
-              </section>
+                ))}
+              </div>
+            </div>
+          </section>
 
-              <section className="mb-12">
-                <h2 className="text-2xl font-bold mb-6">Drama</h2>
-                <div className="overflow-x-auto">
-                  <div className="flex space-x-4 pb-4">
-                    {dramaMovies.map((movie) => (
-                      <div key={movie.id} className="flex-shrink-0 w-64">
-                        <MovieCard movie={movie} />
-                      </div>
-                    ))}
+          <section className="mb-12">
+            <h2 className="text-2xl font-bold mb-6">Drama</h2>
+            <div className="overflow-x-auto">
+              <div className="flex space-x-4 pb-4">
+                {dramaMovies.map((movie) => (
+                  <div key={movie.id} className="flex-shrink-0 w-64">
+                    <MovieCard movie={movie} />
                   </div>
-                </div>
-              </section>
+                ))}
+              </div>
+            </div>
+          </section>
 
-              <section className="mb-12">
-                <h2 className="text-2xl font-bold mb-6">Romance</h2>
-                <div className="overflow-x-auto">
-                  <div className="flex space-x-4 pb-4">
-                    {romanceMovies.map((movie) => (
-                      <div key={movie.id} className="flex-shrink-0 w-64">
-                        <MovieCard movie={movie} />
-                      </div>
-                    ))}
+          <section className="mb-12">
+            <h2 class="text-2xl font-bold mb-6">Romance</h2>
+            <div className="overflow-x-auto">
+              <div className="flex space-x-4 pb-4">
+                {romanceMovies.map((movie) => (
+                  <div key={movie.id} className="flex-shrink-0 w-64">
+                    <MovieCard movie={movie} />
                   </div>
-                </div>
-              </section>
+                ))}
+              </div>
+            </div>
+          </section>
 
-              <section className="mb-12">
-                <h2 className="text-2xl font-bold mb-6">Comedy</h2>
-                <div className="overflow-x-auto">
-                  <div className="flex space-x-4 pb-4">
-                    {comedyMovies.map((movie) => (
-                      <div key={movie.id} className="flex-shrink-0 w-64">
-                        <MovieCard movie={movie} />
-                      </div>
-                    ))}
+          <section className="mb-12">
+            <h2 className="text-2xl font-bold mb-6">Comedy</h2>
+            <div className="overflow-x-auto">
+              <div className="flex space-x-4 pb-4">
+                {comedyMovies.map((movie) => (
+                  <div key={movie.id} className="flex-shrink-0 w-64">
+                    <MovieCard movie={movie} />
                   </div>
-                </div>
-              </section>
-            </>
-          )}
+                ))}
+              </div>
+            </div>
+          </section>
         </div>
 
         {/* Footer */}
