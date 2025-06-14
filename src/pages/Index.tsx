@@ -10,7 +10,7 @@ import SearchOverlay from "@/components/SearchOverlay";
 
 const Index = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const featuredMovies = mockMovies.filter(movie => movie.isFeatured);
   const trendingMovies = mockMovies.filter(movie => movie.isTrending);
@@ -20,10 +20,27 @@ const Index = () => {
   const romanceMovies = mockMovies.filter(movie => movie.genre === "Romance");
   const comedyMovies = mockMovies.filter(movie => movie.genre === "Comedy");
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+  };
+
+  // Show search overlay when there's a search query
+  const showSearchOverlay = searchQuery.trim().length > 0;
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Search Overlay */}
-      <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      {showSearchOverlay && (
+        <SearchOverlay 
+          isOpen={true} 
+          onClose={handleClearSearch}
+          searchQuery={searchQuery}
+        />
+      )}
       
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800">
@@ -51,10 +68,18 @@ const Index = () => {
                 <input
                   type="text"
                   placeholder="Search"
-                  onClick={() => setIsSearchOpen(true)}
-                  className="bg-gray-800 border border-gray-700 rounded-lg pl-10 pr-4 py-2 w-64 focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
-                  readOnly
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  className="bg-gray-800 border border-gray-700 rounded-lg pl-10 pr-4 py-2 w-64 focus:outline-none focus:border-blue-500 transition-colors"
                 />
+                {searchQuery && (
+                  <button
+                    onClick={handleClearSearch}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
               </div>
               <Link to="/admin" className="text-gray-400 hover:text-white transition-colors text-sm">
                 Admin
@@ -80,13 +105,18 @@ const Index = () => {
                 <input
                   type="text"
                   placeholder="Search"
-                  onClick={() => {
-                    setIsSearchOpen(true);
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="bg-gray-700 border border-gray-600 rounded-lg pl-10 pr-4 py-2 w-full cursor-pointer"
-                  readOnly
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  className="bg-gray-700 border border-gray-600 rounded-lg pl-10 pr-4 py-2 w-full focus:outline-none focus:border-blue-500 transition-colors"
                 />
+                {searchQuery && (
+                  <button
+                    onClick={handleClearSearch}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
               </div>
               <div className="space-y-2">
                 <Link to="/" className="block hover:text-blue-400 transition-colors">Home</Link>
@@ -100,100 +130,103 @@ const Index = () => {
         )}
       </nav>
 
-      <div className="pt-16">
-        {/* Hero Banner */}
-        <HeroBanner movies={featuredMovies} />
+      {/* Only show home content when not searching */}
+      {!showSearchOverlay && (
+        <div className="pt-16">
+          {/* Hero Banner */}
+          <HeroBanner movies={featuredMovies} />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Popular Channels */}
-          <section className="mb-12">
-            <h2 className="text-2xl font-bold mb-6">Popular Channels</h2>
-            <div className="overflow-x-auto">
-              <div className="flex space-x-4 pb-4">
-                {channels.map((channel) => (
-                  <div key={channel.id} className="flex-shrink-0 w-48">
-                    <ChannelCard channel={channel} />
-                  </div>
-                ))}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {/* Popular Channels */}
+            <section className="mb-12">
+              <h2 className="text-2xl font-bold mb-6">Popular Channels</h2>
+              <div className="overflow-x-auto">
+                <div className="flex space-x-4 pb-4">
+                  {channels.map((channel) => (
+                    <div key={channel.id} className="flex-shrink-0 w-48">
+                      <ChannelCard channel={channel} />
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
 
-          {/* Trending Now */}
-          <section className="mb-12">
-            <h2 className="text-2xl font-bold mb-6">Trending Now</h2>
-            <div className="overflow-x-auto">
-              <div className="flex space-x-4 pb-4">
-                {trendingMovies.map((movie) => (
-                  <div key={movie.id} className="flex-shrink-0 w-64">
-                    <MovieCard movie={movie} />
-                  </div>
-                ))}
+            {/* Trending Now */}
+            <section className="mb-12">
+              <h2 className="text-2xl font-bold mb-6">Trending Now</h2>
+              <div className="overflow-x-auto">
+                <div className="flex space-x-4 pb-4">
+                  {trendingMovies.map((movie) => (
+                    <div key={movie.id} className="flex-shrink-0 w-64">
+                      <MovieCard movie={movie} />
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
 
-          {/* Genre Sections */}
-          <section className="mb-12">
-            <h2 className="text-2xl font-bold mb-6">Action</h2>
-            <div className="overflow-x-auto">
-              <div className="flex space-x-4 pb-4">
-                {actionMovies.map((movie) => (
-                  <div key={movie.id} className="flex-shrink-0 w-64">
-                    <MovieCard movie={movie} />
-                  </div>
-                ))}
+            {/* Genre Sections */}
+            <section className="mb-12">
+              <h2 className="text-2xl font-bold mb-6">Action</h2>
+              <div className="overflow-x-auto">
+                <div className="flex space-x-4 pb-4">
+                  {actionMovies.map((movie) => (
+                    <div key={movie.id} className="flex-shrink-0 w-64">
+                      <MovieCard movie={movie} />
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
 
-          <section className="mb-12">
-            <h2 className="text-2xl font-bold mb-6">Drama</h2>
-            <div className="overflow-x-auto">
-              <div className="flex space-x-4 pb-4">
-                {dramaMovies.map((movie) => (
-                  <div key={movie.id} className="flex-shrink-0 w-64">
-                    <MovieCard movie={movie} />
-                  </div>
-                ))}
+            <section className="mb-12">
+              <h2 className="text-2xl font-bold mb-6">Drama</h2>
+              <div className="overflow-x-auto">
+                <div className="flex space-x-4 pb-4">
+                  {dramaMovies.map((movie) => (
+                    <div key={movie.id} className="flex-shrink-0 w-64">
+                      <MovieCard movie={movie} />
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
 
-          <section className="mb-12">
-            <h2 className="text-2xl font-bold mb-6">Romance</h2>
-            <div className="overflow-x-auto">
-              <div className="flex space-x-4 pb-4">
-                {romanceMovies.map((movie) => (
-                  <div key={movie.id} className="flex-shrink-0 w-64">
-                    <MovieCard movie={movie} />
-                  </div>
-                ))}
+            <section className="mb-12">
+              <h2 className="text-2xl font-bold mb-6">Romance</h2>
+              <div className="overflow-x-auto">
+                <div className="flex space-x-4 pb-4">
+                  {romanceMovies.map((movie) => (
+                    <div key={movie.id} className="flex-shrink-0 w-64">
+                      <MovieCard movie={movie} />
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
 
-          <section className="mb-12">
-            <h2 className="text-2xl font-bold mb-6">Comedy</h2>
-            <div className="overflow-x-auto">
-              <div className="flex space-x-4 pb-4">
-                {comedyMovies.map((movie) => (
-                  <div key={movie.id} className="flex-shrink-0 w-64">
-                    <MovieCard movie={movie} />
-                  </div>
-                ))}
+            <section className="mb-12">
+              <h2 className="text-2xl font-bold mb-6">Comedy</h2>
+              <div className="overflow-x-auto">
+                <div className="flex space-x-4 pb-4">
+                  {comedyMovies.map((movie) => (
+                    <div key={movie.id} className="flex-shrink-0 w-64">
+                      <MovieCard movie={movie} />
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          </section>
-        </div>
-
-        {/* Footer */}
-        <footer className="bg-gray-800 border-t border-gray-700 py-8">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-400">
-            <p>&copy; 2024 BizuTV. All rights reserved.</p>
+            </section>
           </div>
-        </footer>
-      </div>
+
+          {/* Footer */}
+          <footer className="bg-gray-800 border-t border-gray-700 py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-400">
+              <p>&copy; 2024 BizuTV. All rights reserved.</p>
+            </div>
+          </footer>
+        </div>
+      )}
     </div>
   );
 };

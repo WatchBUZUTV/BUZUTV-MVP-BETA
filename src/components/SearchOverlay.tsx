@@ -7,10 +7,10 @@ import MovieCard from "./MovieCard";
 interface SearchOverlayProps {
   isOpen: boolean;
   onClose: () => void;
+  searchQuery?: string;
 }
 
-const SearchOverlay = ({ isOpen, onClose }: SearchOverlayProps) => {
-  const [searchQuery, setSearchQuery] = useState("");
+const SearchOverlay = ({ isOpen, onClose, searchQuery = "" }: SearchOverlayProps) => {
   const [filteredResults, setFilteredResults] = useState(mockMovies);
 
   useEffect(() => {
@@ -39,9 +39,8 @@ const SearchOverlay = ({ isOpen, onClose }: SearchOverlayProps) => {
               type="text"
               placeholder="Search movies and series..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              readOnly
               className="bg-gray-800 border border-gray-700 rounded-lg pl-12 pr-4 py-3 w-full focus:outline-none focus:border-blue-500 transition-colors text-white"
-              autoFocus
             />
           </div>
           <button
