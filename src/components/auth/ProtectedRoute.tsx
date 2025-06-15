@@ -1,6 +1,6 @@
 
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface ProtectedRouteProps {
@@ -9,14 +9,15 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { isLoggedIn, setShowLoginModal } = useAuth();
-  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (!isLoggedIn) {
+      // Store the current path before redirecting
+      sessionStorage.setItem('previousPath', location.pathname);
       setShowLoginModal(true);
-      navigate('/');
     }
-  }, [isLoggedIn, setShowLoginModal, navigate]);
+  }, [isLoggedIn, setShowLoginModal, location.pathname]);
 
   if (!isLoggedIn) {
     return null;

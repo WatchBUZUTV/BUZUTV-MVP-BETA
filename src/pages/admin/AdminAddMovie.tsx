@@ -1,517 +1,540 @@
+
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { ArrowLeft, Upload, Plus, Edit, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { Search, Upload, X } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
-import { mockMovies, genres, channels } from "@/data/mockMovies";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+
+interface Episode {
+  id: string;
+  season: number;
+  episode: number;
+  title: string;
+  description: string;
+  duration: string;
+  posterUrl: string;
+}
 
 const AdminAddMovie = () => {
-  const { id } = useParams();
   const navigate = useNavigate();
-  const isEdit = Boolean(id);
-
+  const { id } = useParams();
+  const isEditing = !!id;
+  const isChannel = location.pathname.includes('channel');
+  
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    youtubeId: "",
-    posterFile: null as File | null,
+    genre: "",
+    year: "",
+    rating: "",
+    duration: "",
     posterUrl: "",
-    genre: "Action",
-    rating: 0,
-    year: new Date().getFullYear(),
+    trailerUrl: "",
+    type: "movie",
     isTrending: false,
-    type: "movie" as "movie" | "tv",
-    channelId: "",
-    // Series-specific fields
-    seasons: 1,
-    episodes: 1
+    isFeatured: false,
+    seasons: "",
+    totalEpisodes: ""
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [showPreview, setShowPreview] = useState(false);
-  const [channelSearch, setChannelSearch] = useState("");
-  const [showChannelDropdown, setShowChannelDropdown] = useState(false);
+  const [episodes, setEpisodes] = useState<Episode[]>([]);
+  const [showEpisodeForm, setShowEpisodeForm] = useState(false);
+  const [editingEpisode, setEditingEpisode] = useState<Episode | null>(null);
+  const [episodeForm, setEpisodeForm] = useState({
+    season: 1,
+    episode: 1,
+    title: "",
+    description: "",
+    duration: "",
+    posterUrl: ""
+  });
 
-  const filteredChannels = channels.filter(channel =>
-    channel.name.toLowerCase().includes(channelSearch.toLowerCase())
-  );
+  const handleInputChange = (field: string, value: string | boolean) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
 
-  useEffect(() => {
-    if (isEdit && id) {
-      const movie = mockMovies.find(m => m.id === id);
-      if (movie) {
-        setFormData({
-          title: movie.title,
-          description: movie.description,
-          youtubeId: movie.youtubeId,
-          posterFile: null,
-          posterUrl: movie.posterUrl,
-          genre: movie.genre,
-          rating: movie.rating,
-          year: movie.year,
-          isTrending: movie.isTrending,
-          type: movie.type,
-          channelId: movie.channelId || "",
-          seasons: movie.seasons || 1,
-          episodes: movie.episodes || 1
-        });
-      }
-    }
-  }, [isEdit, id]);
+  const handleEpisodeInputChange = (field: string, value: string | number) => {
+    setEpisodeForm(prev => ({ ...prev, [field]: value }));
+  };
 
-  const validateField = (name: string, value: any) => {
-    const newErrors = { ...errors };
-
-    switch (name) {
-      case "title":
-        if (!value.trim()) {
-          newErrors.title = "Title is required";
-        } else {
-          delete newErrors.title;
-        }
-        break;
-      case "description":
-        if (!value.trim()) {
-          newErrors.description = "Description is required";
-        } else {
-          delete newErrors.description;
-        }
-        break;
-      case "youtubeId":
-        if (!value.trim()) {
-          newErrors.youtubeId = "YouTube ID is required";
-        } else if (!/^[a-zA-Z0-9_-]{11}$/.test(value)) {
-          newErrors.youtubeId = "Invalid YouTube ID format";
-        } else {
-          delete newErrors.youtubeId;
-        }
-        break;
-      case "posterFile":
-        if (!value && !formData.posterUrl) {
-          newErrors.posterFile = "Poster image is required";
-        } else {
-          delete newErrors.posterFile;
-        }
-        break;
-      case "rating":
-        if (value < 0 || value > 10) {
-          newErrors.rating = "Rating must be between 0 and 10";
-        } else {
-          delete newErrors.rating;
-        }
-        break;
-      case "year":
-        if (value < 1900 || value > 2030) {
-          newErrors.year = "Year must be between 1900 and 2030";
-        } else {
-          delete newErrors.year;
-        }
-        break;
-      case "seasons":
-        if (formData.type === "tv" && value < 1) {
-          newErrors.seasons = "Must have at least 1 season";
-        } else {
-          delete newErrors.seasons;
-        }
-        break;
-      case "episodes":
-        if (formData.type === "tv" && value < 1) {
-          newErrors.episodes = "Must have at least 1 episode";
-        } else {
-          delete newErrors.episodes;
-        }
-        break;
+  const addOrUpdateEpisode = () => {
+    if (!episodeForm.title.trim()) {
+      toast.error("Episode title is required");
+      return;
     }
 
-    setErrors(newErrors);
-  };
+    const episodeData = {
+      id: editingEpisode?.id || Date.now().toString(),
+      season: episodeForm.season,
+      episode: episodeForm.episode,
+      title: episodeForm.title,
+      description: episodeForm.description,
+      duration: episodeForm.duration,
+      posterUrl: episodeForm.posterUrl
+    };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-    const newValue = type === "checkbox" ? (e.target as HTMLInputElement).checked : 
-                    type === "number" ? Number(value) : value;
-
-    setFormData(prev => ({ ...prev, [name]: newValue }));
-    validateField(name, newValue);
-  };
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setFormData(prev => ({ ...prev, posterFile: file, posterUrl: URL.createObjectURL(file) }));
-      validateField("posterFile", file);
+    if (editingEpisode) {
+      setEpisodes(prev => prev.map(ep => ep.id === editingEpisode.id ? episodeData : ep));
+      toast.success("Episode updated successfully");
+    } else {
+      setEpisodes(prev => [...prev, episodeData]);
+      toast.success("Episode added successfully");
     }
+
+    setEpisodeForm({ season: 1, episode: 1, title: "", description: "", duration: "", posterUrl: "" });
+    setShowEpisodeForm(false);
+    setEditingEpisode(null);
   };
 
-  const selectChannel = (channel: typeof channels[0]) => {
-    setFormData(prev => ({ ...prev, channelId: channel.id }));
-    setChannelSearch(channel.name);
-    setShowChannelDropdown(false);
+  const editEpisode = (episode: Episode) => {
+    setEpisodeForm({
+      season: episode.season,
+      episode: episode.episode,
+      title: episode.title,
+      description: episode.description,
+      duration: episode.duration,
+      posterUrl: episode.posterUrl
+    });
+    setEditingEpisode(episode);
+    setShowEpisodeForm(true);
   };
 
-  const isFormValid = () => {
-    return Object.keys(errors).length === 0 && 
-           formData.title && formData.description && formData.youtubeId && 
-           (formData.posterFile || formData.posterUrl);
+  const deleteEpisode = (episodeId: string) => {
+    setEpisodes(prev => prev.filter(ep => ep.id !== episodeId));
+    toast.success("Episode deleted successfully");
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!isFormValid()) {
-      toast.error("Please fix all errors before submitting");
+    if (!formData.title.trim()) {
+      toast.error("Title is required");
       return;
     }
 
-    // Simulate API call
-    setTimeout(() => {
-      toast.success(isEdit ? `${formData.type === 'movie' ? 'Movie' : 'Series'} updated successfully!` : `${formData.type === 'movie' ? 'Movie' : 'Series'} added successfully!`);
-      navigate("/admin/movies");
-    }, 1000);
+    const action = isEditing ? "updated" : "added";
+    const contentType = isChannel ? "channel" : formData.type;
+    toast.success(`${contentType} ${action} successfully`);
+    navigate(isChannel ? "/admin/channels" : "/admin/movies");
+  };
+
+  const getSeasonOptions = () => {
+    const maxSeasons = parseInt(formData.seasons) || 1;
+    return Array.from({ length: maxSeasons }, (_, i) => i + 1);
+  };
+
+  const getEpisodeOptions = (season: number) => {
+    const maxEpisodes = parseInt(formData.totalEpisodes) || 1;
+    return Array.from({ length: maxEpisodes }, (_, i) => i + 1);
   };
 
   return (
     <AdminLayout>
-      <div className="max-w-4xl">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-white">
-            {isEdit ? `Edit ${formData.type === 'movie' ? 'Movie' : 'Series'}` : `Add New ${formData.type === 'movie' ? 'Movie' : 'Series'}`}
-          </h2>
-          <p className="text-gray-400">
-            {isEdit ? `Update ${formData.type} details` : `Add a new ${formData.type} to your platform`}
-          </p>
+      <div className="max-w-4xl mx-auto space-y-6">
+        <div className="flex items-center space-x-4">
+          <Button
+            variant="ghost"
+            onClick={() => navigate(-1)}
+            className="text-gray-400 hover:text-white"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
+          <div>
+            <h2 className="text-2xl font-bold text-white">
+              {isEditing ? "Edit" : "Add"} {isChannel ? "Channel" : "Content"}
+            </h2>
+            <p className="text-gray-400">
+              {isEditing ? "Update" : "Create new"} {isChannel ? "channel" : "content"} for your platform
+            </p>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="bg-gray-800 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">Basic Information</h3>
+          <div className="bg-gray-800 rounded-lg p-6 space-y-4">
+            <h3 className="text-lg font-semibold text-white">Basic Information</h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Content Type *
-                </label>
-                <select
-                  name="type"
-                  value={formData.type}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors"
-                >
-                  <option value="movie">Movie</option>
-                  <option value="tv">Series</option>
-                </select>
-              </div>
-
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Title *
                 </label>
-                <input
-                  type="text"
-                  name="title"
+                <Input
                   value={formData.title}
-                  onChange={handleChange}
-                  className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white focus:outline-none transition-colors ${
-                    errors.title ? "border-red-500" : "border-gray-600 focus:border-blue-500"
-                  }`}
-                  placeholder={`Enter ${formData.type} title`}
+                  onChange={(e) => handleInputChange("title", e.target.value)}
+                  placeholder="Enter title"
+                  className="bg-gray-700 border-gray-600 text-white"
                 />
-                {errors.title && <p className="text-red-400 text-sm mt-1">{errors.title}</p>}
               </div>
 
+              {!isChannel && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Type *
+                  </label>
+                  <Select value={formData.type} onValueChange={(value) => handleInputChange("type", value)}>
+                    <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="movie">Movie</SelectItem>
+                      <SelectItem value="tv">TV Series</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Description
+              </label>
+              <Textarea
+                value={formData.description}
+                onChange={(e) => handleInputChange("description", e.target.value)}
+                placeholder="Enter description"
+                className="bg-gray-700 border-gray-600 text-white"
+                rows={3}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Genre
                 </label>
-                <select
-                  name="genre"
-                  value={formData.genre}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors"
-                >
-                  {genres.slice(1).map(genre => (
-                    <option key={genre} value={genre}>{genre}</option>
-                  ))}
-                </select>
+                <Select value={formData.genre} onValueChange={(value) => handleInputChange("genre", value)}>
+                  <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                    <SelectValue placeholder="Select genre" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Action">Action</SelectItem>
+                    <SelectItem value="Comedy">Comedy</SelectItem>
+                    <SelectItem value="Drama">Drama</SelectItem>
+                    <SelectItem value="Romance">Romance</SelectItem>
+                    <SelectItem value="Documentary">Documentary</SelectItem>
+                    <SelectItem value="Informational">Informational</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Rating (0-10) *
+                  Year
                 </label>
-                <input
-                  type="number"
-                  name="rating"
+                <Input
+                  value={formData.year}
+                  onChange={(e) => handleInputChange("year", e.target.value)}
+                  placeholder="2024"
+                  className="bg-gray-700 border-gray-600 text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Rating
+                </label>
+                <Input
                   value={formData.rating}
-                  onChange={handleChange}
+                  onChange={(e) => handleInputChange("rating", e.target.value)}
+                  placeholder="8.5"
+                  type="number"
+                  step="0.1"
                   min="0"
                   max="10"
-                  step="0.1"
-                  className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white focus:outline-none transition-colors ${
-                    errors.rating ? "border-red-500" : "border-gray-600 focus:border-blue-500"
-                  }`}
+                  className="bg-gray-700 border-gray-600 text-white"
                 />
-                {errors.rating && <p className="text-red-400 text-sm mt-1">{errors.rating}</p>}
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Release Year *
-                </label>
-                <input
-                  type="number"
-                  name="year"
-                  value={formData.year}
-                  onChange={handleChange}
-                  min="1900"
-                  max="2030"
-                  className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white focus:outline-none transition-colors ${
-                    errors.year ? "border-red-500" : "border-gray-600 focus:border-blue-500"
-                  }`}
-                />
-                {errors.year && <p className="text-red-400 text-sm mt-1">{errors.year}</p>}
-              </div>
-
-              {formData.type === "tv" && (
-                <>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Number of Seasons *
-                    </label>
-                    <input
-                      type="number"
-                      name="seasons"
-                      value={formData.seasons}
-                      onChange={handleChange}
-                      min="1"
-                      className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white focus:outline-none transition-colors ${
-                        errors.seasons ? "border-red-500" : "border-gray-600 focus:border-blue-500"
-                      }`}
-                    />
-                    {errors.seasons && <p className="text-red-400 text-sm mt-1">{errors.seasons}</p>}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Total Episodes *
-                    </label>
-                    <input
-                      type="number"
-                      name="episodes"
-                      value={formData.episodes}
-                      onChange={handleChange}
-                      min="1"
-                      className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white focus:outline-none transition-colors ${
-                        errors.episodes ? "border-red-500" : "border-gray-600 focus:border-blue-500"
-                      }`}
-                    />
-                    {errors.episodes && <p className="text-red-400 text-sm mt-1">{errors.episodes}</p>}
-                  </div>
-                </>
-              )}
             </div>
 
-            <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Description *
-              </label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                rows={4}
-                className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white focus:outline-none transition-colors ${
-                  errors.description ? "border-red-500" : "border-gray-600 focus:border-blue-500"
-                }`}
-                placeholder={`Enter ${formData.type} description`}
-              />
-              {errors.description && <p className="text-red-400 text-sm mt-1">{errors.description}</p>}
-            </div>
-          </div>
-
-          <div className="bg-gray-800 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">Media</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  YouTube Video ID *
-                </label>
-                <input
-                  type="text"
-                  name="youtubeId"
-                  value={formData.youtubeId}
-                  onChange={handleChange}
-                  className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white focus:outline-none transition-colors ${
-                    errors.youtubeId ? "border-red-500" : "border-gray-600 focus:border-blue-500"
-                  }`}
-                  placeholder="e.g., dQw4w9WgXcQ"
-                />
-                {errors.youtubeId && <p className="text-red-400 text-sm mt-1">{errors.youtubeId}</p>}
-                <p className="text-gray-400 text-sm mt-1">Extract from YouTube URL: youtube.com/watch?v=YOUR_ID</p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Poster Image *
-                </label>
-                <div className="space-y-3">
-                  <label className="flex items-center justify-center w-full h-32 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-colors">
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <Upload className="w-8 h-8 mb-2 text-gray-400" />
-                      <p className="mb-2 text-sm text-gray-400">
-                        <span className="font-semibold">Click to upload</span> poster image
-                      </p>
-                      <p className="text-xs text-gray-400">PNG, JPG or GIF (MAX. 10MB)</p>
-                    </div>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                    />
+            {formData.type === "tv" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Number of Seasons
                   </label>
-                  
-                  {formData.posterUrl && (
-                    <div className="relative">
-                      <img
-                        src={formData.posterUrl}
-                        alt="Poster preview"
-                        className="w-full h-32 object-cover rounded-lg"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setFormData(prev => ({ ...prev, posterFile: null, posterUrl: "" }))}
-                        className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 transition-colors"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  )}
+                  <Input
+                    value={formData.seasons}
+                    onChange={(e) => handleInputChange("seasons", e.target.value)}
+                    placeholder="3"
+                    type="number"
+                    min="1"
+                    className="bg-gray-700 border-gray-600 text-white"
+                  />
                 </div>
-                {errors.posterFile && <p className="text-red-400 text-sm mt-1">{errors.posterFile}</p>}
-              </div>
-            </div>
 
-            {formData.youtubeId && !errors.youtubeId && (
-              <div className="mt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowPreview(!showPreview)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
-                >
-                  {showPreview ? "Hide Preview" : "Show Preview"}
-                </button>
-              </div>
-            )}
-
-            {showPreview && formData.youtubeId && (
-              <div className="mt-4">
-                <div className="aspect-video bg-black rounded-lg overflow-hidden">
-                  <iframe
-                    src={`https://www.youtube.com/embed/${formData.youtubeId}`}
-                    title="Preview"
-                    className="w-full h-full"
-                    allowFullScreen
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Episodes per Season
+                  </label>
+                  <Input
+                    value={formData.totalEpisodes}
+                    onChange={(e) => handleInputChange("totalEpisodes", e.target.value)}
+                    placeholder="10"
+                    type="number"
+                    min="1"
+                    className="bg-gray-700 border-gray-600 text-white"
                   />
                 </div>
               </div>
             )}
-          </div>
 
-          <div className="bg-gray-800 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">Channel Assignment</h3>
-            
-            <div className="relative">
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Assign to Channel (Optional)
-              </label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <input
-                  type="text"
-                  value={channelSearch}
-                  onChange={(e) => {
-                    setChannelSearch(e.target.value);
-                    setShowChannelDropdown(true);
-                  }}
-                  onFocus={() => setShowChannelDropdown(true)}
-                  className="w-full px-3 py-2 pl-10 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors"
-                  placeholder="Search for a channel..."
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Poster URL
+                </label>
+                <Input
+                  value={formData.posterUrl}
+                  onChange={(e) => handleInputChange("posterUrl", e.target.value)}
+                  placeholder="https://example.com/poster.jpg"
+                  className="bg-gray-700 border-gray-600 text-white"
                 />
               </div>
-              
-              {showChannelDropdown && filteredChannels.length > 0 && (
-                <div className="absolute z-10 w-full mt-1 bg-gray-700 border border-gray-600 rounded-lg shadow-lg max-h-40 overflow-y-auto">
-                  {filteredChannels.map((channel) => (
-                    <button
-                      key={channel.id}
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  {formData.type === "movie" ? "Duration" : "Trailer URL"}
+                </label>
+                <Input
+                  value={formData.type === "movie" ? formData.duration : formData.trailerUrl}
+                  onChange={(e) => handleInputChange(formData.type === "movie" ? "duration" : "trailerUrl", e.target.value)}
+                  placeholder={formData.type === "movie" ? "120 min" : "https://example.com/trailer.mp4"}
+                  className="bg-gray-700 border-gray-600 text-white"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-6">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="trending"
+                  checked={formData.isTrending}
+                  onCheckedChange={(checked) => handleInputChange("isTrending", checked as boolean)}
+                />
+                <label htmlFor="trending" className="text-sm text-gray-300">
+                  Mark as Trending
+                </label>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="featured"
+                  checked={formData.isFeatured}
+                  onCheckedChange={(checked) => handleInputChange("isFeatured", checked as boolean)}
+                />
+                <label htmlFor="featured" className="text-sm text-gray-300">
+                  Mark as Featured
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Episodes Section for TV Series */}
+          {formData.type === "tv" && (
+            <div className="bg-gray-800 rounded-lg p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-white">Episodes</h3>
+                <Button
+                  type="button"
+                  onClick={() => setShowEpisodeForm(true)}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Episode
+                </Button>
+              </div>
+
+              {showEpisodeForm && (
+                <div className="border border-gray-600 rounded-lg p-4 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-md font-medium text-white">
+                      {editingEpisode ? "Edit Episode" : "Add New Episode"}
+                    </h4>
+                    <Button
                       type="button"
-                      onClick={() => selectChannel(channel)}
-                      className="w-full px-4 py-2 text-left hover:bg-gray-600 transition-colors text-white flex items-center space-x-3"
+                      variant="ghost"
+                      onClick={() => {
+                        setShowEpisodeForm(false);
+                        setEditingEpisode(null);
+                        setEpisodeForm({ season: 1, episode: 1, title: "", description: "", duration: "", posterUrl: "" });
+                      }}
+                      className="text-gray-400 hover:text-white"
                     >
-                      <img
-                        src={channel.logoUrl}
-                        alt={channel.name}
-                        className="w-8 h-8 object-cover rounded"
+                      Cancel
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Season
+                      </label>
+                      <Select
+                        value={episodeForm.season.toString()}
+                        onValueChange={(value) => handleEpisodeInputChange("season", parseInt(value))}
+                      >
+                        <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {getSeasonOptions().map(season => (
+                            <SelectItem key={season} value={season.toString()}>
+                              Season {season}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Episode Number
+                      </label>
+                      <Select
+                        value={episodeForm.episode.toString()}
+                        onValueChange={(value) => handleEpisodeInputChange("episode", parseInt(value))}
+                      >
+                        <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {getEpisodeOptions(episodeForm.season).map(episode => (
+                            <SelectItem key={episode} value={episode.toString()}>
+                              Episode {episode}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Episode Title *
+                    </label>
+                    <Input
+                      value={episodeForm.title}
+                      onChange={(e) => handleEpisodeInputChange("title", e.target.value)}
+                      placeholder="Enter episode title"
+                      className="bg-gray-700 border-gray-600 text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Episode Description
+                    </label>
+                    <Textarea
+                      value={episodeForm.description}
+                      onChange={(e) => handleEpisodeInputChange("description", e.target.value)}
+                      placeholder="Enter episode description"
+                      className="bg-gray-700 border-gray-600 text-white"
+                      rows={2}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Duration
+                      </label>
+                      <Input
+                        value={episodeForm.duration}
+                        onChange={(e) => handleEpisodeInputChange("duration", e.target.value)}
+                        placeholder="45 min"
+                        className="bg-gray-700 border-gray-600 text-white"
                       />
-                      <div>
-                        <div className="font-medium">{channel.name}</div>
-                        <div className="text-sm text-gray-400">{channel.description.slice(0, 50)}...</div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Episode Poster URL
+                      </label>
+                      <Input
+                        value={episodeForm.posterUrl}
+                        onChange={(e) => handleEpisodeInputChange("posterUrl", e.target.value)}
+                        placeholder="https://example.com/episode-poster.jpg"
+                        className="bg-gray-700 border-gray-600 text-white"
+                      />
+                    </div>
+                  </div>
+
+                  <Button
+                    type="button"
+                    onClick={addOrUpdateEpisode}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    {editingEpisode ? "Update Episode" : "Add Episode"}
+                  </Button>
+                </div>
+              )}
+
+              {/* Episodes List */}
+              {episodes.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="text-md font-medium text-white">Added Episodes ({episodes.length})</h4>
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                    {episodes.map((episode) => (
+                      <div key={episode.id} className="flex items-center justify-between bg-gray-700 rounded-lg p-3">
+                        <div>
+                          <div className="text-white font-medium">
+                            S{episode.season}E{episode.episode}: {episode.title}
+                          </div>
+                          <div className="text-gray-400 text-sm">
+                            {episode.description.slice(0, 50)}...
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => editEpisode(episode)}
+                            className="text-blue-400 hover:text-blue-300"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => deleteEpisode(episode.id)}
+                            className="text-red-400 hover:text-red-300"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
-                    </button>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
-          </div>
-
-          <div className="bg-gray-800 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">Status</h3>
-            
-            <div className="space-y-4">
-              <label className="flex items-center space-x-3">
-                <input
-                  type="checkbox"
-                  name="isTrending"
-                  checked={formData.isTrending}
-                  onChange={handleChange}
-                  className="rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="text-gray-300">Trending {formData.type === 'movie' ? 'Movie' : 'Series'}</span>
-              </label>
-            </div>
-          </div>
+          )}
 
           <div className="flex items-center justify-end space-x-4">
-            <button
+            <Button
               type="button"
-              onClick={() => navigate("/admin/movies")}
-              className="px-6 py-2 text-gray-400 hover:text-white transition-colors"
+              variant="outline"
+              onClick={() => navigate(-1)}
+              className="border-gray-600 text-gray-300 hover:bg-gray-700"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              disabled={!isFormValid()}
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+              className="bg-blue-600 hover:bg-blue-700"
             >
-              {isEdit ? `Update ${formData.type === 'movie' ? 'Movie' : 'Series'}` : `Add ${formData.type === 'movie' ? 'Movie' : 'Series'}`}
-            </button>
+              {isEditing ? "Update" : "Create"} {isChannel ? "Channel" : "Content"}
+            </Button>
           </div>
         </form>
       </div>
-
-      {Object.keys(errors).length > 0 && (
-        <div className="fixed bottom-4 right-4 bg-red-600 text-white p-4 rounded-lg shadow-lg">
-          <p className="font-medium">Please fix the following errors:</p>
-          <ul className="text-sm mt-1">
-            {Object.values(errors).map((error, index) => (
-              <li key={index}>• {error}</li>
-            ))}
-          </ul>
-        </div>
-      )}
     </AdminLayout>
   );
 };

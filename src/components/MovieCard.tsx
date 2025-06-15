@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { Star, Bookmark, BookmarkPlus, Play } from "lucide-react";
+import { Star, Bookmark, BookmarkPlus, Play, Heart, HeartOff } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
 import { useState } from "react";
 
@@ -48,16 +48,16 @@ const MovieCard = ({
             </div>
           )}
           
-          {/* Save Button */}
+          {/* Save/Favorite Button */}
           {showSaveButton && (
             <button
               onClick={handleSave}
               className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full transition-colors opacity-0 group-hover:opacity-100"
             >
               {isSaved ? (
-                <Bookmark className="w-4 h-4 fill-current" />
+                <Heart className="w-4 h-4 fill-current text-red-500" />
               ) : (
-                <BookmarkPlus className="w-4 h-4" />
+                <Heart className="w-4 h-4" />
               )}
             </button>
           )}
