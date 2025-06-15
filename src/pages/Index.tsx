@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, Menu, X, User, LogOut } from "lucide-react";
@@ -11,20 +12,28 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 
 const Index = () => {
+  console.log('Index component rendering');
+  console.log('mockMovies:', mockMovies);
+  console.log('channels:', channels);
+  
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showAdminModal, setShowAdminModal] = useState(false);
   const { user, isLoggedIn, setShowLoginModal, logout } = useAuth();
 
-  const trendingMovies = mockMovies.filter(movie => movie.isTrending);
-  const continueWatchingMovies = mockMovies.slice(0, 4); // Mock continue watching
+  // Safety checks for data
+  const safeMovies = mockMovies || [];
+  const safeChannels = channels || [];
 
-  const actionMovies = mockMovies.filter(movie => movie.genre === "Action");
-  const dramaMovies = mockMovies.filter(movie => movie.genre === "Drama");
-  const romanceMovies = mockMovies.filter(movie => movie.genre === "Romance");
-  const comedyMovies = mockMovies.filter(movie => movie.genre === "Comedy");
-  const documentaryMovies = mockMovies.filter(movie => movie.genre === "Documentary");
-  const informationalMovies = mockMovies.filter(movie => movie.genre === "Informational");
+  const trendingMovies = safeMovies.filter(movie => movie?.isTrending);
+  const continueWatchingMovies = safeMovies.slice(0, 4); // Mock continue watching
+
+  const actionMovies = safeMovies.filter(movie => movie?.genre === "Action");
+  const dramaMovies = safeMovies.filter(movie => movie?.genre === "Drama");
+  const romanceMovies = safeMovies.filter(movie => movie?.genre === "Romance");
+  const comedyMovies = safeMovies.filter(movie => movie?.genre === "Comedy");
+  const documentaryMovies = safeMovies.filter(movie => movie?.genre === "Documentary");
+  const informationalMovies = safeMovies.filter(movie => movie?.genre === "Informational");
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -35,6 +44,7 @@ const Index = () => {
   };
 
   const handleAdminClick = () => {
+    console.log('Admin click, user:', user);
     if (user?.isAdmin) {
       setShowAdminModal(true);
     }
@@ -225,16 +235,13 @@ const Index = () => {
             </h1>
           </div>
 
-          {/* Commented out Hero Banner for potential reuse */}
-          {/* <HeroBanner movies={featuredMovies} /> */}
-
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {/* Popular Channels */}
             <section className="mb-12">
               <h2 className="text-2xl font-bold mb-6">Popular Channels</h2>
               <div className="overflow-x-auto">
                 <div className="flex space-x-4 pb-4">
-                  {channels.map((channel) => (
+                  {safeChannels.map((channel) => (
                     <div key={channel.id} className="flex-shrink-0 w-48">
                       <ProtectedContent>
                         <ChannelCard channel={channel} />
