@@ -1,4 +1,3 @@
-
 export interface Movie {
   id: string;
   title: string;
@@ -8,9 +7,12 @@ export interface Movie {
   rating: number;
   year: number;
   genre: string;
-  isFeatured: boolean;
   isTrending: boolean;
   type: 'movie' | 'tv';
+  channelId?: string;
+  // Series-specific fields
+  seasons?: number;
+  episodes?: number;
 }
 
 export interface Channel {
@@ -18,6 +20,7 @@ export interface Channel {
   name: string;
   logoUrl: string;
   description: string;
+  contentCount: number;
 }
 
 export const mockMovies: Movie[] = [
@@ -30,7 +33,6 @@ export const mockMovies: Movie[] = [
     rating: 9.0,
     year: 2008,
     genre: "Action",
-    isFeatured: true,
     isTrending: false,
     type: "movie"
   },
@@ -43,9 +45,10 @@ export const mockMovies: Movie[] = [
     rating: 8.7,
     year: 2016,
     genre: "Drama",
-    isFeatured: true,
     isTrending: true,
-    type: "tv"
+    type: "tv",
+    seasons: 4,
+    episodes: 32
   },
   {
     id: "3",
@@ -56,7 +59,6 @@ export const mockMovies: Movie[] = [
     rating: 8.7,
     year: 1999,
     genre: "Action",
-    isFeatured: false,
     isTrending: true,
     type: "movie"
   },
@@ -69,9 +71,10 @@ export const mockMovies: Movie[] = [
     rating: 9.5,
     year: 2008,
     genre: "Drama",
-    isFeatured: false,
     isTrending: false,
-    type: "tv"
+    type: "tv",
+    seasons: 5,
+    episodes: 62
   },
   {
     id: "5",
@@ -82,7 +85,6 @@ export const mockMovies: Movie[] = [
     rating: 8.8,
     year: 2010,
     genre: "Action",
-    isFeatured: true,
     isTrending: false,
     type: "movie"
   },
@@ -95,9 +97,10 @@ export const mockMovies: Movie[] = [
     rating: 8.6,
     year: 2016,
     genre: "Drama",
-    isFeatured: false,
     isTrending: true,
-    type: "tv"
+    type: "tv",
+    seasons: 4,
+    episodes: 40
   },
   {
     id: "7",
@@ -108,7 +111,6 @@ export const mockMovies: Movie[] = [
     rating: 8.1,
     year: 2005,
     genre: "Romance",
-    isFeatured: false,
     isTrending: false,
     type: "movie"
   },
@@ -121,9 +123,10 @@ export const mockMovies: Movie[] = [
     rating: 9.0,
     year: 2005,
     genre: "Comedy",
-    isFeatured: false,
     isTrending: true,
-    type: "tv"
+    type: "tv",
+    seasons: 9,
+    episodes: 201
   },
   {
     id: "9",
@@ -134,9 +137,10 @@ export const mockMovies: Movie[] = [
     rating: 9.3,
     year: 2006,
     genre: "Documentary",
-    isFeatured: false,
     isTrending: false,
-    type: "tv"
+    type: "tv",
+    seasons: 1,
+    episodes: 11
   },
   {
     id: "10",
@@ -147,9 +151,10 @@ export const mockMovies: Movie[] = [
     rating: 8.2,
     year: 2001,
     genre: "Informational",
-    isFeatured: false,
     isTrending: false,
-    type: "tv"
+    type: "tv",
+    seasons: 1,
+    episodes: 13
   }
 ];
 
@@ -158,37 +163,43 @@ export const channels: Channel[] = [
     id: "1",
     name: "HBO Max",
     logoUrl: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=200",
-    description: "Premium entertainment with blockbuster movies, HBO originals, and more."
+    description: "Premium entertainment with blockbuster movies, HBO originals, and more.",
+    contentCount: 0
   },
   {
     id: "2",
     name: "Disney+",
     logoUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=200",
-    description: "The ultimate Disney destination with Pixar, Marvel, Star Wars, and National Geographic."
+    description: "The ultimate Disney destination with Pixar, Marvel, Star Wars, and National Geographic.",
+    contentCount: 0
   },
   {
     id: "3",
     name: "Netflix",
     logoUrl: "https://images.unsplash.com/photo-1489599904821-97473bfa5d34?w=200",
-    description: "Original series, documentaries and feature films across a variety of genres."
+    description: "Original series, documentaries and feature films across a variety of genres.",
+    contentCount: 0
   },
   {
     id: "4",
     name: "Amazon Prime",
     logoUrl: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=200",
-    description: "Prime Video originals, movies, and TV shows with your Prime membership."
+    description: "Prime Video originals, movies, and TV shows with your Prime membership.",
+    contentCount: 0
   },
   {
     id: "5",
     name: "Hulu",
     logoUrl: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=200",
-    description: "Stream current season episodes, classic series, and acclaimed Hulu Originals."
+    description: "Stream current season episodes, classic series, and acclaimed Hulu Originals.",
+    contentCount: 0
   },
   {
     id: "6",
     name: "Apple TV+",
     logoUrl: "https://images.unsplash.com/photo-1460467820054-c87ab43e9b59?w=200",
-    description: "Original shows and movies from Apple with new premieres every month."
+    description: "Original shows and movies from Apple with new premieres every month.",
+    contentCount: 0
   }
 ];
 

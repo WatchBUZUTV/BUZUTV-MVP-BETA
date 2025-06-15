@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, Edit, Trash2, Plus, Star, TrendingUp } from "lucide-react";
+import { Search, Edit, Trash2, Plus, Star, TrendingUp, Film, Tv } from "lucide-react";
 import { toast } from "sonner";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { mockMovies, genres } from "@/data/mockMovies";
@@ -8,13 +8,15 @@ import { mockMovies, genres } from "@/data/mockMovies";
 const AdminMovies = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGenre, setSelectedGenre] = useState("All");
+  const [selectedType, setSelectedType] = useState("All");
   const [selectedMovies, setSelectedMovies] = useState<string[]>([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const filteredMovies = mockMovies.filter(movie => {
     const matchesSearch = movie.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesGenre = selectedGenre === "All" || movie.genre === selectedGenre;
-    return matchesSearch && matchesGenre;
+    const matchesType = selectedType === "All" || movie.type === selectedType;
+    return matchesSearch && matchesGenre && matchesType;
   });
 
   const handleSelectMovie = (movieId: string) => {
@@ -53,15 +55,15 @@ const AdminMovies = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-white">Manage Movies</h2>
-            <p className="text-gray-400">Add, edit, or remove movies from your platform</p>
+            <h2 className="text-2xl font-bold text-white">Manage Content</h2>
+            <p className="text-gray-400">Add, edit, or remove movies and series from your platform</p>
           </div>
           <Link
             to="/admin/add-movie"
             className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
           >
             <Plus className="w-4 h-4" />
-            <span>Add Movie</span>
+            <span>Add Content</span>
           </Link>
         </div>
 
@@ -73,7 +75,7 @@ const AdminMovies = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input
                   type="text"
-                  placeholder="Search movies..."
+                  placeholder="Search content..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full bg-gray-700 border border-gray-600 rounded-lg pl-10 pr-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
@@ -88,6 +90,15 @@ const AdminMovies = () => {
               {genres.map(genre => (
                 <option key={genre} value={genre}>{genre}</option>
               ))}
+            </select>
+            <select
+              value={selectedType}
+              onChange={(e) => setSelectedType(e.target.value)}
+              className="bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors"
+            >
+              <option value="All">All Types</option>
+              <option value="movie">Movies</option>
+              <option value="tv">Series</option>
             </select>
           </div>
         </div>
@@ -118,7 +129,7 @@ const AdminMovies = () => {
           </div>
         )}
 
-        {/* Movies Table */}
+        {/* Content Table */}
         <div className="bg-gray-800 rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -133,7 +144,10 @@ const AdminMovies = () => {
                     />
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                    Movie
+                    Content
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    Type
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                     Genre
@@ -173,7 +187,22 @@ const AdminMovies = () => {
                         <div>
                           <div className="text-white font-medium">{movie.title}</div>
                           <div className="text-gray-400 text-sm">{movie.description.slice(0, 50)}...</div>
+                          {movie.seasons && movie.episodes && (
+                            <div className="text-gray-500 text-xs">
+                              {movie.seasons} seasons • {movie.episodes} episodes
+                            </div>
+                          )}
                         </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center space-x-1">
+                        {movie.type === 'movie' ? (
+                          <Film className="w-4 h-4 text-blue-400" />
+                        ) : (
+                          <Tv className="w-4 h-4 text-green-400" />
+                        )}
+                        <span className="text-gray-300 capitalize">{movie.type}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-gray-300">{movie.genre}</td>
@@ -186,12 +215,6 @@ const AdminMovies = () => {
                     <td className="px-6 py-4 text-gray-300">{movie.year}</td>
                     <td className="px-6 py-4">
                       <div className="flex space-x-2">
-                        {movie.isFeatured && (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-600 text-white">
-                            <Star className="w-3 h-3 mr-1" />
-                            Featured
-                          </span>
-                        )}
                         {movie.isTrending && (
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-red-600 text-white">
                             <TrendingUp className="w-3 h-3 mr-1" />

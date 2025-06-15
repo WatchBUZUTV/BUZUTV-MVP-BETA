@@ -1,9 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { Search, Upload, X } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
-import { mockMovies, genres } from "@/data/mockMovies";
+import { mockMovies, genres, channels } from "@/data/mockMovies";
 
 const AdminAddMovie = () => {
   const { id } = useParams();
@@ -14,16 +14,27 @@ const AdminAddMovie = () => {
     title: "",
     description: "",
     youtubeId: "",
+    posterFile: null as File | null,
     posterUrl: "",
     genre: "Action",
     rating: 0,
     year: new Date().getFullYear(),
-    isFeatured: false,
-    isTrending: false
+    isTrending: false,
+    type: "movie" as "movie" | "tv",
+    channelId: "",
+    // Series-specific fields
+    seasons: 1,
+    episodes: 1
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showPreview, setShowPreview] = useState(false);
+  const [channelSearch, setChannelSearch] = useState("");
+  const [showChannelDropdown, setShowChannelDropdown] = useState(false);
+
+  const filteredChannels = channels.filter(channel =>
+    channel.name.toLowerCase().includes(channelSearch.toLowerCase())
+  );
 
   useEffect(() => {
     if (isEdit && id) {
@@ -33,12 +44,16 @@ const AdminAddMovie = () => {
           title: movie.title,
           description: movie.description,
           youtubeId: movie.youtubeId,
+          posterFile: null,
           posterUrl: movie.posterUrl,
           genre: movie.genre,
           rating: movie.rating,
           year: movie.year,
-          isFeatured: movie.isFeatured,
-          isTrending: movie.isTrending
+          isTrending: movie.isTrending,
+          type: movie.type,
+          channelId: movie.channelId || "",
+          seasons: movie.seasons || 1,
+          episodes: movie.episodes || 1
         });
       }
     }
@@ -71,13 +86,11 @@ const AdminAddMovie = () => {
           delete newErrors.youtubeId;
         }
         break;
-      case "posterUrl":
-        if (!value.trim()) {
-          newErrors.posterUrl = "Poster URL is required";
-        } else if (!/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i.test(value)) {
-          newErrors.posterUrl = "Invalid image URL";
+      case "posterFile":
+        if (!value && !formData.posterUrl) {
+          newErrors.posterFile = "Poster image is required";
         } else {
-          delete newErrors.posterUrl;
+          delete newErrors.posterFile;
         }
         break;
       case "rating":
@@ -94,6 +107,20 @@ const AdminAddMovie = () => {
           delete newErrors.year;
         }
         break;
+      case "seasons":
+        if (formData.type === "tv" && value < 1) {
+          newErrors.seasons = "Must have at least 1 season";
+        } else {
+          delete newErrors.seasons;
+        }
+        break;
+      case "episodes":
+        if (formData.type === "tv" && value < 1) {
+          newErrors.episodes = "Must have at least 1 episode";
+        } else {
+          delete newErrors.episodes;
+        }
+        break;
     }
 
     setErrors(newErrors);
@@ -108,9 +135,24 @@ const AdminAddMovie = () => {
     validateField(name, newValue);
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFormData(prev => ({ ...prev, posterFile: file, posterUrl: URL.createObjectURL(file) }));
+      validateField("posterFile", file);
+    }
+  };
+
+  const selectChannel = (channel: typeof channels[0]) => {
+    setFormData(prev => ({ ...prev, channelId: channel.id }));
+    setChannelSearch(channel.name);
+    setShowChannelDropdown(false);
+  };
+
   const isFormValid = () => {
     return Object.keys(errors).length === 0 && 
-           formData.title && formData.description && formData.youtubeId && formData.posterUrl;
+           formData.title && formData.description && formData.youtubeId && 
+           (formData.posterFile || formData.posterUrl);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -123,7 +165,7 @@ const AdminAddMovie = () => {
 
     // Simulate API call
     setTimeout(() => {
-      toast.success(isEdit ? "Movie updated successfully!" : "Movie added successfully!");
+      toast.success(isEdit ? `${formData.type === 'movie' ? 'Movie' : 'Series'} updated successfully!` : `${formData.type === 'movie' ? 'Movie' : 'Series'} added successfully!`);
       navigate("/admin/movies");
     }, 1000);
   };
@@ -133,10 +175,10 @@ const AdminAddMovie = () => {
       <div className="max-w-4xl">
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-white">
-            {isEdit ? "Edit Movie" : "Add New Movie"}
+            {isEdit ? `Edit ${formData.type === 'movie' ? 'Movie' : 'Series'}` : `Add New ${formData.type === 'movie' ? 'Movie' : 'Series'}`}
           </h2>
           <p className="text-gray-400">
-            {isEdit ? "Update movie details" : "Add a new movie to your platform"}
+            {isEdit ? `Update ${formData.type} details` : `Add a new ${formData.type} to your platform`}
           </p>
         </div>
 
@@ -145,6 +187,21 @@ const AdminAddMovie = () => {
             <h3 className="text-lg font-semibold text-white mb-4">Basic Information</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Content Type *
+                </label>
+                <select
+                  name="type"
+                  value={formData.type}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors"
+                >
+                  <option value="movie">Movie</option>
+                  <option value="tv">Series</option>
+                </select>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Title *
@@ -157,7 +214,7 @@ const AdminAddMovie = () => {
                   className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white focus:outline-none transition-colors ${
                     errors.title ? "border-red-500" : "border-gray-600 focus:border-blue-500"
                   }`}
-                  placeholder="Enter movie title"
+                  placeholder={`Enter ${formData.type} title`}
                 />
                 {errors.title && <p className="text-red-400 text-sm mt-1">{errors.title}</p>}
               </div>
@@ -214,6 +271,44 @@ const AdminAddMovie = () => {
                 />
                 {errors.year && <p className="text-red-400 text-sm mt-1">{errors.year}</p>}
               </div>
+
+              {formData.type === "tv" && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Number of Seasons *
+                    </label>
+                    <input
+                      type="number"
+                      name="seasons"
+                      value={formData.seasons}
+                      onChange={handleChange}
+                      min="1"
+                      className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white focus:outline-none transition-colors ${
+                        errors.seasons ? "border-red-500" : "border-gray-600 focus:border-blue-500"
+                      }`}
+                    />
+                    {errors.seasons && <p className="text-red-400 text-sm mt-1">{errors.seasons}</p>}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Total Episodes *
+                    </label>
+                    <input
+                      type="number"
+                      name="episodes"
+                      value={formData.episodes}
+                      onChange={handleChange}
+                      min="1"
+                      className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white focus:outline-none transition-colors ${
+                        errors.episodes ? "border-red-500" : "border-gray-600 focus:border-blue-500"
+                      }`}
+                    />
+                    {errors.episodes && <p className="text-red-400 text-sm mt-1">{errors.episodes}</p>}
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="mt-6">
@@ -228,7 +323,7 @@ const AdminAddMovie = () => {
                 className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white focus:outline-none transition-colors ${
                   errors.description ? "border-red-500" : "border-gray-600 focus:border-blue-500"
                 }`}
-                placeholder="Enter movie description"
+                placeholder={`Enter ${formData.type} description`}
               />
               {errors.description && <p className="text-red-400 text-sm mt-1">{errors.description}</p>}
             </div>
@@ -258,19 +353,43 @@ const AdminAddMovie = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Poster Image URL *
+                  Poster Image *
                 </label>
-                <input
-                  type="url"
-                  name="posterUrl"
-                  value={formData.posterUrl}
-                  onChange={handleChange}
-                  className={`w-full px-3 py-2 bg-gray-700 border rounded-lg text-white focus:outline-none transition-colors ${
-                    errors.posterUrl ? "border-red-500" : "border-gray-600 focus:border-blue-500"
-                  }`}
-                  placeholder="https://example.com/poster.jpg"
-                />
-                {errors.posterUrl && <p className="text-red-400 text-sm mt-1">{errors.posterUrl}</p>}
+                <div className="space-y-3">
+                  <label className="flex items-center justify-center w-full h-32 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-colors">
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      <Upload className="w-8 h-8 mb-2 text-gray-400" />
+                      <p className="mb-2 text-sm text-gray-400">
+                        <span className="font-semibold">Click to upload</span> poster image
+                      </p>
+                      <p className="text-xs text-gray-400">PNG, JPG or GIF (MAX. 10MB)</p>
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
+                  </label>
+                  
+                  {formData.posterUrl && (
+                    <div className="relative">
+                      <img
+                        src={formData.posterUrl}
+                        alt="Poster preview"
+                        className="w-full h-32 object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, posterFile: null, posterUrl: "" }))}
+                        className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+                {errors.posterFile && <p className="text-red-400 text-sm mt-1">{errors.posterFile}</p>}
               </div>
             </div>
 
@@ -301,20 +420,56 @@ const AdminAddMovie = () => {
           </div>
 
           <div className="bg-gray-800 rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-white mb-4">Channel Assignment</h3>
+            
+            <div className="relative">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Assign to Channel (Optional)
+              </label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  value={channelSearch}
+                  onChange={(e) => {
+                    setChannelSearch(e.target.value);
+                    setShowChannelDropdown(true);
+                  }}
+                  onFocus={() => setShowChannelDropdown(true)}
+                  className="w-full px-3 py-2 pl-10 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors"
+                  placeholder="Search for a channel..."
+                />
+              </div>
+              
+              {showChannelDropdown && filteredChannels.length > 0 && (
+                <div className="absolute z-10 w-full mt-1 bg-gray-700 border border-gray-600 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                  {filteredChannels.map((channel) => (
+                    <button
+                      key={channel.id}
+                      type="button"
+                      onClick={() => selectChannel(channel)}
+                      className="w-full px-4 py-2 text-left hover:bg-gray-600 transition-colors text-white flex items-center space-x-3"
+                    >
+                      <img
+                        src={channel.logoUrl}
+                        alt={channel.name}
+                        className="w-8 h-8 object-cover rounded"
+                      />
+                      <div>
+                        <div className="font-medium">{channel.name}</div>
+                        <div className="text-sm text-gray-400">{channel.description.slice(0, 50)}...</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="bg-gray-800 rounded-lg p-6">
             <h3 className="text-lg font-semibold text-white mb-4">Status</h3>
             
             <div className="space-y-4">
-              <label className="flex items-center space-x-3">
-                <input
-                  type="checkbox"
-                  name="isFeatured"
-                  checked={formData.isFeatured}
-                  onChange={handleChange}
-                  className="rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="text-gray-300">Featured Movie</span>
-              </label>
-
               <label className="flex items-center space-x-3">
                 <input
                   type="checkbox"
@@ -323,7 +478,7 @@ const AdminAddMovie = () => {
                   onChange={handleChange}
                   className="rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500"
                 />
-                <span className="text-gray-300">Trending Movie</span>
+                <span className="text-gray-300">Trending {formData.type === 'movie' ? 'Movie' : 'Series'}</span>
               </label>
             </div>
           </div>
@@ -341,7 +496,7 @@ const AdminAddMovie = () => {
               disabled={!isFormValid()}
               className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
             >
-              {isEdit ? "Update Movie" : "Add Movie"}
+              {isEdit ? `Update ${formData.type === 'movie' ? 'Movie' : 'Series'}` : `Add ${formData.type === 'movie' ? 'Movie' : 'Series'}`}
             </button>
           </div>
         </form>

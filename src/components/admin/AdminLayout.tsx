@@ -1,7 +1,7 @@
 
 import { useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
-import { Home, Film, Plus, LogOut, BarChart3 } from "lucide-react";
+import { Home, Film, Plus, LogOut, BarChart3, Tv, PlayCircle } from "lucide-react";
 import { toast } from "sonner";
 
 interface AdminLayoutProps {
@@ -27,8 +27,9 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
 
   const menuItems = [
     { path: "/admin/dashboard", icon: BarChart3, label: "Dashboard" },
-    { path: "/admin/movies", icon: Film, label: "Manage Movies" },
-    { path: "/admin/add-movie", icon: Plus, label: "Add Movie" },
+    { path: "/admin/movies", icon: Film, label: "Manage Content" },
+    { path: "/admin/channels", icon: PlayCircle, label: "Manage Channels" },
+    { path: "/admin/add-movie", icon: Plus, label: "Add Content" },
   ];
 
   return (
