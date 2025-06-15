@@ -27,8 +27,8 @@ const App = () => (
       <AuthProvider>
         <Toaster />
         <Sonner />
-        <LoginModal />
         <BrowserRouter>
+          <LoginModal />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
