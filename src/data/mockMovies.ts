@@ -1,3 +1,4 @@
+
 export interface Movie {
   id: string;
   title: string;
@@ -8,6 +9,7 @@ export interface Movie {
   year: number;
   genre: string;
   isTrending: boolean;
+  isFeatured: boolean;
   type: 'movie' | 'tv';
   channelId?: string;
   // Series-specific fields
@@ -34,6 +36,7 @@ export const mockMovies: Movie[] = [
     year: 2008,
     genre: "Action",
     isTrending: false,
+    isFeatured: true,
     type: "movie"
   },
   {
@@ -46,6 +49,7 @@ export const mockMovies: Movie[] = [
     year: 2016,
     genre: "Drama",
     isTrending: true,
+    isFeatured: true,
     type: "tv",
     seasons: 4,
     episodes: 32
@@ -60,6 +64,7 @@ export const mockMovies: Movie[] = [
     year: 1999,
     genre: "Action",
     isTrending: true,
+    isFeatured: false,
     type: "movie"
   },
   {
@@ -72,6 +77,7 @@ export const mockMovies: Movie[] = [
     year: 2008,
     genre: "Drama",
     isTrending: false,
+    isFeatured: true,
     type: "tv",
     seasons: 5,
     episodes: 62
@@ -86,6 +92,7 @@ export const mockMovies: Movie[] = [
     year: 2010,
     genre: "Action",
     isTrending: false,
+    isFeatured: false,
     type: "movie"
   },
   {
@@ -98,6 +105,7 @@ export const mockMovies: Movie[] = [
     year: 2016,
     genre: "Drama",
     isTrending: true,
+    isFeatured: false,
     type: "tv",
     seasons: 4,
     episodes: 40
@@ -112,6 +120,7 @@ export const mockMovies: Movie[] = [
     year: 2005,
     genre: "Romance",
     isTrending: false,
+    isFeatured: false,
     type: "movie"
   },
   {
@@ -124,6 +133,7 @@ export const mockMovies: Movie[] = [
     year: 2005,
     genre: "Comedy",
     isTrending: true,
+    isFeatured: true,
     type: "tv",
     seasons: 9,
     episodes: 201
@@ -138,6 +148,7 @@ export const mockMovies: Movie[] = [
     year: 2006,
     genre: "Documentary",
     isTrending: false,
+    isFeatured: false,
     type: "tv",
     seasons: 1,
     episodes: 11
@@ -152,6 +163,7 @@ export const mockMovies: Movie[] = [
     year: 2001,
     genre: "Informational",
     isTrending: false,
+    isFeatured: false,
     type: "tv",
     seasons: 1,
     episodes: 13
