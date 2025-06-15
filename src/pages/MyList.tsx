@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { Search, Menu, X, Play } from "lucide-react";
+import { Search, Menu, X } from "lucide-react";
 import { useState } from "react";
 import MovieCard from "@/components/MovieCard";
 import { mockMovies } from "@/data/mockMovies";
@@ -12,15 +12,11 @@ const MyList = () => {
   // For demo purposes, showing first few movies as "saved"
   const savedMovies = mockMovies.slice(0, 4);
   const continueWatching = mockMovies.slice(0, 3);
-  const recommended = mockMovies.slice(3, 6);
   
   // Filter saved movies based on search
   const filteredSavedMovies = savedMovies.filter(movie =>
     movie.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
-  
-  // Use the most recent saved item for header with progress
-  const recentItem = savedMovies[0];
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -93,10 +89,17 @@ const MyList = () => {
       </nav>
 
       <div className="pt-16">
-        {/* Resume Header */}
+        {/* Header - Black background with logo */}
+        <div className="h-[40vh] bg-black flex items-center justify-center">
+          <h1 className="text-5xl font-bold">
+            Bizu<span className="text-blue-500">TV</span>
+          </h1>
+        </div>
+
+        {/* Commented out Resume Header for potential reuse */}
+        {/* 
         {recentItem && (
           <div className="relative h-[40vh] overflow-hidden mb-8">
-            {/* Background */}
             <div
               className="absolute inset-0 bg-cover bg-center bg-no-repeat"
               style={{
@@ -107,7 +110,6 @@ const MyList = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent" />
             </div>
 
-            {/* Content */}
             <div className="relative z-10 flex items-center h-full">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
                 <div className="max-w-xl">
@@ -119,7 +121,6 @@ const MyList = () => {
                     {recentItem.description}
                   </p>
                   
-                  {/* Progress Bar */}
                   <div className="w-full bg-gray-600 rounded-full h-1 mb-4">
                     <div className="bg-red-600 h-1 rounded-full" style={{ width: '35%' }}></div>
                   </div>
@@ -136,6 +137,7 @@ const MyList = () => {
             </div>
           </div>
         )}
+        */}
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {savedMovies.length > 0 ? (
@@ -174,19 +176,7 @@ const MyList = () => {
                 </div>
               </section>
 
-              {/* Recommended */}
-              <section className="mb-12">
-                <h2 className="text-2xl font-bold mb-6">Recommended</h2>
-                <div className="overflow-x-auto">
-                  <div className="flex space-x-4 pb-4">
-                    {recommended.map((movie) => (
-                      <div key={movie.id} className="flex-shrink-0 w-64">
-                        <MovieCard movie={movie} showSaveButton={false} />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </section>
+              {/* Removed Recommended section as requested */}
             </>
           ) : (
             <div className="text-center py-16">

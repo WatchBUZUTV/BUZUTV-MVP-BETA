@@ -5,7 +5,7 @@ import { Search, Menu, X } from "lucide-react";
 import { mockMovies, channels } from "@/data/mockMovies";
 import MovieCard from "@/components/MovieCard";
 import ChannelCard from "@/components/ChannelCard";
-import HeroBanner from "@/components/HeroBanner";
+// import HeroBanner from "@/components/HeroBanner";
 import SearchOverlay from "@/components/SearchOverlay";
 
 const Index = () => {
@@ -14,11 +14,14 @@ const Index = () => {
 
   const featuredMovies = mockMovies.filter(movie => movie.isFeatured);
   const trendingMovies = mockMovies.filter(movie => movie.isTrending);
+  const continueWatchingMovies = mockMovies.slice(0, 4); // Mock continue watching
 
   const actionMovies = mockMovies.filter(movie => movie.genre === "Action");
   const dramaMovies = mockMovies.filter(movie => movie.genre === "Drama");
   const romanceMovies = mockMovies.filter(movie => movie.genre === "Romance");
   const comedyMovies = mockMovies.filter(movie => movie.genre === "Comedy");
+  const documentaryMovies = mockMovies.filter(movie => movie.genre === "Documentary");
+  const informationalMovies = mockMovies.filter(movie => movie.genre === "Informational");
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -133,8 +136,15 @@ const Index = () => {
       {/* Only show home content when not searching */}
       {!showSearchOverlay && (
         <div className="pt-16">
-          {/* Hero Banner */}
-          <HeroBanner movies={featuredMovies} />
+          {/* Hero Section - Black background with logo */}
+          <div className="h-[50vh] bg-black flex items-center justify-center">
+            <h1 className="text-6xl font-bold">
+              Bizu<span className="text-blue-500">TV</span>
+            </h1>
+          </div>
+
+          {/* Commented out Hero Banner for potential reuse */}
+          {/* <HeroBanner movies={featuredMovies} /> */}
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {/* Popular Channels */}
@@ -159,6 +169,25 @@ const Index = () => {
                   {trendingMovies.map((movie) => (
                     <div key={movie.id} className="flex-shrink-0 w-64">
                       <MovieCard movie={movie} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* Continue Watching */}
+            <section className="mb-12">
+              <h2 className="text-2xl font-bold mb-6">Continue Watching</h2>
+              <div className="overflow-x-auto">
+                <div className="flex space-x-4 pb-4">
+                  {continueWatchingMovies.map((movie) => (
+                    <div key={movie.id} className="flex-shrink-0 w-64">
+                      <MovieCard 
+                        movie={movie} 
+                        showProgress={true}
+                        progressPercent={Math.floor(Math.random() * 70) + 10}
+                        showResumeButton={true}
+                      />
                     </div>
                   ))}
                 </div>
@@ -210,6 +239,32 @@ const Index = () => {
               <div className="overflow-x-auto">
                 <div className="flex space-x-4 pb-4">
                   {comedyMovies.map((movie) => (
+                    <div key={movie.id} className="flex-shrink-0 w-64">
+                      <MovieCard movie={movie} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            <section className="mb-12">
+              <h2 className="text-2xl font-bold mb-6">Documentary</h2>
+              <div className="overflow-x-auto">
+                <div className="flex space-x-4 pb-4">
+                  {documentaryMovies.map((movie) => (
+                    <div key={movie.id} className="flex-shrink-0 w-64">
+                      <MovieCard movie={movie} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            <section className="mb-12">
+              <h2 className="text-2xl font-bold mb-6">Informational</h2>
+              <div className="overflow-x-auto">
+                <div className="flex space-x-4 pb-4">
+                  {informationalMovies.map((movie) => (
                     <div key={movie.id} className="flex-shrink-0 w-64">
                       <MovieCard movie={movie} />
                     </div>

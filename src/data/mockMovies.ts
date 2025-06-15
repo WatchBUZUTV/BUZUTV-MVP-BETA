@@ -124,6 +124,32 @@ export const mockMovies: Movie[] = [
     isFeatured: false,
     isTrending: true,
     type: "tv"
+  },
+  {
+    id: "9",
+    title: "Planet Earth",
+    description: "A groundbreaking documentary series that takes viewers on an incredible journey through our planet's most spectacular landscapes and wildlife.",
+    posterUrl: "https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?w=400",
+    youtubeId: "hFJBPVCdppE",
+    rating: 9.3,
+    year: 2006,
+    genre: "Documentary",
+    isFeatured: false,
+    isTrending: false,
+    type: "tv"
+  },
+  {
+    id: "10",
+    title: "How It's Made",
+    description: "An educational series that explains the manufacturing processes of everyday items and products.",
+    posterUrl: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400",
+    youtubeId: "iO7_Ep6j8LM",
+    rating: 8.2,
+    year: 2001,
+    genre: "Informational",
+    isFeatured: false,
+    isTrending: false,
+    type: "tv"
   }
 ];
 
@@ -167,8 +193,11 @@ export const channels: Channel[] = [
 ];
 
 export const genres = [
+  "All",
   "Action",
   "Drama", 
   "Romance",
-  "Comedy"
+  "Comedy",
+  "Documentary",
+  "Informational"
 ];
