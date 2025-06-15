@@ -2,11 +2,14 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { ArrowUpRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 const LoginModal = () => {
   const { showLoginModal, setShowLoginModal, login, signup } = useAuth();
+  const navigate = useNavigate();
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -62,14 +65,29 @@ const LoginModal = () => {
     resetForm();
   };
 
+  const handleGoToFullPage = () => {
+    setShowLoginModal(false);
+    navigate('/auth');
+    resetForm();
+  };
+
   return (
     <Dialog open={showLoginModal} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md bg-gray-800 text-white border-gray-700">
         <DialogHeader>
-          <DialogTitle className="text-center text-2xl font-bold">
-            {isSignUp ? 'Sign Up' : 'Sign In'} to{' '}
-            <span className="text-blue-500">BizuTV</span>
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="text-xl font-bold">
+              {isSignUp ? 'Sign Up' : 'Sign In'} to{' '}
+              <span className="text-blue-500">BizuTV</span>
+            </DialogTitle>
+            <button
+              onClick={handleGoToFullPage}
+              className="text-gray-400 hover:text-white transition-colors p-1"
+              title="Open full page"
+            >
+              <ArrowUpRight className="w-5 h-5" />
+            </button>
+          </div>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">

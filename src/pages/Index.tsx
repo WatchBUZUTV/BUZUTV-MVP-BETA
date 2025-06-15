@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, Menu, X, User, LogOut } from "lucide-react";
@@ -38,9 +37,6 @@ const Index = () => {
   const handleAdminClick = () => {
     if (user?.isAdmin) {
       setShowAdminModal(true);
-    } else {
-      // Regular admin login flow
-      window.location.href = '/admin';
     }
   };
 
@@ -123,23 +119,23 @@ const Index = () => {
                   </Button>
                 </div>
               ) : (
-                <Button
-                  onClick={() => setShowLoginModal(true)}
-                  variant="ghost"
-                  size="sm"
-                  className="text-gray-400 hover:text-white"
+                <Link 
+                  to="/auth"
+                  className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors"
                 >
-                  <User className="w-4 h-4 mr-2" />
-                  Sign In
-                </Button>
+                  <User className="w-4 h-4" />
+                  <span>Sign In</span>
+                </Link>
               )}
               
-              <button
-                onClick={handleAdminClick}
-                className="text-gray-400 hover:text-white transition-colors text-sm"
-              >
-                Admin
-              </button>
+              {isLoggedIn && user?.isAdmin && (
+                <button
+                  onClick={handleAdminClick}
+                  className="text-gray-400 hover:text-white transition-colors text-sm"
+                >
+                  Admin
+                </button>
+              )}
             </div>
 
             {/* Mobile menu button */}
@@ -197,20 +193,22 @@ const Index = () => {
                     </button>
                   </div>
                 ) : (
-                  <button
-                    onClick={() => setShowLoginModal(true)}
+                  <Link
+                    to="/auth"
                     className="block text-left text-gray-400 hover:text-white transition-colors"
                   >
                     Sign In
-                  </button>
+                  </Link>
                 )}
                 
-                <button
-                  onClick={handleAdminClick}
-                  className="block text-left text-gray-400 hover:text-white transition-colors"
-                >
-                  Admin
-                </button>
+                {isLoggedIn && user?.isAdmin && (
+                  <button
+                    onClick={handleAdminClick}
+                    className="block text-left text-gray-400 hover:text-white transition-colors"
+                  >
+                    Admin
+                  </button>
+                )}
               </div>
             </div>
           </div>
