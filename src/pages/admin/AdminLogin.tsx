@@ -1,13 +1,23 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 const AdminLogin = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    // If user is already logged in as admin, redirect
+    const isAdminLoggedIn = localStorage.getItem("isAdminLoggedIn");
+    if (isAdminLoggedIn) {
+      navigate("/admin/dashboard");
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,6 +53,9 @@ const AdminLogin = () => {
               Bizu<span className="text-blue-500">TV</span>
             </h1>
             <p className="text-gray-400 mt-2">Admin Portal</p>
+            {user?.isAdmin && (
+              <p className="text-blue-400 mt-1 text-sm">Welcome back, {user.name}</p>
+            )}
           </div>
 
           {/* Form */}
@@ -91,6 +104,16 @@ const AdminLogin = () => {
               Username: <span className="text-white">admin</span><br />
               Password: <span className="text-white">admin123</span>
             </p>
+          </div>
+
+          {/* Back to site */}
+          <div className="mt-6 text-center">
+            <button
+              onClick={() => navigate('/')}
+              className="text-blue-400 hover:text-blue-300 transition-colors text-sm"
+            >
+              ← Back to BizuTV
+            </button>
           </div>
         </div>
       </div>

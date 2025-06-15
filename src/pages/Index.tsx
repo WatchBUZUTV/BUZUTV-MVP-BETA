@@ -1,18 +1,22 @@
 
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, Menu, X } from "lucide-react";
+import { Search, Menu, X, User, LogOut } from "lucide-react";
 import { mockMovies, channels } from "@/data/mockMovies";
 import MovieCard from "@/components/MovieCard";
 import ChannelCard from "@/components/ChannelCard";
-// import HeroBanner from "@/components/HeroBanner";
 import SearchOverlay from "@/components/SearchOverlay";
+import ProtectedContent from "@/components/auth/ProtectedContent";
+import AdminAccessModal from "@/components/auth/AdminAccessModal";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showAdminModal, setShowAdminModal] = useState(false);
+  const { user, isLoggedIn, setShowLoginModal, logout } = useAuth();
 
-  const featuredMovies = mockMovies.filter(movie => movie.isFeatured);
   const trendingMovies = mockMovies.filter(movie => movie.isTrending);
   const continueWatchingMovies = mockMovies.slice(0, 4); // Mock continue watching
 
@@ -31,6 +35,15 @@ const Index = () => {
     setSearchQuery("");
   };
 
+  const handleAdminClick = () => {
+    if (user?.isAdmin) {
+      setShowAdminModal(true);
+    } else {
+      // Regular admin login flow
+      window.location.href = '/admin';
+    }
+  };
+
   // Show search overlay when there's a search query
   const showSearchOverlay = searchQuery.trim().length > 0;
 
@@ -44,6 +57,12 @@ const Index = () => {
           searchQuery={searchQuery}
         />
       )}
+
+      {/* Admin Access Modal */}
+      <AdminAccessModal 
+        isOpen={showAdminModal} 
+        onClose={() => setShowAdminModal(false)} 
+      />
       
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800">
@@ -59,12 +78,18 @@ const Index = () => {
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
               <Link to="/" className="hover:text-blue-400 transition-colors">Home</Link>
-              <Link to="/movies" className="hover:text-blue-400 transition-colors">Movies</Link>
-              <Link to="/series" className="hover:text-blue-400 transition-colors">Series</Link>
-              <Link to="/my-list" className="hover:text-blue-400 transition-colors">My List</Link>
+              <ProtectedContent>
+                <Link to="/movies" className="hover:text-blue-400 transition-colors">Movies</Link>
+              </ProtectedContent>
+              <ProtectedContent>
+                <Link to="/series" className="hover:text-blue-400 transition-colors">Series</Link>
+              </ProtectedContent>
+              <ProtectedContent>
+                <Link to="/my-list" className="hover:text-blue-400 transition-colors">My List</Link>
+              </ProtectedContent>
             </div>
 
-            {/* Search */}
+            {/* Search and User Actions */}
             <div className="hidden md:flex items-center space-x-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -84,9 +109,37 @@ const Index = () => {
                   </button>
                 )}
               </div>
-              <Link to="/admin" className="text-gray-400 hover:text-white transition-colors text-sm">
+              
+              {isLoggedIn ? (
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-gray-300">Hi, {user?.name}</span>
+                  <Button
+                    onClick={logout}
+                    variant="ghost"
+                    size="sm"
+                    className="text-gray-400 hover:text-white"
+                  >
+                    <LogOut className="w-4 h-4" />
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  onClick={() => setShowLoginModal(true)}
+                  variant="ghost"
+                  size="sm"
+                  className="text-gray-400 hover:text-white"
+                >
+                  <User className="w-4 h-4 mr-2" />
+                  Sign In
+                </Button>
+              )}
+              
+              <button
+                onClick={handleAdminClick}
+                className="text-gray-400 hover:text-white transition-colors text-sm"
+              >
                 Admin
-              </Link>
+              </button>
             </div>
 
             {/* Mobile menu button */}
@@ -123,10 +176,41 @@ const Index = () => {
               </div>
               <div className="space-y-2">
                 <Link to="/" className="block hover:text-blue-400 transition-colors">Home</Link>
-                <Link to="/movies" className="block hover:text-blue-400 transition-colors">Movies</Link>
-                <Link to="/series" className="block hover:text-blue-400 transition-colors">Series</Link>
-                <Link to="/my-list" className="block hover:text-blue-400 transition-colors">My List</Link>
-                <Link to="/admin" className="block text-gray-400 hover:text-white transition-colors">Admin</Link>
+                <ProtectedContent>
+                  <Link to="/movies" className="block hover:text-blue-400 transition-colors">Movies</Link>
+                </ProtectedContent>
+                <ProtectedContent>
+                  <Link to="/series" className="block hover:text-blue-400 transition-colors">Series</Link>
+                </ProtectedContent>
+                <ProtectedContent>
+                  <Link to="/my-list" className="block hover:text-blue-400 transition-colors">My List</Link>
+                </ProtectedContent>
+                
+                {isLoggedIn ? (
+                  <div className="space-y-2">
+                    <div className="text-sm text-gray-300">Hi, {user?.name}</div>
+                    <button
+                      onClick={logout}
+                      className="block text-left text-gray-400 hover:text-white transition-colors"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setShowLoginModal(true)}
+                    className="block text-left text-gray-400 hover:text-white transition-colors"
+                  >
+                    Sign In
+                  </button>
+                )}
+                
+                <button
+                  onClick={handleAdminClick}
+                  className="block text-left text-gray-400 hover:text-white transition-colors"
+                >
+                  Admin
+                </button>
               </div>
             </div>
           </div>
@@ -154,7 +238,9 @@ const Index = () => {
                 <div className="flex space-x-4 pb-4">
                   {channels.map((channel) => (
                     <div key={channel.id} className="flex-shrink-0 w-48">
-                      <ChannelCard channel={channel} />
+                      <ProtectedContent>
+                        <ChannelCard channel={channel} />
+                      </ProtectedContent>
                     </div>
                   ))}
                 </div>
@@ -168,7 +254,9 @@ const Index = () => {
                 <div className="flex space-x-4 pb-4">
                   {trendingMovies.map((movie) => (
                     <div key={movie.id} className="flex-shrink-0 w-64">
-                      <MovieCard movie={movie} />
+                      <ProtectedContent>
+                        <MovieCard movie={movie} />
+                      </ProtectedContent>
                     </div>
                   ))}
                 </div>
@@ -182,12 +270,14 @@ const Index = () => {
                 <div className="flex space-x-4 pb-4">
                   {continueWatchingMovies.map((movie) => (
                     <div key={movie.id} className="flex-shrink-0 w-64">
-                      <MovieCard 
-                        movie={movie} 
-                        showProgress={true}
-                        progressPercent={Math.floor(Math.random() * 70) + 10}
-                        showResumeButton={true}
-                      />
+                      <ProtectedContent>
+                        <MovieCard 
+                          movie={movie} 
+                          showProgress={true}
+                          progressPercent={Math.floor(Math.random() * 70) + 10}
+                          showResumeButton={true}
+                        />
+                      </ProtectedContent>
                     </div>
                   ))}
                 </div>
@@ -201,7 +291,9 @@ const Index = () => {
                 <div className="flex space-x-4 pb-4">
                   {actionMovies.map((movie) => (
                     <div key={movie.id} className="flex-shrink-0 w-64">
-                      <MovieCard movie={movie} />
+                      <ProtectedContent>
+                        <MovieCard movie={movie} />
+                      </ProtectedContent>
                     </div>
                   ))}
                 </div>
@@ -214,7 +306,9 @@ const Index = () => {
                 <div className="flex space-x-4 pb-4">
                   {dramaMovies.map((movie) => (
                     <div key={movie.id} className="flex-shrink-0 w-64">
-                      <MovieCard movie={movie} />
+                      <ProtectedContent>
+                        <MovieCard movie={movie} />
+                      </ProtectedContent>
                     </div>
                   ))}
                 </div>
@@ -227,7 +321,9 @@ const Index = () => {
                 <div className="flex space-x-4 pb-4">
                   {romanceMovies.map((movie) => (
                     <div key={movie.id} className="flex-shrink-0 w-64">
-                      <MovieCard movie={movie} />
+                      <ProtectedContent>
+                        <MovieCard movie={movie} />
+                      </ProtectedContent>
                     </div>
                   ))}
                 </div>
@@ -240,7 +336,9 @@ const Index = () => {
                 <div className="flex space-x-4 pb-4">
                   {comedyMovies.map((movie) => (
                     <div key={movie.id} className="flex-shrink-0 w-64">
-                      <MovieCard movie={movie} />
+                      <ProtectedContent>
+                        <MovieCard movie={movie} />
+                      </ProtectedContent>
                     </div>
                   ))}
                 </div>
@@ -253,7 +351,9 @@ const Index = () => {
                 <div className="flex space-x-4 pb-4">
                   {documentaryMovies.map((movie) => (
                     <div key={movie.id} className="flex-shrink-0 w-64">
-                      <MovieCard movie={movie} />
+                      <ProtectedContent>
+                        <MovieCard movie={movie} />
+                      </ProtectedContent>
                     </div>
                   ))}
                 </div>
@@ -266,7 +366,9 @@ const Index = () => {
                 <div className="flex space-x-4 pb-4">
                   {informationalMovies.map((movie) => (
                     <div key={movie.id} className="flex-shrink-0 w-64">
-                      <MovieCard movie={movie} />
+                      <ProtectedContent>
+                        <MovieCard movie={movie} />
+                      </ProtectedContent>
                     </div>
                   ))}
                 </div>
