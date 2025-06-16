@@ -12,7 +12,11 @@ const ProtectedContent = ({ children, fallback }: ProtectedContentProps) => {
   if (!isLoggedIn) {
     return (
       <div 
-        onClick={() => setShowLoginModal(true)}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setShowLoginModal(true);
+        }}
         className="cursor-pointer"
       >
         {fallback || children}

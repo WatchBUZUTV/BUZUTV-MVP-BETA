@@ -2,14 +2,15 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 
 const LoginModal = () => {
   const { showLoginModal, setShowLoginModal, login, signup } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -61,8 +62,16 @@ const LoginModal = () => {
   };
 
   const handleClose = () => {
-    setShowLoginModal(false);
-    resetForm();
+    // Only allow closing if on home page
+    if (location.pathname === '/') {
+      setShowLoginModal(false);
+      resetForm();
+    } else {
+      // Redirect to home if trying to close from protected route
+      navigate('/');
+      setShowLoginModal(false);
+      resetForm();
+    }
   };
 
   const handleGoToFullPage = () => {
@@ -80,13 +89,24 @@ const LoginModal = () => {
               {isSignUp ? 'Sign Up' : 'Sign In'} to{' '}
               <span className="text-blue-500">BizuTV</span>
             </DialogTitle>
-            <button
-              onClick={handleGoToFullPage}
-              className="text-gray-400 hover:text-white transition-colors p-1"
-              title="Open full page"
-            >
-              <ArrowUpRight className="w-5 h-5" />
-            </button>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={handleGoToFullPage}
+                className="text-gray-400 hover:text-white transition-colors p-1"
+                title="Open full page"
+              >
+                <ArrowUpRight className="w-5 h-5" />
+              </button>
+              {location.pathname === '/' && (
+                <button
+                  onClick={handleClose}
+                  className="text-gray-400 hover:text-white transition-colors p-1"
+                  title="Close"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              )}
+            </div>
           </div>
         </DialogHeader>
 
