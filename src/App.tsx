@@ -10,6 +10,7 @@ import Auth from "./pages/Auth";
 import Movies from "./pages/Movies";
 import Series from "./pages/Series";
 import MyList from "./pages/MyList";
+import Settings from "./pages/Settings";
 import MovieDetail from "./pages/MovieDetail";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/movies" element={<Movies />} />
             <Route path="/series" element={<Series />} />
             <Route path="/my-list" element={<MyList />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="/movie/:id" element={<MovieDetail />} />
             <Route path="/admin" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
