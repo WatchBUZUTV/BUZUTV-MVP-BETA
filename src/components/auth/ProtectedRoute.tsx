@@ -16,6 +16,9 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       // Store the current path before redirecting
       sessionStorage.setItem('previousPath', location.pathname);
       setShowLoginModal(true);
+    } else {
+      // Store current path for back navigation when logged in
+      sessionStorage.setItem('currentPath', location.pathname);
     }
   }, [isLoggedIn, setShowLoginModal, location.pathname]);
 

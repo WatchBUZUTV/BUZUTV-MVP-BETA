@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Search, Menu, X, User, LogOut, Settings, ChevronDown } from "lucide-react";
 import ProtectedContent from "@/components/auth/ProtectedContent";
 import AdminAccessModal from "@/components/auth/AdminAccessModal";
@@ -23,11 +23,12 @@ const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => 
   
   const { user, isLoggedIn, setShowLoginModal, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
-      const headerHeight = window.innerHeight * 0.5; // Assuming header is 50vh
+      const headerHeight = window.innerHeight * 0.3; // Assuming header is 30vh
       
       if (scrollY === 0) {
         setScrollBackground("transparent");
@@ -125,8 +126,8 @@ const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => 
       )}
       
       {/* Navigation */}
-      <nav className={`fixed top-0 w-full z-50 ${getNavbarBackground()} backdrop-blur-sm border-b border-gray-800 transition-all duration-300`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav className={`fixed top-0 w-full z-50 ${getNavbarBackground()} backdrop-blur-sm border-b border-gray-800/50 transition-all duration-300`}>
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2">

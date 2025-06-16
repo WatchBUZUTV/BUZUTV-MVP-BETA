@@ -67,7 +67,7 @@ const Index = () => {
             </h1>
           </div>
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-8">
             {/* Popular Channels */}
             <section className="mb-12">
               <h2 className="text-2xl font-bold mb-6">Popular Channels</h2>
@@ -215,7 +215,7 @@ const Index = () => {
 
           {/* Footer */}
           <footer className="bg-gray-800 border-t border-gray-700 py-8">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-400">
+            <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 text-center text-gray-400">
               <p>&copy; 2024 BizuTV. All rights reserved.</p>
             </div>
           </footer>

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { mockMovies, genres } from "@/data/mockMovies";
 import MovieCard from "@/components/MovieCard";
@@ -58,7 +57,7 @@ const Series = () => {
         <div className="pt-16">
           {/* Search Results */}
           {searchQuery && !showSearchOverlay && (
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-8">
               <section className="mb-12">
                 <h2 className="text-2xl font-bold mb-6">
                   Search Results ({filteredSeries.length})
@@ -76,7 +75,7 @@ const Series = () => {
           {!searchQuery && (
             <>
               {/* Top Section */}
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-8">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
                   {/* Left - Hero Banner */}
                   <div className="lg:col-span-2">
@@ -111,7 +110,7 @@ const Series = () => {
               </div>
 
               {/* Content Rows */}
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+              <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pb-8">
                 {/* Recommended */}
                 <section className="mb-12">
                   <h2 className="text-2xl font-bold mb-6">Recommended</h2>

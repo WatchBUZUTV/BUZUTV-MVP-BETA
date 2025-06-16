@@ -1,21 +1,37 @@
 
-import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Star, Play } from "lucide-react";
+import { useParams, useNavigate } from "react-router-dom";
+import { ArrowLeft, Star, Play, Heart } from "lucide-react";
 import { mockMovies } from "@/data/mockMovies";
 import MovieCard from "@/components/MovieCard";
+import { useState } from "react";
 
 const MovieDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const [isFavorited, setIsFavorited] = useState(false);
   const movie = mockMovies.find(m => m.id === id);
+
+  const handleBack = () => {
+    const currentPath = sessionStorage.getItem('currentPath');
+    if (currentPath && currentPath !== '/') {
+      navigate(currentPath);
+    } else {
+      navigate('/');
+    }
+  };
+
+  const handleFavorite = () => {
+    setIsFavorited(!isFavorited);
+  };
 
   if (!movie) {
     return (
       <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-4xl font-bold mb-4">Movie Not Found</h1>
-          <Link to="/" className="text-blue-400 hover:text-blue-300">
-            Return to Home
-          </Link>
+          <button onClick={handleBack} className="text-blue-400 hover:text-blue-300">
+            Return to Previous Page
+          </button>
         </div>
       </div>
     );
@@ -30,31 +46,31 @@ const MovieDetail = () => {
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
           <div className="flex items-center justify-between h-16">
-            <Link to="/" className="flex items-center space-x-2">
+            <button onClick={handleBack} className="flex items-center space-x-2">
               <span className="text-2xl font-bold">
                 Bizu<span className="text-blue-500">TV</span>
               </span>
-            </Link>
+            </button>
           </div>
         </div>
       </nav>
 
       <div className="pt-16">
         {/* Back Button */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Link
-            to="/"
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-4">
+          <button
+            onClick={handleBack}
             className="inline-flex items-center space-x-2 text-gray-400 hover:text-white transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
             <span>Back</span>
-          </Link>
+          </button>
         </div>
 
         {/* Movie Content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pb-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Video Player */}
             <div className="lg:col-span-2">
@@ -71,7 +87,17 @@ const MovieDetail = () => {
             {/* Movie Info */}
             <div className="space-y-6">
               <div>
-                <h1 className="text-3xl font-bold mb-2">{movie.title}</h1>
+                <div className="flex items-start justify-between mb-2">
+                  <h1 className="text-3xl font-bold flex-1">{movie.title}</h1>
+                  <button
+                    onClick={handleFavorite}
+                    className="ml-4 p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors"
+                  >
+                    <Heart 
+                      className={`w-6 h-6 ${isFavorited ? 'fill-current text-red-500' : 'text-gray-400'}`} 
+                    />
+                  </button>
+                </div>
                 <div className="flex items-center space-x-4 text-sm text-gray-400 mb-4">
                   <span>{movie.year}</span>
                   <span className="bg-blue-600 text-white px-2 py-1 rounded">
