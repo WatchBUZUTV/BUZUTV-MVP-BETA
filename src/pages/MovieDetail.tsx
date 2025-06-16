@@ -12,9 +12,9 @@ const MovieDetail = () => {
   const movie = mockMovies.find(m => m.id === id);
 
   const handleBack = () => {
-    const currentPath = sessionStorage.getItem('currentPath');
-    if (currentPath && currentPath !== '/') {
-      navigate(currentPath);
+    const lastMainPage = localStorage.getItem('lastMainPage');
+    if (lastMainPage && lastMainPage !== '/') {
+      navigate(lastMainPage);
     } else {
       navigate('/');
     }

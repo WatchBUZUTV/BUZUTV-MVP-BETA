@@ -1,5 +1,6 @@
+
 import { useState, useRef, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Search, User, ChevronDown, LogOut, X, Settings } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -18,13 +19,26 @@ const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => 
 
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Store current path for back navigation
+  useEffect(() => {
+    if (!searchQuery) {
+      localStorage.setItem('lastMainPage', location.pathname);
+    }
+  }, [location.pathname, searchQuery]);
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY >= 20) {
+      const scrollY = window.scrollY;
+      const headerHeight = 400; // Approximate header height
+      
+      if (scrollY === 0) {
+        setNavBackground(false);
+      } else if (scrollY > 0 && scrollY < headerHeight) {
         setNavBackground(true);
       } else {
-        setNavBackground(false);
+        setNavBackground(true);
       }
     };
 
@@ -73,8 +87,21 @@ const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => 
     setShowLogoutModal(false);
   };
 
+  const getNavBackground = () => {
+    const scrollY = window.scrollY;
+    const headerHeight = 400;
+    
+    if (scrollY === 0) {
+      return 'bg-transparent';
+    } else if (scrollY > 0 && scrollY < headerHeight) {
+      return 'bg-gray-800/80 backdrop-blur-sm border-b border-gray-700';
+    } else {
+      return 'bg-gray-900/90 backdrop-blur-sm border-b border-gray-800';
+    }
+  };
+
   return (
-    <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${navBackground ? 'bg-gray-900/90 backdrop-blur-sm border-b border-gray-800' : 'bg-transparent'}`}>
+    <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${getNavBackground()}`}>
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -164,9 +191,10 @@ const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => 
             {/* Logout Button */}
             <button
               onClick={handleMainLogout}
-              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors flex items-center space-x-2"
             >
-              Logout
+              <LogOut className="w-4 h-4" />
+              <span>Logout</span>
             </button>
           </div>
         </div>
