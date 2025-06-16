@@ -12,14 +12,13 @@ interface NavbarProps {
 }
 
 const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => {
-  const [navBackground, setNavBackground] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [searchExpanded, setSearchExpanded] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const { logout, user, isLoggedIn } = useAuth();
+  const { logout, user, isLoggedIn, setShowLoginModal } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -29,21 +28,6 @@ const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => 
       localStorage.setItem('lastMainPage', location.pathname);
     }
   }, [location.pathname, searchQuery]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      
-      if (scrollY === 0) {
-        setNavBackground(false);
-      } else {
-        setNavBackground(true);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const handleSearchToggle = () => {
     setSearchExpanded(!searchExpanded);
@@ -92,15 +76,19 @@ const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => 
     setShowLogoutModal(false);
   };
 
+  const handleLoginClick = () => {
+    setShowLoginModal(true);
+  };
+
   const getNavBackground = () => {
     const scrollY = window.scrollY;
     
     if (scrollY === 0) {
       return 'bg-transparent';
-    } else if (scrollY > 0 && scrollY < 400) {
-      return 'bg-gray-800/80 backdrop-blur-sm border-b border-gray-700';
+    } else if (scrollY > 0 && scrollY < 200) {
+      return 'bg-gray-700/60 backdrop-blur-sm';
     } else {
-      return 'bg-gray-900/90 backdrop-blur-sm border-b border-gray-800';
+      return 'bg-gray-900/95 backdrop-blur-sm border-b border-gray-800';
     }
   };
 
@@ -161,62 +149,70 @@ const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => 
                 )}
               </div>
 
-              {/* Profile Dropdown */}
-              {isLoggedIn && (
-                <div className="relative">
-                  <button
-                    onClick={handleProfileClick}
-                    className="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded-lg transition-colors"
-                  >
-                    <User className="w-5 h-5" />
-                    <ChevronDown className="w-4 h-4" />
-                  </button>
+              {/* Login/Profile Section */}
+              {isLoggedIn ? (
+                <>
+                  {/* Profile Dropdown */}
+                  <div className="relative">
+                    <button
+                      onClick={handleProfileClick}
+                      className="flex items-center space-x-2 p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                    >
+                      <User className="w-5 h-5" />
+                      <ChevronDown className="w-4 h-4" />
+                    </button>
 
-                  {showProfileDropdown && (
-                    <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg py-2">
-                      <div className="px-4 py-2 border-b border-gray-700">
-                        <p className="text-sm text-gray-300">{user?.name}</p>
-                        <p className="text-xs text-gray-400">{user?.email}</p>
-                        {user?.isAdmin && (
-                          <span className="text-xs text-blue-400">Admin</span>
-                        )}
-                      </div>
-                      <button
-                        onClick={handleSettingsClick}
-                        className="w-full text-left px-4 py-2 hover:bg-gray-700 transition-colors flex items-center space-x-2"
-                      >
-                        <Settings className="w-4 h-4" />
-                        <span>Settings</span>
-                      </button>
-                      {user?.isAdmin && (
+                    {showProfileDropdown && (
+                      <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg py-2">
+                        <div className="px-4 py-2 border-b border-gray-700">
+                          <p className="text-sm text-gray-300">{user?.name}</p>
+                          <p className="text-xs text-gray-400">{user?.email}</p>
+                          {user?.isAdmin && (
+                            <span className="text-xs text-blue-400">Admin</span>
+                          )}
+                        </div>
                         <button
-                          onClick={handleAdminClick}
+                          onClick={handleSettingsClick}
                           className="w-full text-left px-4 py-2 hover:bg-gray-700 transition-colors flex items-center space-x-2"
                         >
                           <Settings className="w-4 h-4" />
-                          <span>Admin Panel</span>
+                          <span>Settings</span>
                         </button>
-                      )}
-                      <button
-                        onClick={handleLogoutClick}
-                        className="w-full text-left px-4 py-2 hover:bg-gray-700 transition-colors flex items-center space-x-2"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        <span>Logout</span>
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
+                        {user?.isAdmin && (
+                          <button
+                            onClick={handleAdminClick}
+                            className="w-full text-left px-4 py-2 hover:bg-gray-700 transition-colors flex items-center space-x-2"
+                          >
+                            <Settings className="w-4 h-4" />
+                            <span>Admin Panel</span>
+                          </button>
+                        )}
+                        <button
+                          onClick={handleLogoutClick}
+                          className="w-full text-left px-4 py-2 hover:bg-gray-700 transition-colors flex items-center space-x-2"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          <span>Logout</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
 
-              {/* Logout Button */}
-              {isLoggedIn && (
+                  {/* Logout Button */}
+                  <button
+                    onClick={handleMainLogout}
+                    className="p-2 hover:bg-gray-800 rounded-full transition-colors"
+                    title="Logout"
+                  >
+                    <LogOut className="w-5 h-5" />
+                  </button>
+                </>
+              ) : (
                 <button
-                  onClick={handleMainLogout}
-                  className="p-2 hover:bg-gray-800 rounded-full transition-colors"
-                  title="Logout"
+                  onClick={handleLoginClick}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
                 >
-                  <LogOut className="w-5 h-5" />
+                  Login
                 </button>
               )}
             </div>

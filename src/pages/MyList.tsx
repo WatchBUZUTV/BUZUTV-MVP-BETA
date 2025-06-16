@@ -56,14 +56,14 @@ const MyList = () => {
             </h1>
           </div>
 
-          <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="max-w-full px-2 py-8">
             {savedMovies.length > 0 ? (
               <>
                 {/* Continue Watching */}
                 <section className="mb-12">
-                  <h2 className="text-2xl font-bold mb-6">Continue Watching</h2>
+                  <h2 className="text-2xl font-bold mb-6 px-4">Continue Watching</h2>
                   <div className="overflow-x-auto">
-                    <div className="flex space-x-4 pb-4">
+                    <div className="flex space-x-4 pb-4 px-4">
                       {continueWatching.map((movie) => (
                         <div key={movie.id} className="flex-shrink-0 w-64">
                           <MovieCard 
@@ -81,9 +81,9 @@ const MyList = () => {
 
                 {/* Favorites */}
                 <section className="mb-12">
-                  <h2 className="text-2xl font-bold mb-6">Favorites ({filteredSavedMovies.length})</h2>
+                  <h2 className="text-2xl font-bold mb-6 px-4">Favorites ({filteredSavedMovies.length})</h2>
                   <div className="overflow-x-auto">
-                    <div className="flex space-x-4 pb-4">
+                    <div className="flex space-x-4 pb-4 px-4">
                       {filteredSavedMovies.map((movie) => (
                         <div key={movie.id} className="flex-shrink-0 w-64">
                           <MovieCard movie={movie} showSaveButton={false} />

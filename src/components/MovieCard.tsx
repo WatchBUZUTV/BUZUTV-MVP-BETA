@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { Star, Heart, Play, Expand, Plus, Check, X } from "lucide-react";
+import { Star, Heart, Play, Expand, X } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
 import { useState } from "react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
@@ -12,6 +12,8 @@ interface MovieCardProps {
   progressPercent?: number;
   showResumeButton?: boolean;
 }
+
+let currentHoveredCard: string | null = null;
 
 const MovieCard = ({ 
   movie, 
@@ -30,10 +32,17 @@ const MovieCard = ({
   };
 
   const handleMouseEnter = () => {
+    if (currentHoveredCard && currentHoveredCard !== movie.id) {
+      return;
+    }
+    currentHoveredCard = movie.id;
     setIsHovered(true);
   };
 
   const handleMouseLeave = () => {
+    if (currentHoveredCard === movie.id) {
+      currentHoveredCard = null;
+    }
     setIsHovered(false);
   };
 
@@ -53,7 +62,7 @@ const MovieCard = ({
         <HoverCard openDelay={800} closeDelay={200}>
           <HoverCardTrigger asChild>
             <Link to={`/movie/${movie.id}`} className="block">
-              <div className={`relative overflow-hidden rounded-lg bg-gray-800 shadow-lg transition-all duration-300 ${isHovered ? 'scale-110 shadow-2xl z-10' : ''}`}>
+              <div className={`relative overflow-hidden rounded-lg bg-gray-800 shadow-lg transition-all duration-300 ${isHovered ? 'scale-125 shadow-2xl z-10' : ''}`}>
                 <div className="aspect-[3/2] overflow-hidden">
                   {isHovered ? (
                     // Video preview on hover
@@ -83,7 +92,7 @@ const MovieCard = ({
                   </div>
                 )}
                 
-                {/* Hover Controls */}
+                {/* Hover Controls on Video */}
                 {isHovered && (
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent">
                     <div className="absolute bottom-4 left-4 right-4">
@@ -141,18 +150,15 @@ const MovieCard = ({
             </Link>
           </HoverCardTrigger>
           
-          <HoverCardContent className="w-80 p-4 bg-gray-800 border-gray-700">
-            <div className="space-y-3">
+          <HoverCardContent className="w-80 p-3 bg-gray-800 border-gray-700" side="bottom" align="start">
+            <div className="space-y-2">
               <div className="flex items-start justify-between">
-                <h3 className="font-bold text-white">{movie.title}</h3>
-                <Link to={`/movie/${movie.id}`}>
-                  <Expand className="w-4 h-4 text-gray-400 hover:text-white" />
-                </Link>
+                <h3 className="font-bold text-white text-sm">{movie.title}</h3>
               </div>
               
-              <div className="flex items-center space-x-4 text-sm text-gray-400">
+              <div className="flex items-center space-x-3 text-xs text-gray-400">
                 <span>{movie.year}</span>
-                <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs">
+                <span className="bg-blue-600 text-white px-1.5 py-0.5 rounded text-xs">
                   {movie.genre}
                 </span>
                 <div className="flex items-center space-x-1">
@@ -161,18 +167,22 @@ const MovieCard = ({
                 </div>
               </div>
               
-              <p className="text-gray-300 text-sm line-clamp-3">{movie.description}</p>
-              
-              <div className="flex items-center space-x-2">
-                <button className="bg-white text-black px-3 py-1.5 rounded font-semibold flex items-center space-x-1 text-sm">
+              <div className="flex items-center space-x-2 pt-1">
+                <button className="bg-white text-black px-2 py-1 rounded text-xs font-semibold flex items-center space-x-1">
                   <Play className="w-3 h-3" />
                   <span>Play</span>
                 </button>
                 <button
                   onClick={handleSave}
-                  className="bg-gray-700 hover:bg-gray-600 text-white p-1.5 rounded transition-colors"
+                  className="bg-gray-700 hover:bg-gray-600 text-white p-1 rounded transition-colors"
                 >
-                  <Heart className={`w-4 h-4 ${isSaved ? 'fill-current text-red-500' : ''}`} />
+                  <Heart className={`w-3 h-3 ${isSaved ? 'fill-current text-red-500' : ''}`} />
+                </button>
+                <button
+                  onClick={handleExpandClick}
+                  className="bg-gray-700 hover:bg-gray-600 text-white p-1 rounded transition-colors"
+                >
+                  <Expand className="w-3 h-3" />
                 </button>
               </div>
             </div>
@@ -188,7 +198,7 @@ const MovieCard = ({
       {/* Expanded Modal */}
       {showExpandedModal && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-900 rounded-lg overflow-hidden w-[60%] h-[90%] max-w-4xl relative">
+          <div className="bg-gray-900 rounded-lg overflow-hidden w-[70%] h-[90%] max-w-5xl relative">
             <button
               onClick={handleCloseModal}
               className="absolute top-4 right-4 z-10 bg-gray-800/80 hover:bg-gray-700/80 text-white p-2 rounded-full transition-colors"

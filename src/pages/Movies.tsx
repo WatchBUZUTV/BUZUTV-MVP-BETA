@@ -58,12 +58,12 @@ const Movies = () => {
         <div className="pt-16">
           {/* Search Results */}
           {searchQuery && !showSearchOverlay && (
-            <div className="max-w-7xl mx-auto px-4 py-8">
+            <div className="max-w-full px-2 py-8">
               <section className="mb-12">
-                <h2 className="text-2xl font-bold mb-6">
+                <h2 className="text-2xl font-bold mb-6 px-4">
                   Search Results ({filteredMovies.length})
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-4">
                   {filteredMovies.map((movie) => (
                     <MovieCard key={movie.id} movie={movie} />
                   ))}
@@ -76,8 +76,8 @@ const Movies = () => {
           {!searchQuery && (
             <>
               {/* Top Section */}
-              <div className="max-w-7xl mx-auto px-4 py-8">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+              <div className="max-w-full px-2 py-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12 px-4">
                   {/* Left - Hero Banner */}
                   <div className="lg:col-span-2">
                     <HeroBanner movies={featuredMovies} />
@@ -111,12 +111,12 @@ const Movies = () => {
               </div>
 
               {/* Content Rows */}
-              <div className="max-w-7xl mx-auto px-4 pb-8">
+              <div className="max-w-full px-2 pb-8">
                 {/* Recommended */}
                 <section className="mb-12">
-                  <h2 className="text-2xl font-bold mb-6">Recommended</h2>
+                  <h2 className="text-2xl font-bold mb-6 px-4">Recommended</h2>
                   <div className="overflow-x-auto">
-                    <div className="flex space-x-4 pb-4">
+                    <div className="flex space-x-4 pb-4 px-4">
                       {recommendedMovies.map((movie) => (
                         <div key={movie.id} className="flex-shrink-0 w-64">
                           <MovieCard movie={movie} />
@@ -128,9 +128,9 @@ const Movies = () => {
 
                 {/* Trending Movies */}
                 <section className="mb-12">
-                  <h2 className="text-2xl font-bold mb-6">Trending Movies</h2>
+                  <h2 className="text-2xl font-bold mb-6 px-4">Trending Movies</h2>
                   <div className="overflow-x-auto">
-                    <div className="flex space-x-4 pb-4">
+                    <div className="flex space-x-4 pb-4 px-4">
                       {trendingMovies.map((movie) => (
                         <div key={movie.id} className="flex-shrink-0 w-64">
                           <MovieCard movie={movie} />
@@ -142,9 +142,9 @@ const Movies = () => {
 
                 {/* New Movies */}
                 <section className="mb-12">
-                  <h2 className="text-2xl font-bold mb-6">New Movies</h2>
+                  <h2 className="text-2xl font-bold mb-6 px-4">New Movies</h2>
                   <div className="overflow-x-auto">
-                    <div className="flex space-x-4 pb-4">
+                    <div className="flex space-x-4 pb-4 px-4">
                       {newMovies.map((movie) => (
                         <div key={movie.id} className="flex-shrink-0 w-64">
                           <MovieCard movie={movie} />
@@ -158,9 +158,9 @@ const Movies = () => {
                 {Object.entries(moviesByGenre).map(([genre, genreMovies]) => (
                   genreMovies.length > 0 && (
                     <section key={genre} className="mb-12">
-                      <h2 className="text-2xl font-bold mb-6">{genre}</h2>
+                      <h2 className="text-2xl font-bold mb-6 px-4">{genre}</h2>
                       <div className="overflow-x-auto">
-                        <div className="flex space-x-4 pb-4">
+                        <div className="flex space-x-4 pb-4 px-4">
                           {genreMovies.map((movie) => (
                             <div key={movie.id} className="flex-shrink-0 w-64">
                               <MovieCard movie={movie} />
