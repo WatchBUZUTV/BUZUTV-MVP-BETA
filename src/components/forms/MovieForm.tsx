@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useState } from 'react';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useChannels } from '@/hooks/useChannels';
+import { Plus, Trash2 } from 'lucide-react';
+
+const seasonSchema = z.object({
+  seasonNumber: z.number().min(1),
+  episodeCount: z.number().min(1)
+});
 
 const movieSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -22,8 +28,9 @@ const movieSchema = z.object({
   backdropUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   videoUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   durationMinutes: z.string().optional(),
-  seasons: z.string().optional(),
-  episodes: z.string().optional(),
+  seasons: z.array(seasonSchema).optional(),
+  totalSeasons: z.string().optional(),
+  totalEpisodes: z.string().optional(),
   isFeatured: z.boolean().default(false),
   isTrending: z.boolean().default(false),
   channelId: z.string().optional()
@@ -59,19 +66,50 @@ const MovieForm: React.FC<MovieFormProps> = ({
       backdropUrl: initialData?.backdropUrl || '',
       videoUrl: initialData?.videoUrl || '',
       durationMinutes: initialData?.durationMinutes || '',
-      seasons: initialData?.seasons || '',
-      episodes: initialData?.episodes || '',
+      seasons: initialData?.seasons || [],
+      totalSeasons: initialData?.totalSeasons || '',
+      totalEpisodes: initialData?.totalEpisodes || '',
       isFeatured: initialData?.isFeatured ?? false,
       isTrending: initialData?.isTrending ?? false,
       channelId: initialData?.channelId || ''
     }
   });
 
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: 'seasons'
+  });
+
   const watchType = form.watch('type');
+  const watchSeasons = form.watch('seasons');
+
+  // Calculate total episodes when seasons change
+  React.useEffect(() => {
+    if (watchType === 'series' && watchSeasons) {
+      const totalEpisodes = watchSeasons.reduce((sum, season) => sum + (season.episodeCount || 0), 0);
+      form.setValue('totalEpisodes', totalEpisodes.toString());
+      form.setValue('totalSeasons', watchSeasons.length.toString());
+    }
+  }, [watchSeasons, watchType, form]);
+
+  const addSeason = () => {
+    append({ seasonNumber: fields.length + 1, episodeCount: 1 });
+  };
+
+  const handleSubmit = (data: MovieFormData) => {
+    // Transform seasons data for backend
+    const transformedData = {
+      ...data,
+      seasons: data.type === 'series' ? data.totalSeasons : undefined,
+      episodes: data.type === 'series' ? data.totalEpisodes : undefined,
+      seasonsData: data.type === 'series' ? data.seasons : undefined
+    };
+    onSubmit(transformedData);
+  };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="title"
@@ -264,42 +302,116 @@ const MovieForm: React.FC<MovieFormProps> = ({
         )}
 
         {watchType === 'series' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField
-              control={form.control}
-              name="seasons"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-white">Seasons</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="3"
-                      className="bg-gray-700 border-gray-600 text-white"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-white">Episode Management</h3>
+              <Button
+                type="button"
+                onClick={addSeason}
+                variant="outline"
+                size="sm"
+                className="border-gray-600 text-gray-300 hover:bg-gray-700"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Season
+              </Button>
+            </div>
 
-            <FormField
-              control={form.control}
-              name="episodes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-white">Episodes</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="24"
-                      className="bg-gray-700 border-gray-600 text-white"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {fields.map((field, index) => (
+              <div key={field.id} className="flex items-center gap-4 p-4 bg-gray-700 rounded-lg">
+                <div className="flex-1">
+                  <FormField
+                    control={form.control}
+                    name={`seasons.${index}.seasonNumber`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-white">Season Number</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="number"
+                            min="1"
+                            value={field.value || ''}
+                            onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                            className="bg-gray-600 border-gray-500 text-white"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="flex-1">
+                  <FormField
+                    control={form.control}
+                    name={`seasons.${index}.episodeCount`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-white">Episodes</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="number"
+                            min="1"
+                            value={field.value || ''}
+                            onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                            className="bg-gray-600 border-gray-500 text-white"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <Button
+                  type="button"
+                  onClick={() => remove(index)}
+                  variant="outline"
+                  size="sm"
+                  className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            ))}
+
+            {fields.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                <FormField
+                  control={form.control}
+                  name="totalSeasons"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Total Seasons</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          readOnly
+                          className="bg-gray-600 border-gray-500 text-white cursor-not-allowed"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="totalEpisodes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Total Episodes</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          readOnly
+                          className="bg-gray-600 border-gray-500 text-white cursor-not-allowed"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
           </div>
         )}
 

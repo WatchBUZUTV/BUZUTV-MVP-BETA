@@ -48,26 +48,33 @@ const AdminEditMovie = () => {
     setIsLoading(true);
     
     try {
+      const updateData = {
+        title: data.title,
+        description: data.description || null,
+        type: data.type,
+        genre: data.genre || null,
+        year: data.year ? parseInt(data.year) : null,
+        rating: data.rating ? parseFloat(data.rating) : null,
+        poster_url: data.posterUrl || null,
+        backdrop_url: data.backdropUrl || null,
+        video_url: data.videoUrl || null,
+        duration_minutes: data.durationMinutes ? parseInt(data.durationMinutes) : null,
+        seasons: data.seasons ? parseInt(data.seasons) : null,
+        episodes: data.episodes ? parseInt(data.episodes) : null,
+        is_featured: data.isFeatured || false,
+        is_trending: data.isTrending || false,
+        channel_id: data.channelId || null,
+        updated_at: new Date().toISOString()
+      };
+
+      // Store detailed seasons data in a separate field if needed
+      if (data.seasonsData && data.seasonsData.length > 0) {
+        updateData.seasons_data = JSON.stringify(data.seasonsData);
+      }
+
       const { error } = await supabase
         .from('content')
-        .update({
-          title: data.title,
-          description: data.description || null,
-          type: data.type,
-          genre: data.genre || null,
-          year: data.year ? parseInt(data.year) : null,
-          rating: data.rating ? parseFloat(data.rating) : null,
-          poster_url: data.posterUrl || null,
-          backdrop_url: data.backdropUrl || null,
-          video_url: data.videoUrl || null,
-          duration_minutes: data.durationMinutes ? parseInt(data.durationMinutes) : null,
-          seasons: data.seasons ? parseInt(data.seasons) : null,
-          episodes: data.episodes ? parseInt(data.episodes) : null,
-          is_featured: data.isFeatured || false,
-          is_trending: data.isTrending || false,
-          channel_id: data.channelId || null,
-          updated_at: new Date().toISOString()
-        })
+        .update(updateData)
         .eq('id', id);
 
       if (error) {
@@ -106,12 +113,31 @@ const AdminEditMovie = () => {
     );
   }
 
+  // Parse seasons data if it exists
+  let seasonsData = [];
+  try {
+    if (movie.seasons_data) {
+      seasonsData = JSON.parse(movie.seasons_data);
+    } else if (movie.type === 'series' && movie.seasons) {
+      // Fallback: create basic seasons structure
+      for (let i = 1; i <= movie.seasons; i++) {
+        seasonsData.push({
+          seasonNumber: i,
+          episodeCount: Math.floor((movie.episodes || 0) / movie.seasons)
+        });
+      }
+    }
+  } catch (error) {
+    console.error('Error parsing seasons data:', error);
+    seasonsData = [];
+  }
+
   return (
     <AdminLayout>
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-white mb-2">Edit Movie</h2>
-          <p className="text-gray-400">Update movie information</p>
+          <h2 className="text-2xl font-bold text-white mb-2">Edit {movie.type === 'series' ? 'Series' : 'Movie'}</h2>
+          <p className="text-gray-400">Update {movie.type === 'series' ? 'series' : 'movie'} information</p>
         </div>
 
         <div className="bg-gray-800 rounded-lg p-6">
@@ -128,14 +154,15 @@ const AdminEditMovie = () => {
               backdropUrl: movie.backdrop_url || '',
               videoUrl: movie.video_url || '',
               durationMinutes: movie.duration_minutes?.toString() || '',
-              seasons: movie.seasons?.toString() || '',
-              episodes: movie.episodes?.toString() || '',
+              seasons: seasonsData,
+              totalSeasons: movie.seasons?.toString() || '',
+              totalEpisodes: movie.episodes?.toString() || '',
               isFeatured: movie.is_featured || false,
               isTrending: movie.is_trending || false,
               channelId: movie.channel_id || ''
             }}
             isLoading={isLoading}
-            submitLabel="Update Movie"
+            submitLabel={`Update ${movie.type === 'series' ? 'Series' : 'Movie'}`}
           />
         </div>
       </div>
