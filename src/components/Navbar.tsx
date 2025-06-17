@@ -83,7 +83,7 @@ const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => 
               TV Shows
             </Link>
             <Link to="/my-list" className="text-white hover:text-blue-400 transition-colors">
-              My List
+              Favorites
             </Link>
           </div>
 
@@ -198,7 +198,7 @@ const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => 
               className="block text-white hover:text-blue-400 transition-colors py-2"
               onClick={() => setIsMenuOpen(false)}
             >
-              My List
+              Favorites
             </Link>
           </div>
         )}

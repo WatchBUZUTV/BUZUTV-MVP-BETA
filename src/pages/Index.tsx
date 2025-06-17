@@ -15,7 +15,6 @@ const Index = () => {
 
   // Filter and organize content - only if we have content
   const trendingMovies = movies.filter(item => item.isTrending);
-  const continueWatchingMovies = movies.slice(0, 4); // Mock continue watching
 
   const actionMovies = movies.filter(item => item.genre === "Action");
   const dramaMovies = movies.filter(item => item.genre === "Drama");
@@ -77,7 +76,7 @@ const Index = () => {
               <>
                 {/* Popular Channels */}
                 {channels.length > 0 && (
-                  <section className="mb-12">
+                  <section className="mb-6">
                     <h2 className="text-2xl font-bold mb-6 px-4">Popular Channels</h2>
                     <div className="overflow-x-auto">
                       <div className="flex space-x-4 pb-4 px-4">
@@ -95,7 +94,7 @@ const Index = () => {
 
                 {/* Trending Now */}
                 {trendingMovies.length > 0 && (
-                  <section className="mb-12">
+                  <section className="mb-6">
                     <h2 className="text-2xl font-bold mb-6 px-4">Trending Now</h2>
                     <div className="overflow-x-auto">
                       <div className="flex space-x-4 pb-4 px-4">
@@ -111,32 +110,9 @@ const Index = () => {
                   </section>
                 )}
 
-                {/* Continue Watching */}
-                {continueWatchingMovies.length > 0 && (
-                  <section className="mb-12">
-                    <h2 className="text-2xl font-bold mb-6 px-4">Continue Watching</h2>
-                    <div className="overflow-x-auto">
-                      <div className="flex space-x-4 pb-4 px-4">
-                        {continueWatchingMovies.map((movie) => (
-                          <div key={movie.id} className="flex-shrink-0 w-64">
-                            <ProtectedContent>
-                              <MovieCard 
-                                movie={movie} 
-                                showProgress={true}
-                                progressPercent={Math.floor(Math.random() * 70) + 10}
-                                showResumeButton={true}
-                              />
-                            </ProtectedContent>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </section>
-                )}
-
                 {/* Genre Sections */}
                 {actionMovies.length > 0 && (
-                  <section className="mb-12">
+                  <section className="mb-6">
                     <h2 className="text-2xl font-bold mb-6 px-4">Action</h2>
                     <div className="overflow-x-auto">
                       <div className="flex space-x-4 pb-4 px-4">
@@ -153,7 +129,7 @@ const Index = () => {
                 )}
 
                 {dramaMovies.length > 0 && (
-                  <section className="mb-12">
+                  <section className="mb-6">
                     <h2 className="text-2xl font-bold mb-6 px-4">Drama</h2>
                     <div className="overflow-x-auto">
                       <div className="flex space-x-4 pb-4 px-4">
@@ -170,7 +146,7 @@ const Index = () => {
                 )}
 
                 {romanceMovies.length > 0 && (
-                  <section className="mb-12">
+                  <section className="mb-6">
                     <h2 className="text-2xl font-bold mb-6 px-4">Romance</h2>
                     <div className="overflow-x-auto">
                       <div className="flex space-x-4 pb-4 px-4">
@@ -187,7 +163,7 @@ const Index = () => {
                 )}
 
                 {comedyMovies.length > 0 && (
-                  <section className="mb-12">
+                  <section className="mb-6">
                     <h2 className="text-2xl font-bold mb-6 px-4">Comedy</h2>
                     <div className="overflow-x-auto">
                       <div className="flex space-x-4 pb-4 px-4">
@@ -204,7 +180,7 @@ const Index = () => {
                 )}
 
                 {documentaryMovies.length > 0 && (
-                  <section className="mb-12">
+                  <section className="mb-6">
                     <h2 className="text-2xl font-bold mb-6 px-4">Documentary</h2>
                     <div className="overflow-x-auto">
                       <div className="flex space-x-4 pb-4 px-4">
@@ -221,7 +197,7 @@ const Index = () => {
                 )}
 
                 {informationalMovies.length > 0 && (
-                  <section className="mb-12">
+                  <section className="mb-6">
                     <h2 className="text-2xl font-bold mb-6 px-4">Informational</h2>
                     <div className="overflow-x-auto">
                       <div className="flex space-x-4 pb-4 px-4">

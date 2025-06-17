@@ -2,8 +2,9 @@
 import { Link } from "react-router-dom";
 import { Star, Heart, Play, Expand, X } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { useUserFavorites } from "@/hooks/useUserFavorites";
 
 interface MovieCardProps {
   movie: Movie;
@@ -22,13 +23,22 @@ const MovieCard = ({
   progressPercent = 0,
   showResumeButton = false 
 }: MovieCardProps) => {
-  const [isSaved, setIsSaved] = useState(false);
+  const { favoriteIds, addToFavorites, removeFromFavorites } = useUserFavorites();
   const [isHovered, setIsHovered] = useState(false);
   const [showExpandedModal, setShowExpandedModal] = useState(false);
 
+  // Check if movie is in favorites
+  const isSaved = favoriteIds.includes(movie.id);
+
   const handleSave = (e: React.MouseEvent) => {
     e.preventDefault();
-    setIsSaved(!isSaved);
+    e.stopPropagation();
+    
+    if (isSaved) {
+      removeFromFavorites(movie.id);
+    } else {
+      addToFavorites(movie.id);
+    }
   };
 
   const handleMouseEnter = () => {
