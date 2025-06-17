@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 // Mock favorites for demo users only
@@ -16,27 +17,53 @@ export const useUserFavorites = () => {
 
   useEffect(() => {
     if (user) {
+      fetchFavorites();
+    } else {
+      setFavoriteIds([]);
+      setIsLoading(false);
+    }
+  }, [user]);
+
+  const fetchFavorites = async () => {
+    if (!user) return;
+
+    try {
       // Check if this is a demo user
       const isDemoUser = user.email && demoUserFavorites[user.email];
       
       if (isDemoUser) {
         // Demo user gets predefined favorites
         setFavoriteIds(demoUserFavorites[user.email]);
-      } else {
-        // Real user - check localStorage for their favorites
+        setIsLoading(false);
+        return;
+      }
+
+      // Real user - fetch from Supabase
+      const { data, error } = await supabase
+        .from('user_favorites')
+        .select('content_id')
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Error fetching favorites:', error);
+        // Fallback to localStorage for non-demo users
         const savedFavorites = localStorage.getItem(`favorites_${user.id}`);
         if (savedFavorites) {
           setFavoriteIds(JSON.parse(savedFavorites));
         } else {
-          setFavoriteIds([]); // New user starts with empty favorites
+          setFavoriteIds([]);
         }
+      } else {
+        const ids = data.map(fav => fav.content_id);
+        setFavoriteIds(ids);
       }
-      setIsLoading(false);
-    } else {
+    } catch (error) {
+      console.error('Error fetching favorites:', error);
       setFavoriteIds([]);
+    } finally {
       setIsLoading(false);
     }
-  }, [user]);
+  };
 
   const addToFavorites = async (contentId: string) => {
     if (!user) {
@@ -49,23 +76,82 @@ export const useUserFavorites = () => {
       return;
     }
 
-    const newFavorites = [...favoriteIds, contentId];
-    setFavoriteIds(newFavorites);
+    // Check if this is a demo user
+    const isDemoUser = user.email && demoUserFavorites[user.email];
     
-    // Store in localStorage (for both demo and real users)
-    localStorage.setItem(`favorites_${user.id}`, JSON.stringify(newFavorites));
-    toast.success('Added to favorites');
+    if (isDemoUser) {
+      // Demo user - just update local state
+      const newFavorites = [...favoriteIds, contentId];
+      setFavoriteIds(newFavorites);
+      toast.success('Added to favorites');
+      return;
+    }
+
+    try {
+      // Real user - save to Supabase
+      const { error } = await supabase
+        .from('user_favorites')
+        .insert([
+          {
+            user_id: user.id,
+            content_id: contentId
+          }
+        ]);
+
+      if (error) {
+        console.error('Error adding to favorites:', error);
+        // Fallback to localStorage
+        const newFavorites = [...favoriteIds, contentId];
+        setFavoriteIds(newFavorites);
+        localStorage.setItem(`favorites_${user.id}`, JSON.stringify(newFavorites));
+        toast.success('Added to favorites');
+      } else {
+        setFavoriteIds([...favoriteIds, contentId]);
+        toast.success('Added to favorites');
+      }
+    } catch (error) {
+      console.error('Error adding to favorites:', error);
+      toast.error('Failed to add to favorites');
+    }
   };
 
   const removeFromFavorites = async (contentId: string) => {
     if (!user) return;
 
-    const newFavorites = favoriteIds.filter(id => id !== contentId);
-    setFavoriteIds(newFavorites);
+    // Check if this is a demo user
+    const isDemoUser = user.email && demoUserFavorites[user.email];
     
-    // Store in localStorage
-    localStorage.setItem(`favorites_${user.id}`, JSON.stringify(newFavorites));
-    toast.success('Removed from favorites');
+    if (isDemoUser) {
+      // Demo user - just update local state
+      const newFavorites = favoriteIds.filter(id => id !== contentId);
+      setFavoriteIds(newFavorites);
+      toast.success('Removed from favorites');
+      return;
+    }
+
+    try {
+      // Real user - remove from Supabase
+      const { error } = await supabase
+        .from('user_favorites')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('content_id', contentId);
+
+      if (error) {
+        console.error('Error removing from favorites:', error);
+        // Fallback to localStorage
+        const newFavorites = favoriteIds.filter(id => id !== contentId);
+        setFavoriteIds(newFavorites);
+        localStorage.setItem(`favorites_${user.id}`, JSON.stringify(newFavorites));
+        toast.success('Removed from favorites');
+      } else {
+        setFavoriteIds(favoriteIds.filter(id => id !== contentId));
+        toast.success('Removed from favorites');
+      }
+    } catch (error) {
+      console.error('Error removing from favorites:', error);
+      toast.error('Failed to remove from favorites');
+    }
   };
 
   return {
@@ -73,6 +159,6 @@ export const useUserFavorites = () => {
     isLoading,
     addToFavorites,
     removeFromFavorites,
-    refetch: () => {} // No-op for mock system
+    refetch: fetchFavorites
   };
 };

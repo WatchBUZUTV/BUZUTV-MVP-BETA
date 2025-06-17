@@ -55,28 +55,29 @@ export const useMockContent = () => {
   const { channels: dbChannels, isLoading: dbChannelsLoading } = useChannels();
 
   useEffect(() => {
-    if (user && !dbContentLoading && !dbChannelsLoading) {
-      // Check if this is a demo user (for mock content)
-      const isDemoUser = user.email && demoUsers.includes(user.email);
-      
+    if (!dbContentLoading && !dbChannelsLoading) {
       // Transform database content to match mock structure
       const transformedDbContent = transformDatabaseContent(dbContent);
       const transformedDbChannels = transformDatabaseChannels(dbChannels);
       
-      if (isDemoUser) {
-        // Demo user gets mock content + real content
-        setContent([...mockMovies, ...transformedDbContent]);
-        setChannelsData([...channels, ...transformedDbChannels]);
+      if (user) {
+        // Check if this is a demo user (for mock content)
+        const isDemoUser = user.email && demoUsers.includes(user.email);
+        
+        if (isDemoUser) {
+          // Demo user gets mock content + real content
+          setContent([...mockMovies, ...transformedDbContent]);
+          setChannelsData([...channels, ...transformedDbChannels]);
+        } else {
+          // Real user gets only real content from database + mock content for demo
+          setContent([...mockMovies, ...transformedDbContent]);
+          setChannelsData([...channels, ...transformedDbChannels]);
+        }
       } else {
-        // Real user gets only real content from database
-        setContent(transformedDbContent);
-        setChannelsData(transformedDbChannels);
+        // Not logged in - show mock content only (so unauthorized users can see shows)
+        setContent(mockMovies);
+        setChannelsData(channels);
       }
-      setIsLoading(false);
-    } else if (!user && !dbContentLoading && !dbChannelsLoading) {
-      // Not logged in - show empty content
-      setContent([]);
-      setChannelsData([]);
       setIsLoading(false);
     }
   }, [user, dbContent, dbChannels, dbContentLoading, dbChannelsLoading]);

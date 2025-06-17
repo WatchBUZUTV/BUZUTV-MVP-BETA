@@ -11,10 +11,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { useChannels } from '@/hooks/useChannels';
 import { Plus, Trash2 } from 'lucide-react';
+import { genres } from '@/data/mockMovies';
+
+const episodeSchema = z.object({
+  title: z.string().min(1, 'Episode title is required'),
+  description: z.string().optional(),
+  episodeNumber: z.number().min(1),
+  videoUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  posterUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  airDate: z.string().optional(),
+  rating: z.string().optional()
+});
 
 const seasonSchema = z.object({
   seasonNumber: z.number().min(1),
-  episodeCount: z.number().min(1)
+  episodes: z.array(episodeSchema)
 });
 
 const movieSchema = z.object({
@@ -29,8 +40,6 @@ const movieSchema = z.object({
   videoUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   durationMinutes: z.string().optional(),
   seasons: z.array(seasonSchema).optional(),
-  totalSeasons: z.string().optional(),
-  totalEpisodes: z.string().optional(),
   isFeatured: z.boolean().default(false),
   isTrending: z.boolean().default(false),
   channelId: z.string().optional()
@@ -67,43 +76,64 @@ const MovieForm: React.FC<MovieFormProps> = ({
       videoUrl: initialData?.videoUrl || '',
       durationMinutes: initialData?.durationMinutes || '',
       seasons: initialData?.seasons || [],
-      totalSeasons: initialData?.totalSeasons || '',
-      totalEpisodes: initialData?.totalEpisodes || '',
       isFeatured: initialData?.isFeatured ?? false,
       isTrending: initialData?.isTrending ?? false,
       channelId: initialData?.channelId || ''
     }
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields: seasonFields, append: appendSeason, remove: removeSeason } = useFieldArray({
     control: form.control,
     name: 'seasons'
   });
 
   const watchType = form.watch('type');
-  const watchSeasons = form.watch('seasons');
-
-  // Calculate total episodes when seasons change
-  React.useEffect(() => {
-    if (watchType === 'series' && watchSeasons) {
-      const totalEpisodes = watchSeasons.reduce((sum, season) => sum + (season.episodeCount || 0), 0);
-      form.setValue('totalEpisodes', totalEpisodes.toString());
-      form.setValue('totalSeasons', watchSeasons.length.toString());
-    }
-  }, [watchSeasons, watchType, form]);
 
   const addSeason = () => {
-    append({ seasonNumber: fields.length + 1, episodeCount: 1 });
+    appendSeason({ 
+      seasonNumber: seasonFields.length + 1, 
+      episodes: []
+    });
+  };
+
+  const addEpisode = (seasonIndex: number) => {
+    const currentSeason = form.getValues(`seasons.${seasonIndex}`);
+    const newEpisode = {
+      title: '',
+      description: '',
+      episodeNumber: (currentSeason?.episodes?.length || 0) + 1,
+      videoUrl: '',
+      posterUrl: '',
+      airDate: '',
+      rating: ''
+    };
+    
+    form.setValue(`seasons.${seasonIndex}.episodes`, [
+      ...(currentSeason?.episodes || []),
+      newEpisode
+    ]);
+  };
+
+  const removeEpisode = (seasonIndex: number, episodeIndex: number) => {
+    const currentSeason = form.getValues(`seasons.${seasonIndex}`);
+    const updatedEpisodes = currentSeason?.episodes?.filter((_, index) => index !== episodeIndex) || [];
+    form.setValue(`seasons.${seasonIndex}.episodes`, updatedEpisodes);
   };
 
   const handleSubmit = (data: MovieFormData) => {
-    // Transform seasons data for backend
+    // Calculate totals for series
+    let totalSeasons = 0;
+    let totalEpisodes = 0;
+    
+    if (data.type === 'series' && data.seasons) {
+      totalSeasons = data.seasons.length;
+      totalEpisodes = data.seasons.reduce((sum, season) => sum + (season.episodes?.length || 0), 0);
+    }
+
     const transformedData = {
       ...data,
-      // For series: use calculated totals from detailed seasons
-      seasons: data.type === 'series' ? data.totalSeasons : undefined,
-      episodes: data.type === 'series' ? data.totalEpisodes : undefined,
-      // Pass detailed seasons data separately
+      seasons: data.type === 'series' ? totalSeasons.toString() : undefined,
+      episodes: data.type === 'series' ? totalEpisodes.toString() : undefined,
       seasonsData: data.type === 'series' ? data.seasons : undefined
     };
     onSubmit(transformedData);
@@ -162,7 +192,7 @@ const MovieForm: React.FC<MovieFormProps> = ({
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent>
+                  <SelectContent className="bg-gray-700 border-gray-600">
                     <SelectItem value="movie">Movie</SelectItem>
                     <SelectItem value="series">Series</SelectItem>
                   </SelectContent>
@@ -178,13 +208,18 @@ const MovieForm: React.FC<MovieFormProps> = ({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-white">Genre</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="Enter genre"
-                    className="bg-gray-700 border-gray-600 text-white"
-                  />
-                </FormControl>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                      <SelectValue placeholder="Select genre" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent className="bg-gray-700 border-gray-600">
+                    {genres.filter(genre => genre !== 'All').map((genre) => (
+                      <SelectItem key={genre} value={genre}>{genre}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
@@ -304,9 +339,9 @@ const MovieForm: React.FC<MovieFormProps> = ({
         )}
 
         {watchType === 'series' && (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-white">Episode Management</h3>
+              <h3 className="text-lg font-semibold text-white">Series Management</h3>
               <Button
                 type="button"
                 onClick={addSeason}
@@ -319,101 +354,164 @@ const MovieForm: React.FC<MovieFormProps> = ({
               </Button>
             </div>
 
-            {fields.map((field, index) => (
-              <div key={field.id} className="flex items-center gap-4 p-4 bg-gray-700 rounded-lg">
-                <div className="flex-1">
-                  <FormField
-                    control={form.control}
-                    name={`seasons.${index}.seasonNumber`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-white">Season Number</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            type="number"
-                            min="1"
-                            value={field.value || ''}
-                            onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                            className="bg-gray-600 border-gray-500 text-white"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+            {seasonFields.map((season, seasonIndex) => (
+              <div key={season.id} className="bg-gray-700 rounded-lg p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-white font-medium">Season {seasonIndex + 1}</h4>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      onClick={() => addEpisode(seasonIndex)}
+                      variant="outline"
+                      size="sm"
+                      className="border-gray-600 text-gray-300 hover:bg-gray-600"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Episode
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={() => removeSeason(seasonIndex)}
+                      variant="outline"
+                      size="sm"
+                      className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <FormField
-                    control={form.control}
-                    name={`seasons.${index}.episodeCount`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-white">Episodes</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            type="number"
-                            min="1"
-                            value={field.value || ''}
-                            onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                            className="bg-gray-600 border-gray-500 text-white"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <Button
-                  type="button"
-                  onClick={() => remove(index)}
-                  variant="outline"
-                  size="sm"
-                  className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+
+                {form.watch(`seasons.${seasonIndex}.episodes`)?.map((episode, episodeIndex) => (
+                  <div key={episodeIndex} className="bg-gray-600 rounded-lg p-4 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h5 className="text-white text-sm font-medium">Episode {episodeIndex + 1}</h5>
+                      <Button
+                        type="button"
+                        onClick={() => removeEpisode(seasonIndex, episodeIndex)}
+                        variant="outline"
+                        size="sm"
+                        className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name={`seasons.${seasonIndex}.episodes.${episodeIndex}.title`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-white text-sm">Episode Title</FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                placeholder="Episode title"
+                                className="bg-gray-500 border-gray-400 text-white"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name={`seasons.${seasonIndex}.episodes.${episodeIndex}.airDate`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-white text-sm">Air Date</FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                type="date"
+                                className="bg-gray-500 border-gray-400 text-white"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <FormField
+                      control={form.control}
+                      name={`seasons.${seasonIndex}.episodes.${episodeIndex}.description`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-white text-sm">Episode Description</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              {...field}
+                              placeholder="Episode description"
+                              className="bg-gray-500 border-gray-400 text-white"
+                              rows={2}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name={`seasons.${seasonIndex}.episodes.${episodeIndex}.videoUrl`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-white text-sm">Video URL</FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                placeholder="https://example.com/episode.mp4"
+                                className="bg-gray-500 border-gray-400 text-white"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name={`seasons.${seasonIndex}.episodes.${episodeIndex}.posterUrl`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-white text-sm">Episode Poster URL</FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                placeholder="https://example.com/episode-poster.jpg"
+                                className="bg-gray-500 border-gray-400 text-white"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <FormField
+                      control={form.control}
+                      name={`seasons.${seasonIndex}.episodes.${episodeIndex}.rating`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-white text-sm">Episode Rating</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              placeholder="8.5"
+                              className="bg-gray-500 border-gray-400 text-white"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                ))}
               </div>
             ))}
-
-            {fields.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                <FormField
-                  control={form.control}
-                  name="totalSeasons"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">Total Seasons</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          readOnly
-                          className="bg-gray-600 border-gray-500 text-white cursor-not-allowed"
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="totalEpisodes"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">Total Episodes</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          readOnly
-                          className="bg-gray-600 border-gray-500 text-white cursor-not-allowed"
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
-            )}
           </div>
         )}
 
@@ -429,7 +527,7 @@ const MovieForm: React.FC<MovieFormProps> = ({
                     <SelectValue placeholder="Select channel" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent>
+                <SelectContent className="bg-gray-700 border-gray-600">
                   {channels.map((channel) => (
                     <SelectItem key={channel.id} value={channel.id}>
                       {channel.name}

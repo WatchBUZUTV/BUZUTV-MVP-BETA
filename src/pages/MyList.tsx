@@ -6,19 +6,16 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Navbar from "@/components/Navbar";
 import SearchOverlay from "@/components/SearchOverlay";
 import { useUserFavorites } from "@/hooks/useUserFavorites";
-import { mockMovies } from "@/data/mockMovies";
+import { useMockContent } from "@/hooks/useMockContent";
 
 const MyList = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { favoriteIds, isLoading } = useUserFavorites();
+  const { movies } = useMockContent();
   
-  // Use mock movies
-  const allMovies = mockMovies;
   const savedContent = favoriteIds.length > 0 
-    ? allMovies.filter(item => favoriteIds.includes(item.id))
+    ? movies.filter(item => favoriteIds.includes(item.id))
     : [];
-    
-  const continueWatching = savedContent.slice(0, 3);
   
   // Filter saved movies based on search
   const filteredSavedMovies = savedContent.filter(movie =>
@@ -74,45 +71,20 @@ const MyList = () => {
 
           <div className="max-w-full px-2 py-8">
             {savedContent.length > 0 ? (
-              <>
-                {/* Continue Watching */}
-                {continueWatching.length > 0 && (
-                  <section className="mb-12">
-                    <h2 className="text-2xl font-bold mb-6 px-4">Continue Watching</h2>
-                    <div className="overflow-x-auto">
-                      <div className="flex space-x-4 pb-4 px-4">
-                        {continueWatching.map((movie) => (
-                          <div key={movie.id} className="flex-shrink-0 w-64">
-                            <MovieCard 
-                              movie={movie} 
-                              showSaveButton={false} 
-                              showProgress={true}
-                              progressPercent={Math.floor(Math.random() * 70) + 10}
-                              showResumeButton={true}
-                            />
-                          </div>
-                        ))}
+              <section className="mb-12">
+                <h2 className="text-2xl font-bold mb-6 px-4">
+                  Favorites ({filteredSavedMovies.length})
+                </h2>
+                <div className="overflow-x-auto">
+                  <div className="flex space-x-4 pb-4 px-4">
+                    {filteredSavedMovies.map((movie) => (
+                      <div key={movie.id} className="flex-shrink-0 w-64">
+                        <MovieCard movie={movie} showSaveButton={false} />
                       </div>
-                    </div>
-                  </section>
-                )}
-
-                {/* Favorites */}
-                <section className="mb-12">
-                  <h2 className="text-2xl font-bold mb-6 px-4">
-                    My Favorites ({filteredSavedMovies.length})
-                  </h2>
-                  <div className="overflow-x-auto">
-                    <div className="flex space-x-4 pb-4 px-4">
-                      {filteredSavedMovies.map((movie) => (
-                        <div key={movie.id} className="flex-shrink-0 w-64">
-                          <MovieCard movie={movie} showSaveButton={false} />
-                        </div>
-                      ))}
-                    </div>
+                    ))}
                   </div>
-                </section>
-              </>
+                </div>
+              </section>
             ) : (
               <div className="text-center py-16">
                 <h2 className="text-2xl font-bold mb-4">Your favorites list is empty</h2>
