@@ -8,19 +8,23 @@ import SearchOverlay from "@/components/SearchOverlay";
 import { useContent } from "@/hooks/useContent";
 import { useUserFavorites } from "@/hooks/useUserFavorites";
 import { contentToMovie } from "@/utils/contentMapper";
+import { mockMovies } from "@/data/mockMovies";
 
 const MyList = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { content } = useContent();
   const { favoriteIds, isLoading } = useUserFavorites();
   
-  // Get user's favorite content and transform to movies
-  const savedContent = content.filter(item => favoriteIds.includes(item.id));
-  const savedMovies = savedContent.map(contentToMovie);
-  const continueWatching = savedMovies.slice(0, 3);
+  // Use database content if available and user has favorites, otherwise show mock favorites
+  const allMovies = content.length > 0 ? content.map(contentToMovie) : mockMovies;
+  const savedContent = favoriteIds.length > 0 
+    ? allMovies.filter(item => favoriteIds.includes(item.id))
+    : allMovies.slice(0, 5); // Show first 5 mock movies as demo favorites
+    
+  const continueWatching = savedContent.slice(0, 3);
   
   // Filter saved movies based on search
-  const filteredSavedMovies = savedMovies.filter(movie =>
+  const filteredSavedMovies = savedContent.filter(movie =>
     movie.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -72,7 +76,7 @@ const MyList = () => {
           </div>
 
           <div className="max-w-full px-2 py-8">
-            {savedMovies.length > 0 ? (
+            {savedContent.length > 0 ? (
               <>
                 {/* Continue Watching */}
                 {continueWatching.length > 0 && (
@@ -98,7 +102,9 @@ const MyList = () => {
 
                 {/* Favorites */}
                 <section className="mb-12">
-                  <h2 className="text-2xl font-bold mb-6 px-4">Favorites ({filteredSavedMovies.length})</h2>
+                  <h2 className="text-2xl font-bold mb-6 px-4">
+                    {favoriteIds.length > 0 ? `Favorites (${filteredSavedMovies.length})` : 'Demo Favorites'}
+                  </h2>
                   <div className="overflow-x-auto">
                     <div className="flex space-x-4 pb-4 px-4">
                       {filteredSavedMovies.map((movie) => (

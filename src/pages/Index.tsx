@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import MovieCard from "@/components/MovieCard";
 import ChannelCard from "@/components/ChannelCard";
@@ -7,16 +8,17 @@ import Navbar from "@/components/Navbar";
 import { useContent } from "@/hooks/useContent";
 import { useChannels } from "@/hooks/useChannels";
 import { contentToMovie, channelToChannelCard } from "@/utils/contentMapper";
+import { mockMovies, channels } from "@/data/mockMovies";
 
 const Index = () => {
   console.log('Index component rendering');
   
   const [searchQuery, setSearchQuery] = useState("");
   const { content, isLoading: contentLoading } = useContent();
-  const { channels, isLoading: channelsLoading } = useChannels();
+  const { channels: dbChannels, isLoading: channelsLoading } = useChannels();
 
-  // Transform content to movies using the mapper
-  const movies = content.map(contentToMovie);
+  // Use database content if available, otherwise fall back to mock data
+  const movies = content.length > 0 ? content.map(contentToMovie) : mockMovies;
   
   // Filter and organize content
   const trendingMovies = movies.filter(item => item.isTrending);
@@ -29,8 +31,8 @@ const Index = () => {
   const documentaryMovies = movies.filter(item => item.genre === "Documentary");
   const informationalMovies = movies.filter(item => item.genre === "Informational");
 
-  // Transform channels using the mapper
-  const transformedChannels = channels.map(channelToChannelCard);
+  // Use database channels if available, otherwise fall back to mock data
+  const displayChannels = dbChannels.length > 0 ? dbChannels.map(channelToChannelCard) : channels;
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -85,7 +87,7 @@ const Index = () => {
               <h2 className="text-2xl font-bold mb-6 px-4">Popular Channels</h2>
               <div className="overflow-x-auto">
                 <div className="flex space-x-4 pb-4 px-4">
-                  {transformedChannels.map((channel) => (
+                  {displayChannels.map((channel) => (
                     <div key={channel.id} className="flex-shrink-0 w-48">
                       <ProtectedContent>
                         <ChannelCard channel={channel} />
