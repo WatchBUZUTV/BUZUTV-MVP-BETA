@@ -2,17 +2,20 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import MovieCard from "@/components/MovieCard";
-import { mockMovies } from "@/data/mockMovies";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Navbar from "@/components/Navbar";
 import SearchOverlay from "@/components/SearchOverlay";
+import { useContent } from "@/hooks/useContent";
+import { useUserFavorites } from "@/hooks/useUserFavorites";
 
 const MyList = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const { content } = useContent();
+  const { favoriteIds, isLoading } = useUserFavorites();
   
-  // For demo purposes, showing first few movies as "saved"
-  const savedMovies = mockMovies.slice(0, 4);
-  const continueWatching = mockMovies.slice(0, 3);
+  // Get user's favorite content
+  const savedMovies = content.filter(item => favoriteIds.includes(item.id));
+  const continueWatching = savedMovies.slice(0, 3);
   
   // Filter saved movies based on search
   const filteredSavedMovies = savedMovies.filter(movie =>
@@ -28,6 +31,16 @@ const MyList = () => {
   };
 
   const showSearchOverlay = searchQuery.trim().length > 0;
+
+  if (isLoading) {
+    return (
+      <ProtectedRoute>
+        <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+          <div className="text-2xl">Loading...</div>
+        </div>
+      </ProtectedRoute>
+    );
+  }
 
   return (
     <ProtectedRoute>
@@ -60,24 +73,26 @@ const MyList = () => {
             {savedMovies.length > 0 ? (
               <>
                 {/* Continue Watching */}
-                <section className="mb-12">
-                  <h2 className="text-2xl font-bold mb-6 px-4">Continue Watching</h2>
-                  <div className="overflow-x-auto">
-                    <div className="flex space-x-4 pb-4 px-4">
-                      {continueWatching.map((movie) => (
-                        <div key={movie.id} className="flex-shrink-0 w-64">
-                          <MovieCard 
-                            movie={movie} 
-                            showSaveButton={false} 
-                            showProgress={true}
-                            progressPercent={Math.floor(Math.random() * 70) + 10}
-                            showResumeButton={true}
-                          />
-                        </div>
-                      ))}
+                {continueWatching.length > 0 && (
+                  <section className="mb-12">
+                    <h2 className="text-2xl font-bold mb-6 px-4">Continue Watching</h2>
+                    <div className="overflow-x-auto">
+                      <div className="flex space-x-4 pb-4 px-4">
+                        {continueWatching.map((movie) => (
+                          <div key={movie.id} className="flex-shrink-0 w-64">
+                            <MovieCard 
+                              movie={movie} 
+                              showSaveButton={false} 
+                              showProgress={true}
+                              progressPercent={Math.floor(Math.random() * 70) + 10}
+                              showResumeButton={true}
+                            />
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                </section>
+                  </section>
+                )}
 
                 {/* Favorites */}
                 <section className="mb-12">
