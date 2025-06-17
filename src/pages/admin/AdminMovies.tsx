@@ -1,16 +1,29 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, Edit, Trash2, Plus, Star, TrendingUp, Film, Tv } from "lucide-react";
 import { toast } from "sonner";
 import AdminLayout from "@/components/admin/AdminLayout";
-import { mockMovies, genres } from "@/data/mockMovies";
+import { useMockContent } from "@/hooks/useMockContent";
+import { genres } from "@/data/mockMovies";
 
 const AdminMovies = () => {
+  const { movies: mockMovies, isLoading } = useMockContent();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGenre, setSelectedGenre] = useState("All");
   const [selectedType, setSelectedType] = useState("All");
   const [selectedMovies, setSelectedMovies] = useState<string[]>([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  if (isLoading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-white">Loading...</div>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   const filteredMovies = mockMovies.filter(movie => {
     const matchesSearch = movie.title.toLowerCase().includes(searchQuery.toLowerCase());
@@ -131,122 +144,130 @@ const AdminMovies = () => {
 
         {/* Content Table */}
         <div className="bg-gray-800 rounded-lg overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-700">
-                <tr>
-                  <th className="px-6 py-3 text-left">
-                    <input
-                      type="checkbox"
-                      checked={selectedMovies.length === filteredMovies.length && filteredMovies.length > 0}
-                      onChange={handleSelectAll}
-                      className="rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500"
-                    />
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                    Content
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                    Type
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                    Genre
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                    Rating
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                    Year
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-700">
-                {filteredMovies.map((movie) => (
-                  <tr key={movie.id} className="hover:bg-gray-700 transition-colors">
-                    <td className="px-6 py-4">
+          {filteredMovies.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-700">
+                  <tr>
+                    <th className="px-6 py-3 text-left">
                       <input
                         type="checkbox"
-                        checked={selectedMovies.includes(movie.id)}
-                        onChange={() => handleSelectMovie(movie.id)}
+                        checked={selectedMovies.length === filteredMovies.length && filteredMovies.length > 0}
+                        onChange={handleSelectAll}
                         className="rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500"
                       />
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center space-x-3">
-                        <img
-                          src={movie.posterUrl}
-                          alt={movie.title}
-                          className="w-12 h-16 object-cover rounded"
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      Content
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      Type
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      Genre
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      Rating
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      Year
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-700">
+                  {filteredMovies.map((movie) => (
+                    <tr key={movie.id} className="hover:bg-gray-700 transition-colors">
+                      <td className="px-6 py-4">
+                        <input
+                          type="checkbox"
+                          checked={selectedMovies.includes(movie.id)}
+                          onChange={() => handleSelectMovie(movie.id)}
+                          className="rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500"
                         />
-                        <div>
-                          <div className="text-white font-medium">{movie.title}</div>
-                          <div className="text-gray-400 text-sm">{movie.description.slice(0, 50)}...</div>
-                          {movie.seasons && movie.episodes && (
-                            <div className="text-gray-500 text-xs">
-                              {movie.seasons} seasons • {movie.episodes} episodes
-                            </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center space-x-3">
+                          <img
+                            src={movie.posterUrl}
+                            alt={movie.title}
+                            className="w-12 h-16 object-cover rounded"
+                          />
+                          <div>
+                            <div className="text-white font-medium">{movie.title}</div>
+                            <div className="text-gray-400 text-sm">{movie.description.slice(0, 50)}...</div>
+                            {movie.seasons && movie.episodes && (
+                              <div className="text-gray-500 text-xs">
+                                {movie.seasons} seasons • {movie.episodes} episodes
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center space-x-1">
+                          {movie.type === 'movie' ? (
+                            <Film className="w-4 h-4 text-blue-400" />
+                          ) : (
+                            <Tv className="w-4 h-4 text-green-400" />
+                          )}
+                          <span className="text-gray-300 capitalize">{movie.type}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-gray-300">{movie.genre}</td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center space-x-1">
+                          <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                          <span className="text-white">{movie.rating}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-gray-300">{movie.year}</td>
+                      <td className="px-6 py-4">
+                        <div className="flex space-x-2">
+                          {movie.isTrending && (
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-red-600 text-white">
+                              <TrendingUp className="w-3 h-3 mr-1" />
+                              Trending
+                            </span>
                           )}
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center space-x-1">
-                        {movie.type === 'movie' ? (
-                          <Film className="w-4 h-4 text-blue-400" />
-                        ) : (
-                          <Tv className="w-4 h-4 text-green-400" />
-                        )}
-                        <span className="text-gray-300 capitalize">{movie.type}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-gray-300">{movie.genre}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center space-x-1">
-                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                        <span className="text-white">{movie.rating}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-gray-300">{movie.year}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex space-x-2">
-                        {movie.isTrending && (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-red-600 text-white">
-                            <TrendingUp className="w-3 h-3 mr-1" />
-                            Trending
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center space-x-2">
-                        <Link
-                          to={`/admin/edit-movie/${movie.id}`}
-                          className="text-blue-400 hover:text-blue-300 transition-colors"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Link>
-                        <button
-                          onClick={() => {
-                            setSelectedMovies([movie.id]);
-                            setShowDeleteModal(true);
-                          }}
-                          className="text-red-400 hover:text-red-300 transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center space-x-2">
+                          <Link
+                            to={`/admin/edit-movie/${movie.id}`}
+                            className="text-blue-400 hover:text-blue-300 transition-colors"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Link>
+                          <button
+                            onClick={() => {
+                              setSelectedMovies([movie.id]);
+                              setShowDeleteModal(true);
+                            }}
+                            className="text-red-400 hover:text-red-300 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="p-8 text-center">
+              <Film className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-white mb-2">No Content Found</h3>
+              <p className="text-gray-400">No movies or series are available to manage.</p>
+            </div>
+          )}
         </div>
 
         {/* Delete Confirmation Modal */}

@@ -4,12 +4,23 @@ import { Link } from "react-router-dom";
 import { Search, Edit, Trash2, Plus, PlayCircle } from "lucide-react";
 import { toast } from "sonner";
 import AdminLayout from "@/components/admin/AdminLayout";
-import { channels } from "@/data/mockMovies";
+import { useMockContent } from "@/hooks/useMockContent";
 
 const AdminChannels = () => {
+  const { channels, isLoading } = useMockContent();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedChannels, setSelectedChannels] = useState<string[]>([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  if (isLoading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-white">Loading...</div>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   const filteredChannels = channels.filter(channel =>
     channel.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -104,54 +115,62 @@ const AdminChannels = () => {
         )}
 
         {/* Channels Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredChannels.map((channel) => (
-            <div key={channel.id} className="bg-gray-800 rounded-lg p-6">
-              <div className="flex items-start justify-between mb-4">
-                <input
-                  type="checkbox"
-                  checked={selectedChannels.includes(channel.id)}
-                  onChange={() => handleSelectChannel(channel.id)}
-                  className="rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500"
-                />
-                <div className="flex items-center space-x-2">
-                  <Link
-                    to={`/admin/edit-channel/${channel.id}`}
-                    className="text-blue-400 hover:text-blue-300 transition-colors"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Link>
-                  <button
-                    onClick={() => {
-                      setSelectedChannels([channel.id]);
-                      setShowDeleteModal(true);
-                    }}
-                    className="text-red-400 hover:text-red-300 transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-4 mb-4">
-                <img
-                  src={channel.logoUrl}
-                  alt={channel.name}
-                  className="w-16 h-16 object-cover rounded-lg"
-                />
-                <div className="flex-1">
-                  <h3 className="text-white font-semibold">{channel.name}</h3>
-                  <div className="flex items-center space-x-1 text-gray-400 text-sm">
-                    <PlayCircle className="w-4 h-4" />
-                    <span>{Math.floor(Math.random() * 50) + 10} Content</span>
+        {filteredChannels.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredChannels.map((channel) => (
+              <div key={channel.id} className="bg-gray-800 rounded-lg p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <input
+                    type="checkbox"
+                    checked={selectedChannels.includes(channel.id)}
+                    onChange={() => handleSelectChannel(channel.id)}
+                    className="rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500"
+                  />
+                  <div className="flex items-center space-x-2">
+                    <Link
+                      to={`/admin/edit-channel/${channel.id}`}
+                      className="text-blue-400 hover:text-blue-300 transition-colors"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Link>
+                    <button
+                      onClick={() => {
+                        setSelectedChannels([channel.id]);
+                        setShowDeleteModal(true);
+                      }}
+                      className="text-red-400 hover:text-red-300 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
+                
+                <div className="flex items-center space-x-4 mb-4">
+                  <img
+                    src={channel.logoUrl}
+                    alt={channel.name}
+                    className="w-16 h-16 object-cover rounded-lg"
+                  />
+                  <div className="flex-1">
+                    <h3 className="text-white font-semibold">{channel.name}</h3>
+                    <div className="flex items-center space-x-1 text-gray-400 text-sm">
+                      <PlayCircle className="w-4 h-4" />
+                      <span>{Math.floor(Math.random() * 50) + 10} Content</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <p className="text-gray-400 text-sm">{channel.description}</p>
               </div>
-              
-              <p className="text-gray-400 text-sm">{channel.description}</p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="bg-gray-800 rounded-lg p-8 text-center">
+            <PlayCircle className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-white mb-2">No Channels Found</h3>
+            <p className="text-gray-400">No channels are available to manage.</p>
+          </div>
+        )}
 
         {/* Delete Confirmation Modal */}
         {showDeleteModal && (
