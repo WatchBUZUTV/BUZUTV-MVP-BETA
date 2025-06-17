@@ -12,7 +12,7 @@ const Index = () => {
   
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Use mock data only
+  // Use mock data directly
   const movies = mockMovies;
   
   // Filter and organize content

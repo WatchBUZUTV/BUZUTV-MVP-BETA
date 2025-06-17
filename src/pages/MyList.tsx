@@ -12,7 +12,7 @@ const MyList = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { favoriteIds, isLoading } = useUserFavorites();
   
-  // Use mock movies only
+  // Use mock movies
   const allMovies = mockMovies;
   const savedContent = favoriteIds.length > 0 
     ? allMovies.filter(item => favoriteIds.includes(item.id))
