@@ -5,6 +5,7 @@ import { Search, Edit, Trash2, Plus, Star, TrendingUp, Film, Tv } from "lucide-r
 import { toast } from "sonner";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { useMockContent } from "@/hooks/useMockContent";
+import { supabase } from "@/integrations/supabase/client";
 import { genres } from "@/data/mockMovies";
 
 const AdminMovies = () => {
@@ -14,6 +15,7 @@ const AdminMovies = () => {
   const [selectedType, setSelectedType] = useState("All");
   const [selectedMovies, setSelectedMovies] = useState<string[]>([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   if (isLoading) {
     return (
@@ -56,10 +58,75 @@ const AdminMovies = () => {
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = () => {
-    toast.success(`${selectedMovies.length} movie(s) deleted successfully`);
-    setSelectedMovies([]);
-    setShowDeleteModal(false);
+  const confirmDelete = async () => {
+    setIsDeleting(true);
+    
+    try {
+      // Filter out mock movies (they don't have UUIDs, so we can't delete them from DB)
+      const realMovieIds = selectedMovies.filter(id => {
+        // Check if it's a UUID format (real database content)
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        return uuidRegex.test(id);
+      });
+
+      if (realMovieIds.length > 0) {
+        const { error } = await supabase
+          .from('content')
+          .delete()
+          .in('id', realMovieIds);
+
+        if (error) {
+          console.error('Error deleting content:', error);
+          toast.error('Failed to delete content');
+          return;
+        }
+      }
+
+      toast.success(`${selectedMovies.length} item(s) deleted successfully`);
+      setSelectedMovies([]);
+      setShowDeleteModal(false);
+      
+      // Refresh the page to show updated content
+      window.location.reload();
+    } catch (error) {
+      console.error('Error deleting content:', error);
+      toast.error('Failed to delete content');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleSingleDelete = async (movieId: string) => {
+    setIsDeleting(true);
+    
+    try {
+      // Check if it's a real database movie (UUID format)
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+      
+      if (uuidRegex.test(movieId)) {
+        const { error } = await supabase
+          .from('content')
+          .delete()
+          .eq('id', movieId);
+
+        if (error) {
+          console.error('Error deleting content:', error);
+          toast.error('Failed to delete content');
+          return;
+        }
+
+        toast.success('Item deleted successfully');
+        // Refresh the page to show updated content
+        window.location.reload();
+      } else {
+        toast.error('Cannot delete mock content');
+      }
+    } catch (error) {
+      console.error('Error deleting content:', error);
+      toast.error('Failed to delete content');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -126,10 +193,11 @@ const AdminMovies = () => {
               <div className="flex items-center space-x-3">
                 <button
                   onClick={handleBulkDelete}
-                  className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors"
+                  disabled={isDeleting}
+                  className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
-                  <span>Delete Selected</span>
+                  <span>{isDeleting ? 'Deleting...' : 'Delete Selected'}</span>
                 </button>
                 <button
                   onClick={() => setSelectedMovies([])}
@@ -246,11 +314,9 @@ const AdminMovies = () => {
                             <Edit className="w-4 h-4" />
                           </Link>
                           <button
-                            onClick={() => {
-                              setSelectedMovies([movie.id]);
-                              setShowDeleteModal(true);
-                            }}
-                            className="text-red-400 hover:text-red-300 transition-colors"
+                            onClick={() => handleSingleDelete(movie.id)}
+                            disabled={isDeleting}
+                            className="text-red-400 hover:text-red-300 disabled:opacity-50 transition-colors"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -281,15 +347,17 @@ const AdminMovies = () => {
               <div className="flex items-center justify-end space-x-3">
                 <button
                   onClick={() => setShowDeleteModal(false)}
-                  className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+                  disabled={isDeleting}
+                  className="px-4 py-2 text-gray-400 hover:text-white disabled:opacity-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmDelete}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                  disabled={isDeleting}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white rounded-lg transition-colors"
                 >
-                  Delete
+                  {isDeleting ? 'Deleting...' : 'Delete'}
                 </button>
               </div>
             </div>

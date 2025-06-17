@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,9 +8,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { useChannels } from '@/hooks/useChannels';
 import { Plus, Trash2 } from 'lucide-react';
 import { genres } from '@/data/mockMovies';
+import ChannelSearchSelect from './ChannelSearchSelect';
 
 const episodeSchema = z.object({
   title: z.string().min(1, 'Episode title is required'),
@@ -60,8 +59,6 @@ const MovieForm: React.FC<MovieFormProps> = ({
   isLoading = false,
   submitLabel = 'Save Movie'
 }) => {
-  const { channels } = useChannels();
-  
   const form = useForm<MovieFormData>({
     resolver: zodResolver(movieSchema),
     defaultValues: {
@@ -521,20 +518,13 @@ const MovieForm: React.FC<MovieFormProps> = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-white">Channel</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
-                    <SelectValue placeholder="Select channel" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent className="bg-gray-700 border-gray-600">
-                  {channels.map((channel) => (
-                    <SelectItem key={channel.id} value={channel.id}>
-                      {channel.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <FormControl>
+                <ChannelSearchSelect
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  placeholder="Search and select channel..."
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
