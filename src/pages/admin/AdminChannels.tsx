@@ -1,14 +1,13 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, Edit, Trash2, Plus, PlayCircle } from "lucide-react";
 import { toast } from "sonner";
 import AdminLayout from "@/components/admin/AdminLayout";
-import { useMockContent } from "@/hooks/useMockContent";
+import { useAdminChannels } from "@/hooks/useAdminChannels";
 import { supabase } from "@/integrations/supabase/client";
 
 const AdminChannels = () => {
-  const { channels, isLoading } = useMockContent();
+  const { channels, isLoading, refetch } = useAdminChannels();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedChannels, setSelectedChannels] = useState<string[]>([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -70,8 +69,8 @@ const AdminChannels = () => {
       setSelectedChannels([]);
       setShowDeleteModal(false);
       
-      // Refresh the page to show updated data
-      window.location.reload();
+      // Refresh the data
+      refetch();
     } catch (error) {
       console.error('Error deleting channels:', error);
       toast.error('Failed to delete channels');
@@ -172,7 +171,7 @@ const AdminChannels = () => {
                 
                 <div className="flex items-center space-x-4 mb-4">
                   <img
-                    src={channel.logoUrl}
+                    src={channel.logo_url || '/placeholder.svg'}
                     alt={channel.name}
                     className="w-16 h-16 object-cover rounded-lg"
                   />
@@ -180,12 +179,17 @@ const AdminChannels = () => {
                     <h3 className="text-white font-semibold">{channel.name}</h3>
                     <div className="flex items-center space-x-1 text-gray-400 text-sm">
                       <PlayCircle className="w-4 h-4" />
-                      <span>{channel.contentCount || 0} Content</span>
+                      <span>0 Content</span>
                     </div>
+                    {!channel.is_active && (
+                      <span className="inline-block px-2 py-1 text-xs bg-red-600 text-white rounded-full mt-1">
+                        Inactive
+                      </span>
+                    )}
                   </div>
                 </div>
                 
-                <p className="text-gray-400 text-sm">{channel.description}</p>
+                <p className="text-gray-400 text-sm">{channel.description || 'No description'}</p>
               </div>
             ))}
           </div>
@@ -193,7 +197,9 @@ const AdminChannels = () => {
           <div className="bg-gray-800 rounded-lg p-8 text-center">
             <PlayCircle className="w-16 h-16 text-gray-600 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-white mb-2">No Channels Found</h3>
-            <p className="text-gray-400">No channels are available to manage.</p>
+            <p className="text-gray-400">
+              {searchQuery ? 'No channels match your search.' : 'No channels are available to manage.'}
+            </p>
           </div>
         )}
 

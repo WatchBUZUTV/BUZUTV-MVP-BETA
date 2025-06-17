@@ -17,6 +17,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminMovies from "./pages/admin/AdminMovies";
 import AdminChannels from "./pages/admin/AdminChannels";
 import AdminAddMovie from "./pages/admin/AdminAddMovie";
+import AdminEditMovie from "./pages/admin/AdminEditMovie";
 import AdminAddChannel from "./pages/admin/AdminAddChannel";
 import AdminEditChannel from "./pages/admin/AdminEditChannel";
 import NotFound from "./pages/NotFound";
@@ -46,7 +47,7 @@ const App = () => (
             <Route path="/admin/channels" element={<AdminChannels />} />
             <Route path="/admin/add-movie" element={<AdminAddMovie />} />
             <Route path="/admin/add-channel" element={<AdminAddChannel />} />
-            <Route path="/admin/edit-movie/:id" element={<AdminAddMovie />} />
+            <Route path="/admin/edit-movie/:id" element={<AdminEditMovie />} />
             <Route path="/admin/edit-channel/:id" element={<AdminEditChannel />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
