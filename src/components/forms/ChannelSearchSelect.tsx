@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Check, ChevronDown, Search } from 'lucide-react';
-import { useChannels } from '@/hooks/useChannels';
+import { useAdminChannels } from '@/hooks/useAdminChannels';
 
 interface ChannelSearchSelectProps {
   value?: string;
@@ -14,7 +14,7 @@ const ChannelSearchSelect: React.FC<ChannelSearchSelectProps> = ({
   onValueChange,
   placeholder = "Search and select channel..."
 }) => {
-  const { channels } = useChannels();
+  const { channels } = useAdminChannels();
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedChannel, setSelectedChannel] = useState<string>('');

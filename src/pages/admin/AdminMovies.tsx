@@ -16,6 +16,7 @@ const AdminMovies = () => {
   const [selectedMovies, setSelectedMovies] = useState<string[]>([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [singleDeleteId, setSingleDeleteId] = useState<string | null>(null);
 
   if (isLoading) {
     return (
@@ -55,6 +56,13 @@ const AdminMovies = () => {
       toast.error("No movies selected");
       return;
     }
+    setSingleDeleteId(null);
+    setShowDeleteModal(true);
+  };
+
+  const handleSingleDeleteConfirm = (movieId: string) => {
+    setSingleDeleteId(movieId);
+    setSelectedMovies([movieId]);
     setShowDeleteModal(true);
   };
 
@@ -62,8 +70,10 @@ const AdminMovies = () => {
     setIsDeleting(true);
     
     try {
+      const itemsToDelete = singleDeleteId ? [singleDeleteId] : selectedMovies;
+      
       // Filter out mock movies (they don't have UUIDs, so we can't delete them from DB)
-      const realMovieIds = selectedMovies.filter(id => {
+      const realMovieIds = itemsToDelete.filter(id => {
         // Check if it's a UUID format (real database content)
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
         return uuidRegex.test(id);
@@ -82,8 +92,9 @@ const AdminMovies = () => {
         }
       }
 
-      toast.success(`${selectedMovies.length} item(s) deleted successfully`);
+      toast.success(`${itemsToDelete.length} item(s) deleted successfully`);
       setSelectedMovies([]);
+      setSingleDeleteId(null);
       setShowDeleteModal(false);
       
       // Refresh the page to show updated content
@@ -96,37 +107,12 @@ const AdminMovies = () => {
     }
   };
 
-  const handleSingleDelete = async (movieId: string) => {
-    setIsDeleting(true);
-    
-    try {
-      // Check if it's a real database movie (UUID format)
-      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-      
-      if (uuidRegex.test(movieId)) {
-        const { error } = await supabase
-          .from('content')
-          .delete()
-          .eq('id', movieId);
-
-        if (error) {
-          console.error('Error deleting content:', error);
-          toast.error('Failed to delete content');
-          return;
-        }
-
-        toast.success('Item deleted successfully');
-        // Refresh the page to show updated content
-        window.location.reload();
-      } else {
-        toast.error('Cannot delete mock content');
-      }
-    } catch (error) {
-      console.error('Error deleting content:', error);
-      toast.error('Failed to delete content');
-    } finally {
-      setIsDeleting(false);
+  const getDeleteMessage = () => {
+    if (singleDeleteId) {
+      const movie = filteredMovies.find(m => m.id === singleDeleteId);
+      return `Are you sure you want to delete "${movie?.title}"? This action cannot be undone.`;
     }
+    return `Are you sure you want to delete ${selectedMovies.length} item(s)? This action cannot be undone.`;
   };
 
   return (
@@ -184,7 +170,7 @@ const AdminMovies = () => {
         </div>
 
         {/* Bulk Actions */}
-        {selectedMovies.length > 0 && (
+        {selectedMovies.length > 0 && !singleDeleteId && (
           <div className="bg-blue-600 rounded-lg p-4">
             <div className="flex items-center justify-between">
               <span className="text-white font-medium">
@@ -314,7 +300,7 @@ const AdminMovies = () => {
                             <Edit className="w-4 h-4" />
                           </Link>
                           <button
-                            onClick={() => handleSingleDelete(movie.id)}
+                            onClick={() => handleSingleDeleteConfirm(movie.id)}
                             disabled={isDeleting}
                             className="text-red-400 hover:text-red-300 disabled:opacity-50 transition-colors"
                           >
@@ -342,11 +328,15 @@ const AdminMovies = () => {
             <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
               <h3 className="text-lg font-semibold text-white mb-4">Confirm Delete</h3>
               <p className="text-gray-300 mb-6">
-                Are you sure you want to delete {selectedMovies.length} movie(s)? This action cannot be undone.
+                {getDeleteMessage()}
               </p>
               <div className="flex items-center justify-end space-x-3">
                 <button
-                  onClick={() => setShowDeleteModal(false)}
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    setSingleDeleteId(null);
+                    if (singleDeleteId) setSelectedMovies([]);
+                  }}
                   disabled={isDeleting}
                   className="px-4 py-2 text-gray-400 hover:text-white disabled:opacity-50 transition-colors"
                 >
