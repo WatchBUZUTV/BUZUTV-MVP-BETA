@@ -7,14 +7,16 @@ import Navbar from "@/components/Navbar";
 import SearchOverlay from "@/components/SearchOverlay";
 import { useContent } from "@/hooks/useContent";
 import { useUserFavorites } from "@/hooks/useUserFavorites";
+import { contentToMovie } from "@/utils/contentMapper";
 
 const MyList = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { content } = useContent();
   const { favoriteIds, isLoading } = useUserFavorites();
   
-  // Get user's favorite content
-  const savedMovies = content.filter(item => favoriteIds.includes(item.id));
+  // Get user's favorite content and transform to movies
+  const savedContent = content.filter(item => favoriteIds.includes(item.id));
+  const savedMovies = savedContent.map(contentToMovie);
   const continueWatching = savedMovies.slice(0, 3);
   
   // Filter saved movies based on search

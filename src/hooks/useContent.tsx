@@ -42,7 +42,13 @@ export const useContent = () => {
         return;
       }
 
-      setContent(data || []);
+      // Transform the data to ensure type compatibility
+      const transformedContent: Content[] = (data || []).map(item => ({
+        ...item,
+        type: item.type as 'movie' | 'series' // Type assertion for database data
+      }));
+
+      setContent(transformedContent);
     } catch (error) {
       console.error('Error fetching content:', error);
       toast.error('Failed to load content');

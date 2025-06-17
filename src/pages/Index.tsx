@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import MovieCard from "@/components/MovieCard";
 import ChannelCard from "@/components/ChannelCard";
@@ -7,6 +6,7 @@ import ProtectedContent from "@/components/auth/ProtectedContent";
 import Navbar from "@/components/Navbar";
 import { useContent } from "@/hooks/useContent";
 import { useChannels } from "@/hooks/useChannels";
+import { contentToMovie, channelToChannelCard } from "@/utils/contentMapper";
 
 const Index = () => {
   console.log('Index component rendering');
@@ -15,16 +15,22 @@ const Index = () => {
   const { content, isLoading: contentLoading } = useContent();
   const { channels, isLoading: channelsLoading } = useChannels();
 
+  // Transform content to movies using the mapper
+  const movies = content.map(contentToMovie);
+  
   // Filter and organize content
-  const trendingMovies = content.filter(item => item.is_trending);
-  const continueWatchingMovies = content.slice(0, 4); // Mock continue watching
+  const trendingMovies = movies.filter(item => item.isTrending);
+  const continueWatchingMovies = movies.slice(0, 4); // Mock continue watching
 
-  const actionMovies = content.filter(item => item.genre === "Action");
-  const dramaMovies = content.filter(item => item.genre === "Drama");
-  const romanceMovies = content.filter(item => item.genre === "Romance");
-  const comedyMovies = content.filter(item => item.genre === "Comedy");
-  const documentaryMovies = content.filter(item => item.genre === "Documentary");
-  const informationalMovies = content.filter(item => item.genre === "Informational");
+  const actionMovies = movies.filter(item => item.genre === "Action");
+  const dramaMovies = movies.filter(item => item.genre === "Drama");
+  const romanceMovies = movies.filter(item => item.genre === "Romance");
+  const comedyMovies = movies.filter(item => item.genre === "Comedy");
+  const documentaryMovies = movies.filter(item => item.genre === "Documentary");
+  const informationalMovies = movies.filter(item => item.genre === "Informational");
+
+  // Transform channels using the mapper
+  const transformedChannels = channels.map(channelToChannelCard);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -79,7 +85,7 @@ const Index = () => {
               <h2 className="text-2xl font-bold mb-6 px-4">Popular Channels</h2>
               <div className="overflow-x-auto">
                 <div className="flex space-x-4 pb-4 px-4">
-                  {channels.map((channel) => (
+                  {transformedChannels.map((channel) => (
                     <div key={channel.id} className="flex-shrink-0 w-48">
                       <ProtectedContent>
                         <ChannelCard channel={channel} />
