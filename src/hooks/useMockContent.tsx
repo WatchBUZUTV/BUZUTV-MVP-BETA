@@ -21,6 +21,7 @@ const transformDatabaseContent = (dbContent: any[]) => {
     posterUrl: item.poster_url || '/placeholder.svg',
     backdropUrl: item.backdrop_url || '/placeholder.svg',
     videoUrl: item.video_url || '',
+    youtubeId: '', // Required property for Movie type
     duration: item.duration_minutes || 120,
     seasons: item.seasons,
     episodes: item.episodes,
@@ -38,7 +39,8 @@ const transformDatabaseChannels = (dbChannels: any[]) => {
     description: channel.description || '',
     logoUrl: channel.logo_url || '/placeholder.svg',
     bannerUrl: channel.banner_url || '/placeholder.svg',
-    isActive: channel.is_active !== false
+    isActive: channel.is_active !== false,
+    contentCount: 0 // Required property for Channel type - could be calculated later
   }));
 };
 
