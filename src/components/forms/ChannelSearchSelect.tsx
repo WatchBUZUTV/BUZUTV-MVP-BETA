@@ -108,9 +108,9 @@ const ChannelSearchSelect: React.FC<ChannelSearchSelectProps> = ({
                   onClick={() => handleChannelSelect(channel.id, channel.name)}
                 >
                   <div className="flex items-center flex-1">
-                    {channel.logoUrl && (
+                    {channel.logo_url && (
                       <img
-                        src={channel.logoUrl}
+                        src={channel.logo_url}
                         alt={channel.name}
                         className="w-6 h-6 rounded mr-3 object-cover"
                       />
