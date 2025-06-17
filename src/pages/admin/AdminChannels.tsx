@@ -5,12 +5,14 @@ import { Search, Edit, Trash2, Plus, PlayCircle } from "lucide-react";
 import { toast } from "sonner";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { useMockContent } from "@/hooks/useMockContent";
+import { supabase } from "@/integrations/supabase/client";
 
 const AdminChannels = () => {
   const { channels, isLoading } = useMockContent();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedChannels, setSelectedChannels] = useState<string[]>([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   if (isLoading) {
     return (
@@ -50,10 +52,32 @@ const AdminChannels = () => {
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = () => {
-    toast.success(`${selectedChannels.length} channel(s) deleted successfully`);
-    setSelectedChannels([]);
-    setShowDeleteModal(false);
+  const confirmDelete = async () => {
+    setDeleting(true);
+    try {
+      const { error } = await supabase
+        .from('channels')
+        .delete()
+        .in('id', selectedChannels);
+
+      if (error) {
+        console.error('Error deleting channels:', error);
+        toast.error('Failed to delete channels');
+        return;
+      }
+
+      toast.success(`${selectedChannels.length} channel(s) deleted successfully`);
+      setSelectedChannels([]);
+      setShowDeleteModal(false);
+      
+      // Refresh the page to show updated data
+      window.location.reload();
+    } catch (error) {
+      console.error('Error deleting channels:', error);
+      toast.error('Failed to delete channels');
+    } finally {
+      setDeleting(false);
+    }
   };
 
   return (
@@ -98,10 +122,11 @@ const AdminChannels = () => {
               <div className="flex items-center space-x-3">
                 <button
                   onClick={handleBulkDelete}
-                  className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors"
+                  disabled={deleting}
+                  className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
                 >
                   <Trash2 className="w-4 h-4" />
-                  <span>Delete Selected</span>
+                  <span>{deleting ? 'Deleting...' : 'Delete Selected'}</span>
                 </button>
                 <button
                   onClick={() => setSelectedChannels([])}
@@ -155,7 +180,7 @@ const AdminChannels = () => {
                     <h3 className="text-white font-semibold">{channel.name}</h3>
                     <div className="flex items-center space-x-1 text-gray-400 text-sm">
                       <PlayCircle className="w-4 h-4" />
-                      <span>{Math.floor(Math.random() * 50) + 10} Content</span>
+                      <span>{channel.contentCount || 0} Content</span>
                     </div>
                   </div>
                 </div>
@@ -183,15 +208,17 @@ const AdminChannels = () => {
               <div className="flex items-center justify-end space-x-3">
                 <button
                   onClick={() => setShowDeleteModal(false)}
-                  className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+                  disabled={deleting}
+                  className="px-4 py-2 text-gray-400 hover:text-white transition-colors disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmDelete}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                  disabled={deleting}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50"
                 >
-                  Delete
+                  {deleting ? 'Deleting...' : 'Delete'}
                 </button>
               </div>
             </div>
