@@ -48,7 +48,7 @@ const AdminEditMovie = () => {
     setIsLoading(true);
     
     try {
-      const updateData = {
+      const updateData: any = {
         title: data.title,
         description: data.description || null,
         type: data.type,

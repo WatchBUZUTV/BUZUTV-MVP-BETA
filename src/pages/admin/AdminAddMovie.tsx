@@ -19,7 +19,7 @@ const AdminAddMovie = () => {
     setIsLoading(true);
 
     try {
-      const contentData = {
+      const contentData: any = {
         title: data.title,
         description: data.description || null,
         type: data.type,

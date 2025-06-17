@@ -39,7 +39,7 @@ const movieSchema = z.object({
 type MovieFormData = z.infer<typeof movieSchema>;
 
 interface MovieFormProps {
-  onSubmit: (data: MovieFormData) => void;
+  onSubmit: (data: any) => void;
   initialData?: Partial<MovieFormData>;
   isLoading?: boolean;
   submitLabel?: string;
@@ -100,8 +100,10 @@ const MovieForm: React.FC<MovieFormProps> = ({
     // Transform seasons data for backend
     const transformedData = {
       ...data,
+      // For series: use calculated totals from detailed seasons
       seasons: data.type === 'series' ? data.totalSeasons : undefined,
       episodes: data.type === 'series' ? data.totalEpisodes : undefined,
+      // Pass detailed seasons data separately
       seasonsData: data.type === 'series' ? data.seasons : undefined
     };
     onSubmit(transformedData);

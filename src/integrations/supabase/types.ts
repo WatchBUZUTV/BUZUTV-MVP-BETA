@@ -57,6 +57,7 @@ export type Database = {
           poster_url: string | null
           rating: number | null
           seasons: number | null
+          seasons_data: Json | null
           title: string
           type: string
           updated_at: string | null
@@ -77,6 +78,7 @@ export type Database = {
           poster_url?: string | null
           rating?: number | null
           seasons?: number | null
+          seasons_data?: Json | null
           title: string
           type: string
           updated_at?: string | null
@@ -97,6 +99,7 @@ export type Database = {
           poster_url?: string | null
           rating?: number | null
           seasons?: number | null
+          seasons_data?: Json | null
           title?: string
           type?: string
           updated_at?: string | null
