@@ -1,5 +1,6 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
+import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 
 interface User {
   id: string;
@@ -11,96 +12,62 @@ interface User {
 interface AuthContextType {
   user: User | null;
   isLoggedIn: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; user?: User }>;
-  signup: (email: string, password: string, name: string) => Promise<{ success: boolean; user?: User }>;
-  logout: () => void;
+  isLoading: boolean;
   showLoginModal: boolean;
   setShowLoginModal: (show: boolean) => void;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signup: (email: string, password: string, name: string) => Promise<{ success: boolean; error?: string }>;
+  logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users database
-const mockUsers = [
-  { id: '1', email: 'user@example.com', password: 'password123', name: 'John Doe' },
-  { id: '2', email: 'admin@example.com', password: 'admin123', name: 'Admin User', isAdmin: true },
-];
-
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const { 
+    user: supabaseUser, 
+    userProfile, 
+    isLoading, 
+    isLoggedIn, 
+    signIn, 
+    signUp, 
+    signOut 
+  } = useSupabaseAuth();
 
-  useEffect(() => {
-    // Check if user is logged in on mount
-    const savedUser = localStorage.getItem('currentUser');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-  }, []);
+  // Transform Supabase user to our User interface
+  const user: User | null = supabaseUser && userProfile ? {
+    id: supabaseUser.id,
+    email: userProfile.email,
+    name: userProfile.name,
+    isAdmin: userProfile.role === 'admin'
+  } : null;
 
   const login = async (email: string, password: string) => {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const foundUser = mockUsers.find(u => u.email === email && u.password === password);
-    if (foundUser) {
-      const userWithoutPassword = { 
-        id: foundUser.id, 
-        email: foundUser.email, 
-        name: foundUser.name,
-        isAdmin: foundUser.isAdmin 
-      };
-      setUser(userWithoutPassword);
-      localStorage.setItem('currentUser', JSON.stringify(userWithoutPassword));
-      return { success: true, user: userWithoutPassword };
-    }
-    return { success: false };
+    const result = await signIn(email, password);
+    return result;
   };
 
   const signup = async (email: string, password: string, name: string) => {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Check if user already exists
-    const existingUser = mockUsers.find(u => u.email === email);
-    if (existingUser) {
-      return { success: false };
-    }
-
-    // Create new user
-    const newUser = {
-      id: String(mockUsers.length + 1),
-      email,
-      password,
-      name
-    };
-    mockUsers.push(newUser);
-
-    const userWithoutPassword = { id: newUser.id, email: newUser.email, name: newUser.name };
-    setUser(userWithoutPassword);
-    localStorage.setItem('currentUser', JSON.stringify(userWithoutPassword));
-    return { success: true, user: userWithoutPassword };
+    const result = await signUp(email, password, name);
+    return result;
   };
 
   const logout = () => {
-    setUser(null);
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('isAdminLoggedIn');
+    signOut();
   };
 
-  return (
-    <AuthContext.Provider value={{
-      user,
-      isLoggedIn: !!user,
-      login,
-      signup,
-      logout,
-      showLoginModal,
-      setShowLoginModal
-    }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const value: AuthContextType = {
+    user,
+    isLoggedIn,
+    isLoading,
+    showLoginModal,
+    setShowLoginModal,
+    login,
+    signup,
+    logout,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {

@@ -52,7 +52,7 @@ const MyList = () => {
           {/* Header - Black background with logo */}
           <div className="h-[40vh] bg-black flex items-center justify-center">
             <h1 className="text-5xl font-bold">
-              Bizu<span className="text-blue-500">TV</span>
+              Buzu<span className="text-blue-500">TV</span>
             </h1>
           </div>
 

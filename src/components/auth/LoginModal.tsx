@@ -87,7 +87,7 @@ const LoginModal = () => {
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl font-bold">
               {isSignUp ? 'Sign Up' : 'Sign In'} to{' '}
-              <span className="text-blue-500">BizuTV</span>
+              <span className="text-blue-500">BuzuTV</span>
             </DialogTitle>
             <div className="flex items-center space-x-2">
               <button

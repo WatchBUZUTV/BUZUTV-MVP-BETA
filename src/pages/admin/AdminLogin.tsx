@@ -50,7 +50,7 @@ const AdminLogin = () => {
           {/* Logo */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-white">
-              Bizu<span className="text-blue-500">TV</span>
+              Buzu<span className="text-blue-500">TV</span>
             </h1>
             <p className="text-gray-400 mt-2">Admin Portal</p>
             {user?.isAdmin && (
@@ -112,7 +112,7 @@ const AdminLogin = () => {
               onClick={() => navigate('/')}
               className="text-blue-400 hover:text-blue-300 transition-colors text-sm"
             >
-              ← Back to BizuTV
+              ← Back to BuzuTV
             </button>
           </div>
         </div>

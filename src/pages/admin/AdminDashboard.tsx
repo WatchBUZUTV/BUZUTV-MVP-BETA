@@ -71,7 +71,7 @@ const AdminDashboard = () => {
       <div className="space-y-6">
         <div>
           <h2 className="text-2xl font-bold text-white mb-2">Dashboard Overview</h2>
-          <p className="text-gray-400">Welcome to BizuTV Admin Panel</p>
+          <p className="text-gray-400">Welcome to BuzuTV Admin Panel</p>
         </div>
 
         {/* Stats Cards */}
