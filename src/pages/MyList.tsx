@@ -5,21 +5,18 @@ import MovieCard from "@/components/MovieCard";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Navbar from "@/components/Navbar";
 import SearchOverlay from "@/components/SearchOverlay";
-import { useContent } from "@/hooks/useContent";
 import { useUserFavorites } from "@/hooks/useUserFavorites";
-import { contentToMovie } from "@/utils/contentMapper";
 import { mockMovies } from "@/data/mockMovies";
 
 const MyList = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const { content } = useContent();
   const { favoriteIds, isLoading } = useUserFavorites();
   
-  // Use database content if available and user has favorites, otherwise show mock favorites
-  const allMovies = content.length > 0 ? content.map(contentToMovie) : mockMovies;
+  // Use mock movies only
+  const allMovies = mockMovies;
   const savedContent = favoriteIds.length > 0 
     ? allMovies.filter(item => favoriteIds.includes(item.id))
-    : allMovies.slice(0, 5); // Show first 5 mock movies as demo favorites
+    : [];
     
   const continueWatching = savedContent.slice(0, 3);
   
@@ -103,7 +100,7 @@ const MyList = () => {
                 {/* Favorites */}
                 <section className="mb-12">
                   <h2 className="text-2xl font-bold mb-6 px-4">
-                    {favoriteIds.length > 0 ? `Favorites (${filteredSavedMovies.length})` : 'Demo Favorites'}
+                    My Favorites ({filteredSavedMovies.length})
                   </h2>
                   <div className="overflow-x-auto">
                     <div className="flex space-x-4 pb-4 px-4">

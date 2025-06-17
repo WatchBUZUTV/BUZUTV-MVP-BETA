@@ -5,20 +5,15 @@ import ChannelCard from "@/components/ChannelCard";
 import SearchOverlay from "@/components/SearchOverlay";
 import ProtectedContent from "@/components/auth/ProtectedContent";
 import Navbar from "@/components/Navbar";
-import { useContent } from "@/hooks/useContent";
-import { useChannels } from "@/hooks/useChannels";
-import { contentToMovie, channelToChannelCard } from "@/utils/contentMapper";
 import { mockMovies, channels } from "@/data/mockMovies";
 
 const Index = () => {
   console.log('Index component rendering');
   
   const [searchQuery, setSearchQuery] = useState("");
-  const { content, isLoading: contentLoading } = useContent();
-  const { channels: dbChannels, isLoading: channelsLoading } = useChannels();
 
-  // Use database content if available, otherwise fall back to mock data
-  const movies = content.length > 0 ? content.map(contentToMovie) : mockMovies;
+  // Use mock data only
+  const movies = mockMovies;
   
   // Filter and organize content
   const trendingMovies = movies.filter(item => item.isTrending);
@@ -31,9 +26,6 @@ const Index = () => {
   const documentaryMovies = movies.filter(item => item.genre === "Documentary");
   const informationalMovies = movies.filter(item => item.genre === "Informational");
 
-  // Use database channels if available, otherwise fall back to mock data
-  const displayChannels = dbChannels.length > 0 ? dbChannels.map(channelToChannelCard) : channels;
-
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
@@ -44,14 +36,6 @@ const Index = () => {
 
   // Show search overlay when there's a search query
   const showSearchOverlay = searchQuery.trim().length > 0;
-
-  if (contentLoading || channelsLoading) {
-    return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-        <div className="text-2xl">Loading...</div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -87,7 +71,7 @@ const Index = () => {
               <h2 className="text-2xl font-bold mb-6 px-4">Popular Channels</h2>
               <div className="overflow-x-auto">
                 <div className="flex space-x-4 pb-4 px-4">
-                  {displayChannels.map((channel) => (
+                  {channels.map((channel) => (
                     <div key={channel.id} className="flex-shrink-0 w-48">
                       <ProtectedContent>
                         <ChannelCard channel={channel} />

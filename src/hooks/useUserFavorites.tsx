@@ -1,8 +1,13 @@
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+
+// Mock favorites for predefined users
+const mockUserFavorites: Record<string, string[]> = {
+  'user-1': ['1', '2', '8'], // Demo user has some favorites
+  'admin-1': ['1', '3', '4', '6'] // Admin has different favorites
+};
 
 export const useUserFavorites = () => {
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
@@ -10,30 +15,18 @@ export const useUserFavorites = () => {
   const { user } = useAuth();
 
   const fetchFavorites = async () => {
+    setIsLoading(true);
+    
     if (!user) {
       setFavoriteIds([]);
       setIsLoading(false);
       return;
     }
 
-    try {
-      setIsLoading(true);
-      const { data, error } = await supabase
-        .from('user_favorites')
-        .select('content_id')
-        .eq('user_id', user.id);
-
-      if (error) {
-        console.error('Error fetching favorites:', error);
-        return;
-      }
-
-      setFavoriteIds(data?.map(fav => fav.content_id) || []);
-    } catch (error) {
-      console.error('Error fetching favorites:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    // Get mock favorites for predefined users, empty for new users
+    const userFavorites = mockUserFavorites[user.id] || [];
+    setFavoriteIds(userFavorites);
+    setIsLoading(false);
   };
 
   const addToFavorites = async (contentId: string) => {
@@ -42,54 +35,44 @@ export const useUserFavorites = () => {
       return;
     }
 
-    try {
-      const { error } = await supabase
-        .from('user_favorites')
-        .insert({
-          user_id: user.id,
-          content_id: contentId
-        });
-
-      if (error) {
-        console.error('Error adding favorite:', error);
-        toast.error('Failed to add to favorites');
-        return;
-      }
-
-      setFavoriteIds(prev => [...prev, contentId]);
-      toast.success('Added to favorites');
-    } catch (error) {
-      console.error('Error adding favorite:', error);
-      toast.error('Failed to add to favorites');
+    if (favoriteIds.includes(contentId)) {
+      toast.error('Already in favorites');
+      return;
     }
+
+    const newFavorites = [...favoriteIds, contentId];
+    setFavoriteIds(newFavorites);
+    
+    // Store in localStorage for persistence
+    localStorage.setItem(`favorites_${user.id}`, JSON.stringify(newFavorites));
+    toast.success('Added to favorites');
   };
 
   const removeFromFavorites = async (contentId: string) => {
     if (!user) return;
 
-    try {
-      const { error } = await supabase
-        .from('user_favorites')
-        .delete()
-        .eq('user_id', user.id)
-        .eq('content_id', contentId);
-
-      if (error) {
-        console.error('Error removing favorite:', error);
-        toast.error('Failed to remove from favorites');
-        return;
-      }
-
-      setFavoriteIds(prev => prev.filter(id => id !== contentId));
-      toast.success('Removed from favorites');
-    } catch (error) {
-      console.error('Error removing favorite:', error);
-      toast.error('Failed to remove from favorites');
-    }
+    const newFavorites = favoriteIds.filter(id => id !== contentId);
+    setFavoriteIds(newFavorites);
+    
+    // Store in localStorage for persistence
+    localStorage.setItem(`favorites_${user.id}`, JSON.stringify(newFavorites));
+    toast.success('Removed from favorites');
   };
 
   useEffect(() => {
-    fetchFavorites();
+    if (user) {
+      // Check localStorage first for user's favorites
+      const savedFavorites = localStorage.getItem(`favorites_${user.id}`);
+      if (savedFavorites) {
+        setFavoriteIds(JSON.parse(savedFavorites));
+        setIsLoading(false);
+      } else {
+        fetchFavorites();
+      }
+    } else {
+      setFavoriteIds([]);
+      setIsLoading(false);
+    }
   }, [user]);
 
   return {
