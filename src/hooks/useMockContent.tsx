@@ -69,14 +69,14 @@ export const useMockContent = () => {
           setContent([...mockMovies, ...transformedDbContent]);
           setChannelsData([...channels, ...transformedDbChannels]);
         } else {
-          // Real user gets only real content from database + mock content for demo
-          setContent([...mockMovies, ...transformedDbContent]);
-          setChannelsData([...channels, ...transformedDbChannels]);
+          // Real user gets only real content from database
+          setContent(transformedDbContent);
+          setChannelsData(transformedDbChannels);
         }
       } else {
-        // Not logged in - show mock content only (so unauthorized users can see shows)
-        setContent(mockMovies);
-        setChannelsData(channels);
+        // Not logged in - show real content from database
+        setContent(transformedDbContent);
+        setChannelsData(transformedDbChannels);
       }
       setIsLoading(false);
     }

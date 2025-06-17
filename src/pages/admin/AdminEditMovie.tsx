@@ -155,8 +155,6 @@ const AdminEditMovie = () => {
               videoUrl: movie.video_url || '',
               durationMinutes: movie.duration_minutes?.toString() || '',
               seasons: seasonsData,
-              totalSeasons: movie.seasons?.toString() || '',
-              totalEpisodes: movie.episodes?.toString() || '',
               isFeatured: movie.is_featured || false,
               isTrending: movie.is_trending || false,
               channelId: movie.channel_id || ''
