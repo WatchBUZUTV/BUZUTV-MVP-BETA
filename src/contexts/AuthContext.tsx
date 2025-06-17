@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
@@ -6,6 +5,7 @@ import { User, Session } from '@supabase/supabase-js';
 interface AuthUser extends User {
   isAdmin?: boolean;
   name?: string;
+  role?: string;
 }
 
 interface AuthContextType {
@@ -21,10 +21,33 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Demo users who should see mock content
+const demoUsers = ['user@example.com', 'admin@example.com'];
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching user profile:', error);
+        return null;
+      }
+
+      return profile;
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      return null;
+    }
+  };
 
   useEffect(() => {
     // Set up auth state listener
@@ -33,16 +56,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log('Auth state changed:', event, session?.user?.email);
         
         if (session?.user) {
-          // Check if this is a demo admin user
+          // Check if this is a demo admin user (legacy support)
           const isDemoAdmin = session.user.email === 'admin@example.com';
           const userName = session.user.user_metadata?.full_name || 
                           session.user.user_metadata?.name || 
                           session.user.email?.split('@')[0] || 'User';
           
+          // Fetch user profile to get actual role
+          setTimeout(async () => {
+            const profile = await fetchUserProfile(session.user.id);
+            const actualRole = profile?.role || 'user';
+            const isActualAdmin = actualRole === 'admin' || isDemoAdmin;
+            
+            setUser({ 
+              ...session.user, 
+              isAdmin: isActualAdmin,
+              name: userName,
+              role: actualRole
+            });
+          }, 0);
+          
+          // Set user immediately with demo admin check for faster UI response
           setUser({ 
             ...session.user, 
             isAdmin: isDemoAdmin,
-            name: userName
+            name: userName,
+            role: isDemoAdmin ? 'admin' : 'user'
           });
         } else {
           setUser(null);
@@ -52,17 +91,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
 
     // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
         const isDemoAdmin = session.user.email === 'admin@example.com';
         const userName = session.user.user_metadata?.full_name || 
                         session.user.user_metadata?.name || 
                         session.user.email?.split('@')[0] || 'User';
         
+        // Fetch user profile to get actual role
+        const profile = await fetchUserProfile(session.user.id);
+        const actualRole = profile?.role || 'user';
+        const isActualAdmin = actualRole === 'admin' || isDemoAdmin;
+        
         setUser({ 
           ...session.user, 
-          isAdmin: isDemoAdmin,
-          name: userName
+          isAdmin: isActualAdmin,
+          name: userName,
+          role: actualRole
         });
       }
       setIsLoading(false);

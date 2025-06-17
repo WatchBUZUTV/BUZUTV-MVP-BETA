@@ -14,7 +14,7 @@ export const useMockContent = () => {
 
   useEffect(() => {
     if (user) {
-      // Check if this is a demo user
+      // Check if this is a demo user (for mock content)
       const isDemoUser = user.email && demoUsers.includes(user.email);
       
       if (isDemoUser) {
@@ -22,7 +22,7 @@ export const useMockContent = () => {
         setContent(mockMovies);
         setChannelsData(channels);
       } else {
-        // Real user gets empty content
+        // Real user gets empty content (will be populated from database later)
         setContent([]);
         setChannelsData([]);
       }
