@@ -5,6 +5,7 @@ import { User, Session } from '@supabase/supabase-js';
 
 interface AuthUser extends User {
   isAdmin?: boolean;
+  name?: string;
 }
 
 interface AuthContextType {
@@ -20,22 +21,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Demo users - these will be created in Supabase if they don't exist
-const demoUsers = [
-  {
-    email: 'user@example.com',
-    password: 'password123',
-    name: 'Demo User',
-    isAdmin: false
-  },
-  {
-    email: 'admin@example.com', 
-    password: 'admin123',
-    name: 'Admin User',
-    isAdmin: true
-  }
-];
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -50,7 +35,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (session?.user) {
           // Check if this is a demo admin user
           const isDemoAdmin = session.user.email === 'admin@example.com';
-          setUser({ ...session.user, isAdmin: isDemoAdmin });
+          const userName = session.user.user_metadata?.full_name || 
+                          session.user.user_metadata?.name || 
+                          session.user.email?.split('@')[0] || 'User';
+          
+          setUser({ 
+            ...session.user, 
+            isAdmin: isDemoAdmin,
+            name: userName
+          });
         } else {
           setUser(null);
         }
@@ -62,7 +55,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         const isDemoAdmin = session.user.email === 'admin@example.com';
-        setUser({ ...session.user, isAdmin: isDemoAdmin });
+        const userName = session.user.user_metadata?.full_name || 
+                        session.user.user_metadata?.name || 
+                        session.user.email?.split('@')[0] || 'User';
+        
+        setUser({ 
+          ...session.user, 
+          isAdmin: isDemoAdmin,
+          name: userName
+        });
       }
       setIsLoading(false);
     });
@@ -97,6 +98,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         emailRedirectTo: `${window.location.origin}/`,
         data: {
           full_name: name,
+          name: name,
         }
       }
     });
