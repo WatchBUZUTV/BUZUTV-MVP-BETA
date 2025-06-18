@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import MovieCard from "@/components/MovieCard";
 import ChannelCard from "@/components/ChannelCard";
@@ -14,6 +13,9 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { movies, channels, isLoading } = useMockContent();
   const { subscriptionIds, toggleSubscription } = useUserSubscriptions();
+
+  console.log('Channels data:', channels);
+  console.log('Subscription IDs:', subscriptionIds);
 
   // Filter and organize content - only if we have content
   const trendingMovies = movies.filter(item => item.isTrending);
@@ -73,31 +75,31 @@ const Index = () => {
           </div>
 
           <div className="max-w-full px-2 py-8">
+            {/* Top Channels */}
+            {channels && channels.length > 0 && (
+              <section className="mb-3">
+                <h2 className="text-2xl font-bold mb-4 px-4">Top Channels</h2>
+                <div className="overflow-x-auto">
+                  <div className="flex space-x-4 pb-4 px-4">
+                    {channels.map((channel) => (
+                      <div key={channel.id} className="flex-shrink-0 w-48">
+                        <ProtectedContent>
+                          <ChannelCard 
+                            channel={channel}
+                            isSubscribed={subscriptionIds.includes(channel.id)}
+                            onSubscribe={toggleSubscription}
+                          />
+                        </ProtectedContent>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            )}
+
             {/* Show content only if we have any */}
             {movies.length > 0 || channels.length > 0 ? (
               <>
-                {/* Top Channels */}
-                {channels.length > 0 && (
-                  <section className="mb-3">
-                    <h2 className="text-2xl font-bold mb-4 px-4">Top Channels</h2>
-                    <div className="overflow-x-auto">
-                      <div className="flex space-x-4 pb-4 px-4">
-                        {channels.map((channel) => (
-                          <div key={channel.id} className="flex-shrink-0 w-48">
-                            <ProtectedContent>
-                              <ChannelCard 
-                                channel={channel}
-                                isSubscribed={subscriptionIds.includes(channel.id)}
-                                onSubscribe={toggleSubscription}
-                              />
-                            </ProtectedContent>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </section>
-                )}
-
                 {/* Trending Now */}
                 {trendingMovies.length > 0 && (
                   <section className="mb-3">

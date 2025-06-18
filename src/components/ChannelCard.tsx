@@ -1,5 +1,5 @@
 
-import { Heart } from "lucide-react";
+import { UserPlus, UserCheck } from "lucide-react";
 import { Channel } from "@/data/mockMovies";
 
 interface ChannelCardProps {
@@ -33,13 +33,15 @@ const ChannelCard = ({ channel, isSubscribed = false, onSubscribe }: ChannelCard
             onClick={handleSubscribe}
             className={`absolute top-2 right-2 p-2 rounded-full transition-all duration-200 ${
               isSubscribed 
-                ? 'bg-red-600 text-white' 
+                ? 'bg-green-600 text-white' 
                 : 'bg-black/50 text-white hover:bg-black/70'
             }`}
           >
-            <Heart 
-              className={`w-4 h-4 ${isSubscribed ? 'fill-current' : ''}`} 
-            />
+            {isSubscribed ? (
+              <UserCheck className="w-4 h-4" />
+            ) : (
+              <UserPlus className="w-4 h-4" />
+            )}
           </button>
         )}
         
