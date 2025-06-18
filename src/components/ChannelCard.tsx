@@ -10,7 +10,9 @@ interface ChannelCardProps {
 
 const ChannelCard = ({ channel, isSubscribed = false, onSubscribe }: ChannelCardProps) => {
   const handleSubscribe = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
+    console.log('Subscribe button clicked for channel:', channel.id);
     if (onSubscribe) {
       onSubscribe(channel.id);
     }
@@ -31,11 +33,12 @@ const ChannelCard = ({ channel, isSubscribed = false, onSubscribe }: ChannelCard
         {onSubscribe && (
           <button
             onClick={handleSubscribe}
-            className={`absolute top-2 right-2 p-2 rounded-full transition-all duration-200 ${
+            className={`absolute top-2 right-2 p-2 rounded-full transition-all duration-200 z-10 cursor-pointer ${
               isSubscribed 
-                ? 'bg-green-600 text-white' 
+                ? 'bg-green-600 text-white hover:bg-green-700' 
                 : 'bg-black/50 text-white hover:bg-black/70'
             }`}
+            style={{ pointerEvents: 'auto' }}
           >
             {isSubscribed ? (
               <UserCheck className="w-4 h-4" />
@@ -46,7 +49,7 @@ const ChannelCard = ({ channel, isSubscribed = false, onSubscribe }: ChannelCard
         )}
         
         {/* Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
           <div className="absolute bottom-0 left-0 right-0 p-3">
             <p className="text-xs text-gray-300 line-clamp-2">{channel.description}</p>
           </div>
