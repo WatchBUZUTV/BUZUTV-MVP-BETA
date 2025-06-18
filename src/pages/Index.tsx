@@ -6,12 +6,14 @@ import SearchOverlay from "@/components/SearchOverlay";
 import ProtectedContent from "@/components/auth/ProtectedContent";
 import Navbar from "@/components/Navbar";
 import { useMockContent } from "@/hooks/useMockContent";
+import { useUserSubscriptions } from "@/hooks/useUserSubscriptions";
 
 const Index = () => {
   console.log('Index component rendering');
   
   const [searchQuery, setSearchQuery] = useState("");
   const { movies, channels, isLoading } = useMockContent();
+  const { subscriptionIds, toggleSubscription } = useUserSubscriptions();
 
   // Filter and organize content - only if we have content
   const trendingMovies = movies.filter(item => item.isTrending);
@@ -72,18 +74,22 @@ const Index = () => {
 
           <div className="max-w-full px-2 py-8">
             {/* Show content only if we have any */}
-            {movies.length > 0 ? (
+            {movies.length > 0 || channels.length > 0 ? (
               <>
-                {/* Popular Channels */}
+                {/* Top Channels */}
                 {channels.length > 0 && (
-                  <section className="mb-6">
-                    <h2 className="text-2xl font-bold mb-6 px-4">Popular Channels</h2>
+                  <section className="mb-3">
+                    <h2 className="text-2xl font-bold mb-4 px-4">Top Channels</h2>
                     <div className="overflow-x-auto">
                       <div className="flex space-x-4 pb-4 px-4">
                         {channels.map((channel) => (
                           <div key={channel.id} className="flex-shrink-0 w-48">
                             <ProtectedContent>
-                              <ChannelCard channel={channel} />
+                              <ChannelCard 
+                                channel={channel}
+                                isSubscribed={subscriptionIds.includes(channel.id)}
+                                onSubscribe={toggleSubscription}
+                              />
                             </ProtectedContent>
                           </div>
                         ))}
@@ -94,8 +100,8 @@ const Index = () => {
 
                 {/* Trending Now */}
                 {trendingMovies.length > 0 && (
-                  <section className="mb-6">
-                    <h2 className="text-2xl font-bold mb-6 px-4">Trending Now</h2>
+                  <section className="mb-3">
+                    <h2 className="text-2xl font-bold mb-4 px-4">Trending Now</h2>
                     <div className="overflow-x-auto">
                       <div className="flex space-x-4 pb-4 px-4">
                         {trendingMovies.map((movie) => (
@@ -112,8 +118,8 @@ const Index = () => {
 
                 {/* Genre Sections */}
                 {actionMovies.length > 0 && (
-                  <section className="mb-6">
-                    <h2 className="text-2xl font-bold mb-6 px-4">Action</h2>
+                  <section className="mb-3">
+                    <h2 className="text-2xl font-bold mb-4 px-4">Action</h2>
                     <div className="overflow-x-auto">
                       <div className="flex space-x-4 pb-4 px-4">
                         {actionMovies.map((movie) => (
@@ -129,8 +135,8 @@ const Index = () => {
                 )}
 
                 {dramaMovies.length > 0 && (
-                  <section className="mb-6">
-                    <h2 className="text-2xl font-bold mb-6 px-4">Drama</h2>
+                  <section className="mb-3">
+                    <h2 className="text-2xl font-bold mb-4 px-4">Drama</h2>
                     <div className="overflow-x-auto">
                       <div className="flex space-x-4 pb-4 px-4">
                         {dramaMovies.map((movie) => (
@@ -146,8 +152,8 @@ const Index = () => {
                 )}
 
                 {romanceMovies.length > 0 && (
-                  <section className="mb-6">
-                    <h2 className="text-2xl font-bold mb-6 px-4">Romance</h2>
+                  <section className="mb-3">
+                    <h2 className="text-2xl font-bold mb-4 px-4">Romance</h2>
                     <div className="overflow-x-auto">
                       <div className="flex space-x-4 pb-4 px-4">
                         {romanceMovies.map((movie) => (
@@ -163,8 +169,8 @@ const Index = () => {
                 )}
 
                 {comedyMovies.length > 0 && (
-                  <section className="mb-6">
-                    <h2 className="text-2xl font-bold mb-6 px-4">Comedy</h2>
+                  <section className="mb-3">
+                    <h2 className="text-2xl font-bold mb-4 px-4">Comedy</h2>
                     <div className="overflow-x-auto">
                       <div className="flex space-x-4 pb-4 px-4">
                         {comedyMovies.map((movie) => (
@@ -180,8 +186,8 @@ const Index = () => {
                 )}
 
                 {documentaryMovies.length > 0 && (
-                  <section className="mb-6">
-                    <h2 className="text-2xl font-bold mb-6 px-4">Documentary</h2>
+                  <section className="mb-3">
+                    <h2 className="text-2xl font-bold mb-4 px-4">Documentary</h2>
                     <div className="overflow-x-auto">
                       <div className="flex space-x-4 pb-4 px-4">
                         {documentaryMovies.map((movie) => (
@@ -197,8 +203,8 @@ const Index = () => {
                 )}
 
                 {informationalMovies.length > 0 && (
-                  <section className="mb-6">
-                    <h2 className="text-2xl font-bold mb-6 px-4">Informational</h2>
+                  <section className="mb-3">
+                    <h2 className="text-2xl font-bold mb-4 px-4">Informational</h2>
                     <div className="overflow-x-auto">
                       <div className="flex space-x-4 pb-4 px-4">
                         {informationalMovies.map((movie) => (

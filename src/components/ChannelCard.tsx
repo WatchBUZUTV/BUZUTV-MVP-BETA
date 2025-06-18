@@ -1,11 +1,21 @@
 
+import { Heart } from "lucide-react";
 import { Channel } from "@/data/mockMovies";
 
 interface ChannelCardProps {
   channel: Channel;
+  isSubscribed?: boolean;
+  onSubscribe?: (channelId: string) => void;
 }
 
-const ChannelCard = ({ channel }: ChannelCardProps) => {
+const ChannelCard = ({ channel, isSubscribed = false, onSubscribe }: ChannelCardProps) => {
+  const handleSubscribe = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onSubscribe) {
+      onSubscribe(channel.id);
+    }
+  };
+
   return (
     <div className="group cursor-pointer">
       <div className="relative overflow-hidden rounded-lg bg-gray-800 shadow-lg transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl">
@@ -16,6 +26,22 @@ const ChannelCard = ({ channel }: ChannelCardProps) => {
             className="w-16 h-16 object-contain rounded-lg bg-white/10 p-2"
           />
         </div>
+        
+        {/* Subscribe Button */}
+        {onSubscribe && (
+          <button
+            onClick={handleSubscribe}
+            className={`absolute top-2 right-2 p-2 rounded-full transition-all duration-200 ${
+              isSubscribed 
+                ? 'bg-red-600 text-white' 
+                : 'bg-black/50 text-white hover:bg-black/70'
+            }`}
+          >
+            <Heart 
+              className={`w-4 h-4 ${isSubscribed ? 'fill-current' : ''}`} 
+            />
+          </button>
+        )}
         
         {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">

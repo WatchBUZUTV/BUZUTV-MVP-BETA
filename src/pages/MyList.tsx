@@ -2,19 +2,26 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import MovieCard from "@/components/MovieCard";
+import ChannelCard from "@/components/ChannelCard";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Navbar from "@/components/Navbar";
 import SearchOverlay from "@/components/SearchOverlay";
 import { useUserFavorites } from "@/hooks/useUserFavorites";
+import { useUserSubscriptions } from "@/hooks/useUserSubscriptions";
 import { useMockContent } from "@/hooks/useMockContent";
 
 const MyList = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const { favoriteIds, isLoading } = useUserFavorites();
-  const { movies } = useMockContent();
+  const { favoriteIds, isLoading: favoritesLoading } = useUserFavorites();
+  const { subscriptionIds, toggleSubscription, isLoading: subscriptionsLoading } = useUserSubscriptions();
+  const { movies, channels } = useMockContent();
   
   const savedContent = favoriteIds.length > 0 
     ? movies.filter(item => favoriteIds.includes(item.id))
+    : [];
+
+  const subscribedChannels = subscriptionIds.length > 0
+    ? channels.filter(channel => subscriptionIds.includes(channel.id))
     : [];
   
   // Filter saved movies based on search
@@ -31,6 +38,7 @@ const MyList = () => {
   };
 
   const showSearchOverlay = searchQuery.trim().length > 0;
+  const isLoading = favoritesLoading || subscriptionsLoading;
 
   if (isLoading) {
     return (
@@ -70,6 +78,29 @@ const MyList = () => {
           </div>
 
           <div className="max-w-full px-2 py-8">
+            {/* My Subscriptions */}
+            {subscribedChannels.length > 0 && (
+              <section className="mb-8">
+                <h2 className="text-2xl font-bold mb-6 px-4">
+                  My Subscriptions ({subscribedChannels.length})
+                </h2>
+                <div className="overflow-x-auto">
+                  <div className="flex space-x-4 pb-4 px-4">
+                    {subscribedChannels.map((channel) => (
+                      <div key={channel.id} className="flex-shrink-0 w-48">
+                        <ChannelCard 
+                          channel={channel}
+                          isSubscribed={true}
+                          onSubscribe={toggleSubscription}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {/* Favorites */}
             {savedContent.length > 0 ? (
               <section className="mb-12">
                 <h2 className="text-2xl font-bold mb-6 px-4">
@@ -85,7 +116,7 @@ const MyList = () => {
                   </div>
                 </div>
               </section>
-            ) : (
+            ) : subscribedChannels.length === 0 ? (
               <div className="text-center py-16">
                 <h2 className="text-2xl font-bold mb-4">Your favorites list is empty</h2>
                 <p className="text-gray-400 mb-8">Start adding movies and series to your favorites</p>
@@ -96,7 +127,7 @@ const MyList = () => {
                   Browse Content
                 </Link>
               </div>
-            )}
+            ) : null}
           </div>
         </div>
       </div>
