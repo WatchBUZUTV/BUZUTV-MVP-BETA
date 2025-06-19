@@ -11,13 +11,14 @@ import { Switch } from '@/components/ui/switch';
 import { Plus, Trash2 } from 'lucide-react';
 import { genres } from '@/data/mockMovies';
 import ChannelSearchSelect from './ChannelSearchSelect';
+import ImageUpload from './ImageUpload';
 
 const episodeSchema = z.object({
   title: z.string().min(1, 'Episode title is required'),
   description: z.string().optional(),
   episodeNumber: z.number().min(1),
   videoUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
-  posterUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  posterUrl: z.string().optional(),
   airDate: z.string().optional(),
   rating: z.string().optional()
 });
@@ -34,8 +35,8 @@ const movieSchema = z.object({
   genre: z.string().optional(),
   year: z.string().optional(),
   rating: z.string().optional(),
-  posterUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
-  backdropUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  posterUrl: z.string().optional(),
+  backdropUrl: z.string().optional(),
   videoUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   durationMinutes: z.string().optional(),
   seasons: z.array(seasonSchema).optional(),
@@ -261,41 +262,43 @@ const MovieForm: React.FC<MovieFormProps> = ({
           />
         </div>
 
-        <FormField
-          control={form.control}
-          name="posterUrl"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-white">Poster URL</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  placeholder="https://example.com/poster.jpg"
-                  className="bg-gray-700 border-gray-600 text-white"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="posterUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <ImageUpload
+                    label="Poster Image"
+                    value={field.value}
+                    onChange={field.onChange}
+                    disabled={isLoading}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name="backdropUrl"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-white">Backdrop URL</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  placeholder="https://example.com/backdrop.jpg"
-                  className="bg-gray-700 border-gray-600 text-white"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="backdropUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <ImageUpload
+                    label="Backdrop Image"
+                    value={field.value}
+                    onChange={field.onChange}
+                    disabled={isLoading}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <FormField
           control={form.control}
