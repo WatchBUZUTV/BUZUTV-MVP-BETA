@@ -48,7 +48,7 @@ const HomeHeroBanner = () => {
       </div>
 
       {/* Matrix rain CSS */}
-      <style jsx>{`
+      <style>{`
         .matrix-rain {
           background-image: 
             radial-gradient(1px 1px at 20% 30%, #0f4c75, transparent),
