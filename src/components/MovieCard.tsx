@@ -18,6 +18,22 @@ interface MovieCardProps {
 
 let currentHoveredCard: string | null = null;
 
+// Helper function to convert YouTube URLs to embed format
+const getYouTubeEmbedUrl = (url: string): string | null => {
+  if (!url) return null;
+  
+  // Extract video ID from various YouTube URL formats
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  
+  if (match && match[2].length === 11) {
+    const videoId = match[2];
+    return `https://www.youtube.com/embed/${videoId}`;
+  }
+  
+  return null;
+};
+
 const MovieCard = ({ 
   movie, 
   showSaveButton = true, 
@@ -100,6 +116,9 @@ const MovieCard = ({
   // Get the video URL from backend content
   const contentItem = content.find(item => item.id === movie.id);
   const videoUrl = contentItem?.video_url;
+
+  // Convert YouTube URL to embed format if needed
+  const embedUrl = videoUrl ? getYouTubeEmbedUrl(videoUrl) || videoUrl : null;
 
   return (
     <>
@@ -185,7 +204,7 @@ const MovieCard = ({
       </div>
 
       {/* Full Screen Video Player */}
-      {isPlaying && videoUrl && (
+      {isPlaying && embedUrl && (
         <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center">
           {/* Close Button */}
           <button
@@ -197,16 +216,20 @@ const MovieCard = ({
           
           {/* Video Player */}
           <div className="w-full h-full flex items-center justify-center">
-            {videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be') ? (
+            {embedUrl.includes('youtube.com/embed') ? (
               <iframe
-                src={`${videoUrl}${videoUrl.includes('?') ? '&' : '?'}autoplay=1&controls=1&modestbranding=1&rel=0`}
+                src={`${embedUrl}?autoplay=1&controls=1&modestbranding=1&rel=0&fs=1&playsinline=1`}
                 className="w-full h-full"
-                allow="autoplay; fullscreen"
+                allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
                 allowFullScreen
+                sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+                onError={() => {
+                  console.log('YouTube video failed to load');
+                }}
               />
             ) : (
               <video
-                src={videoUrl}
+                src={embedUrl}
                 controls
                 autoPlay
                 className="w-full h-full object-contain"
@@ -304,7 +327,7 @@ const MovieCard = ({
                     </div>
                     <div>
                       <span className="text-gray-400">Channel: </span>
-                      <span className="text-white">{movie.channel || "BizuTV"}</span>
+                      <span className="text-white">{movie.channelId || "BizuTV"}</span>
                     </div>
                   </div>
                 </div>
