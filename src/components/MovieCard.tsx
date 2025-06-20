@@ -72,8 +72,7 @@ const MovieCard = ({
               : 'shadow-lg'
           }`}
           style={{
-            aspectRatio: '16/9', // More rectangular aspect ratio
-            border: isHovered ? '2px solid rgba(255,255,255,0.1)' : 'none',
+            aspectRatio: '16/9',
             boxShadow: isHovered ? '0 20px 40px rgba(0,0,0,0.6)' : '0 4px 8px rgba(0,0,0,0.3)'
           }}>
             <div className="w-full h-full overflow-hidden">
