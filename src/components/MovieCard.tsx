@@ -1,5 +1,6 @@
+
 import { Link } from "react-router-dom";
-import { Star, Heart, Play } from "lucide-react";
+import { Star, Heart, Play, X } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -28,6 +29,7 @@ const MovieCard = ({
   const { content } = useContent();
   const [isHovered, setIsHovered] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   // Check if movie is in favorites
   const isSaved = favoriteIds.includes(movie.id);
@@ -64,11 +66,23 @@ const MovieCard = ({
     setShowModal(true);
   };
 
+  const handleModalPlayClick = () => {
+    // Find the content item from backend data
+    const contentItem = content.find(item => item.id === movie.id);
+    if (contentItem?.video_url) {
+      setIsPlaying(true);
+    }
+  };
+
+  const handleCloseVideo = () => {
+    setIsPlaying(false);
+  };
+
   // Get recommended content from backend (same channel or genre)
   const recommendedContent = content
     .filter(item => 
       item.id !== movie.id && 
-      (item.genre === movie.genre || item.channel_id === movie.channelId)
+      (item.genre === movie.genre || item.channel_id === movie.channel_id)
     )
     .slice(0, 6);
 
@@ -82,6 +96,10 @@ const MovieCard = ({
     }
     return `${mins}m`;
   };
+
+  // Get the video URL from backend content
+  const contentItem = content.find(item => item.id === movie.id);
+  const videoUrl = contentItem?.video_url;
 
   return (
     <>
@@ -166,8 +184,44 @@ const MovieCard = ({
         </div>
       </div>
 
+      {/* Full Screen Video Player */}
+      {isPlaying && videoUrl && (
+        <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center">
+          {/* Close Button */}
+          <button
+            onClick={handleCloseVideo}
+            className="absolute top-4 right-4 z-[10000] bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          
+          {/* Video Player */}
+          <div className="w-full h-full flex items-center justify-center">
+            {videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be') ? (
+              <iframe
+                src={`${videoUrl}${videoUrl.includes('?') ? '&' : '?'}autoplay=1&controls=1&modestbranding=1&rel=0`}
+                className="w-full h-full"
+                allow="autoplay; fullscreen"
+                allowFullScreen
+              />
+            ) : (
+              <video
+                src={videoUrl}
+                controls
+                autoPlay
+                className="w-full h-full object-contain"
+                onError={() => {
+                  console.log('Video failed to load');
+                  setIsPlaying(false);
+                }}
+              />
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Netflix-style Movie Modal */}
-      <Dialog open={showModal} onOpenChange={setShowModal}>
+      <Dialog open={showModal && !isPlaying} onOpenChange={setShowModal}>
         <DialogContent className="max-w-[75vw] max-h-[90vh] bg-gray-900 text-white border-none p-0 overflow-hidden">
           <DialogTitle className="sr-only">{movie.title}</DialogTitle>
           <ScrollArea className="h-[90vh]">
@@ -175,17 +229,18 @@ const MovieCard = ({
               {/* Hero Section with Better Gradient */}
               <div className="relative h-[60vh] overflow-hidden">
                 {/* Background Image */}
-                <div className="absolute inset-0">
+                <div className="absolute inset-0 -z-10">
                   <img
                     src={movie.posterUrl}
                     alt={movie.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover opacity-40"
                   />
                 </div>
                 
-                {/* Improved gradient overlay for seamless fade */}
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent via-70% to-gray-900" />
-                <div className="absolute inset-0 bg-gradient-to-r from-gray-900/40 via-transparent to-transparent" />
+                {/* Multiple gradient overlays for natural fade */}
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/60 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-r from-gray-900/80 via-gray-900/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-gray-900" />
                 
                 {/* Content overlay */}
                 <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
@@ -193,13 +248,18 @@ const MovieCard = ({
                   
                   {/* Action Buttons */}
                   <div className="flex items-center space-x-4">
-                    <Link
-                      to={`/movie/${movie.id}`}
-                      className="bg-white text-black px-8 py-3 rounded-lg font-semibold flex items-center space-x-3 hover:bg-gray-200 transition-colors"
+                    <button
+                      onClick={handleModalPlayClick}
+                      disabled={!videoUrl}
+                      className={`px-8 py-3 rounded-lg font-semibold flex items-center space-x-3 transition-colors ${
+                        videoUrl 
+                          ? 'bg-white text-black hover:bg-gray-200' 
+                          : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                      }`}
                     >
                       <Play className="w-6 h-6 fill-current" />
                       <span>Play</span>
-                    </Link>
+                    </button>
                     
                     <button
                       onClick={handleSave}
@@ -240,11 +300,11 @@ const MovieCard = ({
                     </div>
                     <div>
                       <span className="text-gray-400">Duration: </span>
-                      <span className="text-white">{formatDuration(movie.durationMinutes)}</span>
+                      <span className="text-white">{formatDuration(contentItem?.duration_minutes)}</span>
                     </div>
                     <div>
                       <span className="text-gray-400">Channel: </span>
-                      <span className="text-white">{movie.channelName || "BizuTV"}</span>
+                      <span className="text-white">{movie.channel || "BizuTV"}</span>
                     </div>
                   </div>
                 </div>
@@ -252,8 +312,8 @@ const MovieCard = ({
                 {/* More Like This Section */}
                 {recommendedContent.length > 0 && (
                   <div>
-                    <h3 className="text-xl font-bold mb-6">More Like This</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+                    <h3 className="text-xl font-bold mb-4">More Like This</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-1">
                       {recommendedContent.map((item) => (
                         <div key={item.id} className="group cursor-pointer">
                           <div className="aspect-video relative overflow-hidden rounded-lg bg-gray-800">
