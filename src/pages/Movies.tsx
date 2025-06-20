@@ -91,13 +91,13 @@ const Movies = () => {
                 <>
                   {/* Top Section */}
                   <div className="max-w-full px-2 py-4">
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-6 px-4">
-                      {/* Left - Hero Banner */}
-                      <div className="lg:col-span-2">
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-6 px-4">
+                      {/* Left - Hero Banner (now takes up more space) */}
+                      <div className="lg:col-span-3">
                         <HeroBanner movies={featuredMovies} />
                       </div>
                       
-                      {/* Right - Top Ranked */}
+                      {/* Right - Top Ranked (now takes up less space) */}
                       <div>
                         <h2 className="text-2xl font-bold mb-3">Top Ranked Movies</h2>
                         <div className="space-y-2">
