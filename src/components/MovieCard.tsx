@@ -68,7 +68,7 @@ const MovieCard = ({
         <div className="block">
           <div className={`relative overflow-hidden rounded-lg bg-gray-800 transition-all duration-300 ${
             isHovered 
-              ? 'scale-105 shadow-2xl shadow-black/50' 
+              ? 'scale-110 shadow-2xl shadow-black/50' 
               : 'shadow-lg'
           }`}
           style={{

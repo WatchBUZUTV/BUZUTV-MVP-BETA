@@ -77,7 +77,7 @@ const Index = () => {
               <section className="mb-3">
                 <h2 className="text-2xl font-bold mb-4 px-4">Top Channels</h2>
                 <div className="overflow-x-auto">
-                  <div className="flex space-x-4 pb-4 px-4">
+                  <div className="flex space-x-2 pb-4 px-4">
                     {channels.map((channel) => (
                       <div key={channel.id} className="flex-shrink-0 w-48">
                         <ProtectedContent>
@@ -102,7 +102,7 @@ const Index = () => {
                   <section className="mb-3">
                     <h2 className="text-2xl font-bold mb-4 px-4">Trending Now</h2>
                     <div className="overflow-x-auto">
-                      <div className="flex space-x-4 pb-4 px-4">
+                      <div className="flex space-x-2 pb-4 px-4">
                         {trendingMovies.map((movie) => (
                           <div key={movie.id} className="flex-shrink-0 w-64">
                             <ProtectedContent>
@@ -120,7 +120,7 @@ const Index = () => {
                   <section className="mb-3">
                     <h2 className="text-2xl font-bold mb-4 px-4">Action</h2>
                     <div className="overflow-x-auto">
-                      <div className="flex space-x-4 pb-4 px-4">
+                      <div className="flex space-x-2 pb-4 px-4">
                         {actionMovies.map((movie) => (
                           <div key={movie.id} className="flex-shrink-0 w-64">
                             <ProtectedContent>
@@ -137,7 +137,7 @@ const Index = () => {
                   <section className="mb-3">
                     <h2 className="text-2xl font-bold mb-4 px-4">Drama</h2>
                     <div className="overflow-x-auto">
-                      <div className="flex space-x-4 pb-4 px-4">
+                      <div className="flex space-x-2 pb-4 px-4">
                         {dramaMovies.map((movie) => (
                           <div key={movie.id} className="flex-shrink-0 w-64">
                             <ProtectedContent>
@@ -154,7 +154,7 @@ const Index = () => {
                   <section className="mb-3">
                     <h2 className="text-2xl font-bold mb-4 px-4">Romance</h2>
                     <div className="overflow-x-auto">
-                      <div className="flex space-x-4 pb-4 px-4">
+                      <div className="flex space-x-2 pb-4 px-4">
                         {romanceMovies.map((movie) => (
                           <div key={movie.id} className="flex-shrink-0 w-64">
                             <ProtectedContent>
@@ -171,7 +171,7 @@ const Index = () => {
                   <section className="mb-3">
                     <h2 className="text-2xl font-bold mb-4 px-4">Comedy</h2>
                     <div className="overflow-x-auto">
-                      <div className="flex space-x-4 pb-4 px-4">
+                      <div className="flex space-x-2 pb-4 px-4">
                         {comedyMovies.map((movie) => (
                           <div key={movie.id} className="flex-shrink-0 w-64">
                             <ProtectedContent>
@@ -188,7 +188,7 @@ const Index = () => {
                   <section className="mb-3">
                     <h2 className="text-2xl font-bold mb-4 px-4">Documentary</h2>
                     <div className="overflow-x-auto">
-                      <div className="flex space-x-4 pb-4 px-4">
+                      <div className="flex space-x-2 pb-4 px-4">
                         {documentaryMovies.map((movie) => (
                           <div key={movie.id} className="flex-shrink-0 w-64">
                             <ProtectedContent>
@@ -205,7 +205,7 @@ const Index = () => {
                   <section className="mb-3">
                     <h2 className="text-2xl font-bold mb-4 px-4">Informational</h2>
                     <div className="overflow-x-auto">
-                      <div className="flex space-x-4 pb-4 px-4">
+                      <div className="flex space-x-2 pb-4 px-4">
                         {informationalMovies.map((movie) => (
                           <div key={movie.id} className="flex-shrink-0 w-64">
                             <ProtectedContent>
@@ -219,7 +219,6 @@ const Index = () => {
                 )}
               </>
             ) : (
-              // Empty state for non-demo users
               <div className="text-center py-16">
                 <h2 className="text-2xl font-bold mb-4">No content available</h2>
                 <p className="text-gray-400">Content will appear here once it's added to the platform</p>
