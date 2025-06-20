@@ -41,7 +41,7 @@ const HomeHeroBanner = () => {
           {!isLoggedIn && (
             <button
               onClick={handleSignUpClick}
-              className="bg-white text-black px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-lg shadow-lg hover:shadow-xl transform hover:translate-y-[-1px] border-b-4 border-gray-300 hover:border-gray-400"
+              className="bg-white text-black px-8 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-lg shadow-lg hover:shadow-xl transform hover:translate-y-[-1px] border-b-4 border-gray-300 hover:border-gray-400"
             >
               Sign Up
             </button>
