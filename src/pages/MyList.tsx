@@ -29,6 +29,10 @@ const MyList = () => {
     movie.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Separate movies and TV shows
+  const savedMovies = filteredSavedMovies.filter(item => item.type === 'movie');
+  const savedTVShows = filteredSavedMovies.filter(item => item.type === 'series');
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
@@ -77,15 +81,15 @@ const MyList = () => {
             </h1>
           </div>
 
-          <div className="max-w-full px-2 py-8">
+          <div className="max-w-full px-2 py-4">
             {/* My Subscriptions */}
             {subscribedChannels.length > 0 && (
-              <section className="mb-8">
-                <h2 className="text-2xl font-bold mb-6 px-4">
+              <section className="mb-4">
+                <h2 className="text-2xl font-bold mb-3 px-4">
                   My Subscriptions ({subscribedChannels.length})
                 </h2>
                 <div className="overflow-x-auto">
-                  <div className="flex space-x-4 pb-4 px-4">
+                  <div className="flex space-x-2 pb-2 px-4">
                     {subscribedChannels.map((channel) => (
                       <div key={channel.id} className="flex-shrink-0 w-48">
                         <ChannelCard 
@@ -100,15 +104,15 @@ const MyList = () => {
               </section>
             )}
 
-            {/* Favorites */}
-            {savedContent.length > 0 ? (
-              <section className="mb-12">
-                <h2 className="text-2xl font-bold mb-6 px-4">
-                  Favorites ({filteredSavedMovies.length})
+            {/* Movies */}
+            {savedMovies.length > 0 && (
+              <section className="mb-4">
+                <h2 className="text-2xl font-bold mb-3 px-4">
+                  Movies ({savedMovies.length})
                 </h2>
                 <div className="overflow-x-auto">
-                  <div className="flex space-x-4 pb-4 px-4">
-                    {filteredSavedMovies.map((movie) => (
+                  <div className="flex space-x-2 pb-2 px-4">
+                    {savedMovies.map((movie) => (
                       <div key={movie.id} className="flex-shrink-0 w-64">
                         <MovieCard movie={movie} showSaveButton={false} />
                       </div>
@@ -116,7 +120,28 @@ const MyList = () => {
                   </div>
                 </div>
               </section>
-            ) : subscribedChannels.length === 0 ? (
+            )}
+
+            {/* TV Shows */}
+            {savedTVShows.length > 0 && (
+              <section className="mb-4">
+                <h2 className="text-2xl font-bold mb-3 px-4">
+                  TV Shows ({savedTVShows.length})
+                </h2>
+                <div className="overflow-x-auto">
+                  <div className="flex space-x-2 pb-2 px-4">
+                    {savedTVShows.map((show) => (
+                      <div key={show.id} className="flex-shrink-0 w-64">
+                        <MovieCard movie={show} showSaveButton={false} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {/* Empty State */}
+            {savedContent.length === 0 && subscribedChannels.length === 0 && (
               <div className="text-center py-16">
                 <h2 className="text-2xl font-bold mb-4">Your favorites list is empty</h2>
                 <p className="text-gray-400 mb-8">Start adding movies and series to your favorites</p>
@@ -127,7 +152,7 @@ const MyList = () => {
                   Browse Content
                 </Link>
               </div>
-            ) : null}
+            )}
           </div>
         </div>
       </div>

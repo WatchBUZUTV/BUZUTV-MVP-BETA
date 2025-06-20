@@ -241,11 +241,11 @@ const MovieCard = ({
                     </div>
                     <div>
                       <span className="text-gray-400">Duration: </span>
-                      <span className="text-white">{formatDuration(movie.durationMinutes)}</span>
+                      <span className="text-white">{formatDuration(movie.duration)}</span>
                     </div>
                     <div>
                       <span className="text-gray-400">Channel: </span>
-                      <span className="text-white">{movie.channelName || "BizuTV"}</span>
+                      <span className="text-white">{movie.channel || "BizuTV"}</span>
                     </div>
                   </div>
                 </div>
