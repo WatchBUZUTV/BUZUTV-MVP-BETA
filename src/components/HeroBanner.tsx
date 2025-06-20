@@ -33,7 +33,7 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
   const currentMovie = movies[currentIndex];
 
   return (
-    <div className="relative h-[55vh] overflow-hidden">
+    <div className="relative h-[40vh] overflow-hidden">
       {/* Background */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
