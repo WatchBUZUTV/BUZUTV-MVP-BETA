@@ -3,9 +3,10 @@ import { Link } from "react-router-dom";
 import { Star, Heart, Play } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
 import { useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useUserFavorites } from "@/hooks/useUserFavorites";
-import { mockMovies } from "@/data/mockMovies";
+import { useContent } from "@/hooks/useContent";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface MovieCardProps {
   movie: Movie;
@@ -25,6 +26,7 @@ const MovieCard = ({
   showResumeButton = false 
 }: MovieCardProps) => {
   const { favoriteIds, addToFavorites, removeFromFavorites } = useUserFavorites();
+  const { content } = useContent();
   const [isHovered, setIsHovered] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
@@ -63,14 +65,24 @@ const MovieCard = ({
     setShowModal(true);
   };
 
-  // Get recommended movies from same channel and genre
-  const recommendedMovies = mockMovies
-    .filter(m => 
-      m.id !== movie.id && 
-      m.genre === movie.genre && 
-      m.channel === movie.channel
+  // Get recommended content from backend (same channel or genre)
+  const recommendedContent = content
+    .filter(item => 
+      item.id !== movie.id && 
+      (item.genre === movie.genre || item.channel_id === movie.channelId)
     )
     .slice(0, 6);
+
+  // Format duration from minutes to "Xh Ym" format
+  const formatDuration = (minutes: number | undefined) => {
+    if (!minutes) return "N/A";
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours > 0) {
+      return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+    }
+    return `${mins}m`;
+  };
 
   return (
     <>
@@ -158,105 +170,112 @@ const MovieCard = ({
       {/* Netflix-style Movie Modal */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent className="max-w-[75vw] max-h-[90vh] bg-gray-900 text-white border-none p-0 overflow-hidden">
-          <div className="relative">
-            {/* Hero Section with Poster */}
-            <div className="relative h-[60vh] overflow-hidden">
-              <img
-                src={movie.posterUrl}
-                alt={movie.title}
-                className="w-full h-full object-cover"
-              />
-              
-              {/* Gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-gray-900" />
-              
-              {/* Content overlay */}
-              <div className="absolute bottom-0 left-0 right-0 p-8">
-                <h1 className="text-5xl font-bold text-white mb-6">{movie.title}</h1>
+          <DialogTitle className="sr-only">{movie.title}</DialogTitle>
+          <ScrollArea className="h-[90vh]">
+            <div className="relative">
+              {/* Hero Section with Better Gradient */}
+              <div className="relative h-[60vh] overflow-hidden">
+                {/* Background Image */}
+                <div className="absolute inset-0">
+                  <img
+                    src={movie.posterUrl}
+                    alt={movie.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
                 
-                {/* Action Buttons */}
-                <div className="flex items-center space-x-4">
-                  <Link
-                    to={`/movie/${movie.id}`}
-                    className="bg-white text-black px-8 py-3 rounded-lg font-semibold flex items-center space-x-3 hover:bg-gray-200 transition-colors"
-                  >
-                    <Play className="w-6 h-6 fill-current" />
-                    <span>Play</span>
-                  </Link>
+                {/* Improved gradient overlay for seamless fade */}
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent via-70% to-gray-900" />
+                <div className="absolute inset-0 bg-gradient-to-r from-gray-900/40 via-transparent to-transparent" />
+                
+                {/* Content overlay */}
+                <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
+                  <h1 className="text-5xl font-bold text-white mb-6">{movie.title}</h1>
                   
-                  <button
-                    onClick={handleSave}
-                    className="bg-gray-700/80 hover:bg-gray-600/80 text-white p-3 rounded-full transition-colors backdrop-blur-sm"
-                  >
-                    <Heart className={`w-6 h-6 ${isSaved ? 'fill-current text-red-500' : ''}`} />
-                  </button>
+                  {/* Action Buttons */}
+                  <div className="flex items-center space-x-4">
+                    <Link
+                      to={`/movie/${movie.id}`}
+                      className="bg-white text-black px-8 py-3 rounded-lg font-semibold flex items-center space-x-3 hover:bg-gray-200 transition-colors"
+                    >
+                      <Play className="w-6 h-6 fill-current" />
+                      <span>Play</span>
+                    </Link>
+                    
+                    <button
+                      onClick={handleSave}
+                      className="bg-gray-700/80 hover:bg-gray-600/80 text-white p-3 rounded-full transition-colors backdrop-blur-sm"
+                    >
+                      <Heart className={`w-6 h-6 ${isSaved ? 'fill-current text-red-500' : ''}`} />
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Content Section */}
-            <div className="bg-gray-900 p-8">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-                {/* Left side - Description */}
-                <div className="md:col-span-2">
-                  <p className="text-gray-300 text-lg leading-relaxed">
-                    {movie.description || "No description available for this content."}
-                  </p>
-                </div>
-                
-                {/* Right side - Movie Details */}
-                <div className="space-y-3 text-sm">
-                  <div>
-                    <span className="text-gray-400">Genre: </span>
-                    <span className="text-white">{movie.genre}</span>
+              {/* Content Section */}
+              <div className="bg-gray-900 p-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                  {/* Left side - Description */}
+                  <div className="md:col-span-2">
+                    <p className="text-gray-300 text-lg leading-relaxed">
+                      {movie.description || "No description available for this content."}
+                    </p>
                   </div>
-                  <div>
-                    <span className="text-gray-400">Year: </span>
-                    <span className="text-white">{movie.year}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-400">Rating: </span>
-                    <div className="inline-flex items-center space-x-1">
-                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      <span className="text-white">{movie.rating}</span>
+                  
+                  {/* Right side - Movie Details */}
+                  <div className="space-y-3 text-sm">
+                    <div>
+                      <span className="text-gray-400">Genre: </span>
+                      <span className="text-white">{movie.genre}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Year: </span>
+                      <span className="text-white">{movie.year}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Rating: </span>
+                      <div className="inline-flex items-center space-x-1">
+                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                        <span className="text-white">{movie.rating}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Duration: </span>
+                      <span className="text-white">{formatDuration(movie.durationMinutes)}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Channel: </span>
+                      <span className="text-white">{movie.channelName || "BizuTV"}</span>
                     </div>
                   </div>
-                  <div>
-                    <span className="text-gray-400">Duration: </span>
-                    <span className="text-white">{movie.duration || "2h 30m"}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-400">Channel: </span>
-                    <span className="text-white">{movie.channel || "BizuTV"}</span>
-                  </div>
                 </div>
-              </div>
 
-              {/* More Like This Section */}
-              {recommendedMovies.length > 0 && (
-                <div>
-                  <h3 className="text-xl font-bold mb-6">More Like This</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                    {recommendedMovies.map((recommendedMovie) => (
-                      <div key={recommendedMovie.id} className="group cursor-pointer">
-                        <div className="aspect-video relative overflow-hidden rounded-lg bg-gray-800">
-                          <img
-                            src={recommendedMovie.posterUrl}
-                            alt={recommendedMovie.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
-                            <Play className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 fill-current" />
+                {/* More Like This Section */}
+                {recommendedContent.length > 0 && (
+                  <div>
+                    <h3 className="text-xl font-bold mb-6">More Like This</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                      {recommendedContent.map((item) => (
+                        <div key={item.id} className="group cursor-pointer">
+                          <div className="aspect-video relative overflow-hidden rounded-lg bg-gray-800">
+                            <img
+                              src={item.poster_url || '/placeholder.svg'}
+                              alt={item.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
+                              <Play className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 fill-current" />
+                            </div>
                           </div>
+                          <h4 className="text-sm font-medium text-white mt-2 line-clamp-2">{item.title}</h4>
                         </div>
-                        <h4 className="text-sm font-medium text-white mt-2 line-clamp-2">{recommendedMovie.title}</h4>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </div>
+          </ScrollArea>
         </DialogContent>
       </Dialog>
     </>
