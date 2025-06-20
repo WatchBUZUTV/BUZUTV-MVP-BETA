@@ -3,12 +3,14 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Star, Play, Heart, Plus } from "lucide-react";
 import { mockMovies } from "@/data/mockMovies";
 import MovieCard from "@/components/MovieCard";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 const MovieDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [isFavorited, setIsFavorited] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const movie = mockMovies.find(m => m.id === id);
 
   const handleBack = () => {
@@ -22,6 +24,15 @@ const MovieDetail = () => {
 
   const handleFavorite = () => {
     setIsFavorited(!isFavorited);
+  };
+
+  const handlePlay = () => {
+    if (iframeRef.current && movie) {
+      // Reload iframe with autoplay enabled
+      const playUrl = `https://www.youtube.com/embed/${movie.youtubeId}?autoplay=1&mute=0&controls=1&showinfo=0&rel=0&modestbranding=1&playsinline=1`;
+      iframeRef.current.src = playUrl;
+      setIsPlaying(true);
+    }
   };
 
   if (!movie) {
@@ -72,13 +83,25 @@ const MovieDetail = () => {
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
           {/* Video Player */}
-          <div className="aspect-video bg-black rounded-lg overflow-hidden mb-8">
+          <div className="aspect-video bg-black rounded-lg overflow-hidden mb-8 relative">
             <iframe
-              src={`https://www.youtube.com/embed/${movie.youtubeId}`}
+              ref={iframeRef}
+              src={`https://www.youtube.com/embed/${movie.youtubeId}?controls=1&showinfo=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1`}
               title={movie.title}
               className="w-full h-full"
               allowFullScreen
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             />
+            {!isPlaying && (
+              <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                <button
+                  onClick={handlePlay}
+                  className="bg-white/90 hover:bg-white text-black p-6 rounded-full transition-all duration-200 hover:scale-110"
+                >
+                  <Play className="w-12 h-12 fill-current" />
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Movie Info Section */}
@@ -104,7 +127,10 @@ const MovieDetail = () => {
 
               {/* Action Buttons */}
               <div className="flex items-center space-x-4">
-                <button className="flex items-center space-x-3 bg-white text-black px-8 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors">
+                <button 
+                  onClick={handlePlay}
+                  className="flex items-center space-x-3 bg-white text-black px-8 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
+                >
                   <Play className="w-6 h-6 fill-current" />
                   <span>Play</span>
                 </button>
