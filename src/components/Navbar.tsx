@@ -47,17 +47,18 @@ const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => 
     <nav className="fixed top-0 left-0 right-0 z-50 bg-black">
       <div className="max-w-full px-6">
         <div className="flex items-center justify-between h-16">
-          {/* Logo and Navigation */}
-          <div className="flex items-center space-x-8">
-            {/* Logo */}
+          {/* Logo */}
+          <div className="flex-shrink-0">
             <Link to="/" className="flex items-center">
               <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 bg-clip-text text-transparent">
                 BUZUTV
               </h1>
             </Link>
+          </div>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-6">
+          {/* Center Navigation */}
+          <div className="hidden md:flex items-center justify-center flex-1">
+            <div className="flex items-center space-x-8">
               <Link to="/" className="text-white hover:text-gray-300 transition-colors text-sm">
                 Home
               </Link>
