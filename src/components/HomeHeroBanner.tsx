@@ -41,10 +41,9 @@ const HomeHeroBanner = () => {
           {!isLoggedIn && (
             <button
               onClick={handleSignUpClick}
-              className="group relative bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 text-white px-10 py-4 rounded-xl font-semibold hover:from-blue-500 hover:via-purple-500 hover:to-blue-600 transition-all duration-300 text-lg shadow-2xl hover:shadow-blue-500/25 transform hover:scale-105 border border-white/10 backdrop-blur-sm"
+              className="bg-white text-black px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-lg shadow-lg hover:shadow-xl transform hover:translate-y-[-1px] border-b-4 border-gray-300 hover:border-gray-400"
             >
-              <span className="relative z-10">Sign Up</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+              Sign Up
             </button>
           )}
         </div>
