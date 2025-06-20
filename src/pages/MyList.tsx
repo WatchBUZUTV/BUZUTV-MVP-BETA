@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import MovieCard from "@/components/MovieCard";
@@ -31,7 +30,7 @@ const MyList = () => {
 
   // Separate movies and TV shows
   const savedMovies = filteredSavedMovies.filter(item => item.type === 'movie');
-  const savedTVShows = filteredSavedMovies.filter(item => item.type === 'series');
+  const savedTVShows = filteredSavedMovies.filter(item => item.type === 'tv');
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);

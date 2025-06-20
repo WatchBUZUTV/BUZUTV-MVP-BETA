@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Star, Heart, Play } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
@@ -241,11 +240,11 @@ const MovieCard = ({
                     </div>
                     <div>
                       <span className="text-gray-400">Duration: </span>
-                      <span className="text-white">{formatDuration(movie.duration)}</span>
+                      <span className="text-white">{formatDuration(movie.durationMinutes)}</span>
                     </div>
                     <div>
                       <span className="text-gray-400">Channel: </span>
-                      <span className="text-white">{movie.channel || "BizuTV"}</span>
+                      <span className="text-white">{movie.channelName || "BizuTV"}</span>
                     </div>
                   </div>
                 </div>
@@ -254,7 +253,7 @@ const MovieCard = ({
                 {recommendedContent.length > 0 && (
                   <div>
                     <h3 className="text-xl font-bold mb-6">More Like This</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
                       {recommendedContent.map((item) => (
                         <div key={item.id} className="group cursor-pointer">
                           <div className="aspect-video relative overflow-hidden rounded-lg bg-gray-800">
