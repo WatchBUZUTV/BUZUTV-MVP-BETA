@@ -25,9 +25,11 @@ const HomeHeroBanner = () => {
       {/* Content */}
       <div className="relative z-10 flex items-center justify-center h-full">
         <div className="text-center max-w-4xl px-4">
-          {/* Logo */}
-          <h1 className="text-6xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 bg-clip-text text-transparent">
-            BUZUTV
+          {/* Updated heading */}
+          <h1 className="text-6xl md:text-7xl font-bold mb-6">
+            <span className="text-white">Stream Your</span>
+            <br />
+            <span className="bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 bg-clip-text text-transparent">Favorites</span>
           </h1>
           
           {/* Description */}
