@@ -4,6 +4,7 @@ import ChannelCard from "@/components/ChannelCard";
 import SearchOverlay from "@/components/SearchOverlay";
 import ProtectedContent from "@/components/auth/ProtectedContent";
 import Navbar from "@/components/Navbar";
+import HomeHeroBanner from "@/components/HomeHeroBanner";
 import { useMockContent } from "@/hooks/useMockContent";
 import { useUserSubscriptions } from "@/hooks/useUserSubscriptions";
 
@@ -17,7 +18,7 @@ const Index = () => {
   console.log('Channels data:', channels);
   console.log('Subscription IDs:', subscriptionIds);
 
-  // Filter and organize content - only if we have content
+  // Filter and organize content
   const trendingMovies = movies.filter(item => item.isTrending);
 
   const actionMovies = movies.filter(item => item.genre === "Action");
@@ -67,12 +68,8 @@ const Index = () => {
       {/* Only show home content when not searching */}
       {!showSearchOverlay && (
         <div className="pt-16">
-          {/* Hero Section - Black background with logo */}
-          <div className="h-[50vh] bg-black flex items-center justify-center">
-            <h1 className="text-6xl font-bold">
-              Bizu<span className="text-blue-500">TV</span>
-            </h1>
-          </div>
+          {/* Hero Banner */}
+          <HomeHeroBanner />
 
           <div className="max-w-full px-2 py-8">
             {/* Top Channels */}
@@ -233,7 +230,7 @@ const Index = () => {
           {/* Footer */}
           <footer className="bg-gray-800 border-t border-gray-700 py-8">
             <div className="max-w-7xl mx-auto px-4 text-center text-gray-400">
-              <p>&copy; 2024 BizuTV. All rights reserved.</p>
+              <p>&copy; 2024 BUZUTV. All rights reserved.</p>
             </div>
           </footer>
         </div>
