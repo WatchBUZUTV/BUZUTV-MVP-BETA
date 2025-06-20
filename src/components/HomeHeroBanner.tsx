@@ -24,7 +24,7 @@ const HomeHeroBanner = () => {
 
       {/* Content */}
       <div className="relative z-10 flex items-center justify-start h-full">
-        <div className="text-left max-w-4xl px-4 ml-24">
+        <div className="text-left max-w-4xl px-4 ml-32">
           {/* Updated heading */}
           <h1 className="text-6xl md:text-7xl font-bold mb-6">
             <span className="text-white">Stream Your</span>
