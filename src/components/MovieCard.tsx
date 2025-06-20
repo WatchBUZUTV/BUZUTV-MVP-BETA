@@ -98,7 +98,7 @@ const MovieCard = ({
   const recommendedContent = content
     .filter(item => 
       item.id !== movie.id && 
-      (item.genre === movie.genre || item.channel_id === movie.channel_id)
+      (item.genre === movie.genre || item.channel_id === movie.channelId)
     )
     .slice(0, 6);
 

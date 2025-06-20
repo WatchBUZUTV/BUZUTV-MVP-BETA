@@ -10,7 +10,7 @@ const HomeHeroBanner = () => {
   };
 
   return (
-    <div className="relative h-[60vh] overflow-hidden">
+    <div className="relative h-[45vh] overflow-hidden">
       {/* Matrix-style background */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-purple-800">
         {/* Matrix effect overlay */}
