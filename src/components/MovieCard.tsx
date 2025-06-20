@@ -3,8 +3,9 @@ import { Link } from "react-router-dom";
 import { Star, Heart, Play } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useUserFavorites } from "@/hooks/useUserFavorites";
+import { mockMovies } from "@/data/mockMovies";
 
 interface MovieCardProps {
   movie: Movie;
@@ -61,6 +62,15 @@ const MovieCard = ({
     e.stopPropagation();
     setShowModal(true);
   };
+
+  // Get recommended movies from same channel and genre
+  const recommendedMovies = mockMovies
+    .filter(m => 
+      m.id !== movie.id && 
+      m.genre === movie.genre && 
+      m.channel === movie.channel
+    )
+    .slice(0, 6);
 
   return (
     <>
@@ -145,55 +155,106 @@ const MovieCard = ({
         </div>
       </div>
 
-      {/* Movie Details Modal */}
+      {/* Netflix-style Movie Modal */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="max-w-4xl max-h-[90vh] bg-gray-900 text-white border-gray-700">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">{movie.title}</DialogTitle>
-          </DialogHeader>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Movie Poster */}
-            <div className="aspect-video">
+        <DialogContent className="max-w-[75vw] max-h-[90vh] bg-gray-900 text-white border-none p-0 overflow-hidden">
+          <div className="relative">
+            {/* Hero Section with Poster */}
+            <div className="relative h-[60vh] overflow-hidden">
               <img
                 src={movie.posterUrl}
                 alt={movie.title}
-                className="w-full h-full object-cover rounded-lg"
+                className="w-full h-full object-cover"
               />
-            </div>
-            
-            {/* Movie Details */}
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4 text-sm text-gray-400">
-                <span>{movie.year}</span>
-                <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs">
-                  {movie.genre}
-                </span>
-                <div className="flex items-center space-x-1">
-                  <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                  <span className="text-white">{movie.rating}</span>
+              
+              {/* Gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-gray-900" />
+              
+              {/* Content overlay */}
+              <div className="absolute bottom-0 left-0 right-0 p-8">
+                <h1 className="text-5xl font-bold text-white mb-6">{movie.title}</h1>
+                
+                {/* Action Buttons */}
+                <div className="flex items-center space-x-4">
+                  <Link
+                    to={`/movie/${movie.id}`}
+                    className="bg-white text-black px-8 py-3 rounded-lg font-semibold flex items-center space-x-3 hover:bg-gray-200 transition-colors"
+                  >
+                    <Play className="w-6 h-6 fill-current" />
+                    <span>Play</span>
+                  </Link>
+                  
+                  <button
+                    onClick={handleSave}
+                    className="bg-gray-700/80 hover:bg-gray-600/80 text-white p-3 rounded-full transition-colors backdrop-blur-sm"
+                  >
+                    <Heart className={`w-6 h-6 ${isSaved ? 'fill-current text-red-500' : ''}`} />
+                  </button>
                 </div>
               </div>
-              
-              <p className="text-gray-300 leading-relaxed">
-                {movie.description || "No description available for this content."}
-              </p>
-              
-              <div className="flex items-center space-x-3 pt-4">
-                <Link
-                  to={`/movie/${movie.id}`}
-                  className="bg-white text-black px-6 py-3 rounded-lg font-semibold flex items-center space-x-2 hover:bg-gray-200 transition-colors"
-                >
-                  <Play className="w-5 h-5" />
-                  <span>Play</span>
-                </Link>
-                <button
-                  onClick={handleSave}
-                  className="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg transition-colors"
-                >
-                  <Heart className={`w-5 h-5 ${isSaved ? 'fill-current text-red-500' : ''}`} />
-                </button>
+            </div>
+
+            {/* Content Section */}
+            <div className="bg-gray-900 p-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                {/* Left side - Description */}
+                <div className="md:col-span-2">
+                  <p className="text-gray-300 text-lg leading-relaxed">
+                    {movie.description || "No description available for this content."}
+                  </p>
+                </div>
+                
+                {/* Right side - Movie Details */}
+                <div className="space-y-3 text-sm">
+                  <div>
+                    <span className="text-gray-400">Genre: </span>
+                    <span className="text-white">{movie.genre}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">Year: </span>
+                    <span className="text-white">{movie.year}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">Rating: </span>
+                    <div className="inline-flex items-center space-x-1">
+                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                      <span className="text-white">{movie.rating}</span>
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">Duration: </span>
+                    <span className="text-white">{movie.duration || "2h 30m"}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">Channel: </span>
+                    <span className="text-white">{movie.channel || "BizuTV"}</span>
+                  </div>
+                </div>
               </div>
+
+              {/* More Like This Section */}
+              {recommendedMovies.length > 0 && (
+                <div>
+                  <h3 className="text-xl font-bold mb-6">More Like This</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    {recommendedMovies.map((recommendedMovie) => (
+                      <div key={recommendedMovie.id} className="group cursor-pointer">
+                        <div className="aspect-video relative overflow-hidden rounded-lg bg-gray-800">
+                          <img
+                            src={recommendedMovie.posterUrl}
+                            alt={recommendedMovie.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
+                            <Play className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 fill-current" />
+                          </div>
+                        </div>
+                        <h4 className="text-sm font-medium text-white mt-2 line-clamp-2">{recommendedMovie.title}</h4>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </DialogContent>
