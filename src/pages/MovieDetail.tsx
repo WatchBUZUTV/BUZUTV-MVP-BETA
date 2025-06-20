@@ -1,6 +1,6 @@
 
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Star, Play, Heart } from "lucide-react";
+import { ArrowLeft, Star, Play, Heart, Plus } from "lucide-react";
 import { mockMovies } from "@/data/mockMovies";
 import MovieCard from "@/components/MovieCard";
 import { useState } from "react";
@@ -69,71 +69,76 @@ const MovieDetail = () => {
           </button>
         </div>
 
-        {/* Movie Content */}
-        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 pb-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Video Player */}
-            <div className="lg:col-span-2">
-              <div className="aspect-video bg-black rounded-lg overflow-hidden">
-                <iframe
-                  src={`https://www.youtube.com/embed/${movie.youtubeId}`}
-                  title={movie.title}
-                  className="w-full h-full"
-                  allowFullScreen
-                />
-              </div>
-            </div>
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
+          {/* Video Player */}
+          <div className="aspect-video bg-black rounded-lg overflow-hidden mb-8">
+            <iframe
+              src={`https://www.youtube.com/embed/${movie.youtubeId}`}
+              title={movie.title}
+              className="w-full h-full"
+              allowFullScreen
+            />
+          </div>
 
-            {/* Movie Info */}
-            <div className="space-y-6">
-              <div>
-                <div className="flex items-start justify-between mb-2">
-                  <h1 className="text-3xl font-bold flex-1">{movie.title}</h1>
-                  <button
-                    onClick={handleFavorite}
-                    className="ml-4 p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors"
-                  >
-                    <Heart 
-                      className={`w-6 h-6 ${isFavorited ? 'fill-current text-red-500' : 'text-gray-400'}`} 
-                    />
-                  </button>
+          {/* Movie Info Section */}
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-8">
+            {/* Left side - Title and details */}
+            <div className="flex-1 mb-6 lg:mb-0">
+              <h1 className="text-4xl font-bold mb-4">{movie.title}</h1>
+              
+              <div className="flex items-center space-x-6 mb-6">
+                <div className="flex items-center space-x-2">
+                  <Star className="w-5 h-5 text-yellow-400 fill-current" />
+                  <span className="text-lg font-semibold">{movie.rating}</span>
                 </div>
-                <div className="flex items-center space-x-4 text-sm text-gray-400 mb-4">
-                  <span>{movie.year}</span>
-                  <span className="bg-blue-600 text-white px-2 py-1 rounded">
-                    {movie.genre}
-                  </span>
-                  <div className="flex items-center space-x-1">
-                    <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                    <span className="text-white">{movie.rating}</span>
-                  </div>
-                </div>
+                <span className="text-gray-400">{movie.year}</span>
+                <span className="bg-blue-600 text-white px-3 py-1 rounded text-sm font-medium">
+                  {movie.genre}
+                </span>
               </div>
 
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Description</h3>
-                <p className="text-gray-300 leading-relaxed">{movie.description}</p>
-              </div>
+              <p className="text-gray-300 text-lg leading-relaxed mb-6 max-w-3xl">
+                {movie.description}
+              </p>
 
-              <button className="w-full flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors">
-                <Play className="w-5 h-5" />
-                <span>Watch Now</span>
-              </button>
+              {/* Action Buttons */}
+              <div className="flex items-center space-x-4">
+                <button className="flex items-center space-x-3 bg-white text-black px-8 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors">
+                  <Play className="w-6 h-6 fill-current" />
+                  <span>Play</span>
+                </button>
+                
+                <button
+                  onClick={handleFavorite}
+                  className="flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                >
+                  <Plus className="w-5 h-5" />
+                  <span>My List</span>
+                </button>
+                
+                <button
+                  onClick={handleFavorite}
+                  className="p-3 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors"
+                >
+                  <Heart 
+                    className={`w-6 h-6 ${isFavorited ? 'fill-current text-red-500' : 'text-gray-400'}`} 
+                  />
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Recommended Section */}
+          {/* More Like This Section */}
           {recommendedItems.length > 0 && (
-            <div className="mt-16">
-              <h2 className="text-2xl font-bold mb-6">More Like This</h2>
-              <div className="overflow-x-auto">
-                <div className="flex space-x-4 pb-4">
-                  {recommendedItems.map((item) => (
-                    <div key={item.id} className="flex-shrink-0 w-64">
-                      <MovieCard movie={item} />
-                    </div>
-                  ))}
-                </div>
+            <div className="mt-16 pb-8">
+              <h2 className="text-2xl font-bold mb-8">More Like This</h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {recommendedItems.map((item) => (
+                  <div key={item.id} className="w-full">
+                    <MovieCard movie={item} />
+                  </div>
+                ))}
               </div>
             </div>
           )}
