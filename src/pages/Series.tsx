@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { genres } from "@/data/mockMovies";
 import MovieCard from "@/components/MovieCard";
@@ -12,8 +11,8 @@ const Series = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { movies: allMovies, isLoading } = useMockContent();
 
-  // Filter for series content - check both "series" and "tv" types for compatibility
-  const series = allMovies.filter(item => item.type === "series" || item.type === "tv");
+  // Filter for series content - the transformed content uses "series" type
+  const series = allMovies.filter(item => item.type === "series");
   const featuredSeries = series.filter(show => show.isFeatured);
   const trendingSeries = series.filter(show => show.isTrending);
   const topRankedSeries = series.sort((a, b) => b.rating - a.rating).slice(0, 5);
@@ -161,7 +160,7 @@ const Series = () => {
 
                     {/* New Series */}
                     <section className="mb-4">
-                      <h2 class name="text-2xl font-bold mb-3 px-4">New Series</h2>
+                      <h2 className="text-2xl font-bold mb-3 px-4">New Series</h2>
                       <div className="overflow-x-auto">
                         <div className="flex space-x-2 pb-2 px-4">
                           {newSeries.map((show) => (
