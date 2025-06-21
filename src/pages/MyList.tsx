@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import MovieCard from "@/components/MovieCard";
@@ -73,18 +74,17 @@ const MyList = () => {
         />
 
         <div className="pt-16">
-          {/* Header - Black background with logo */}
-          <div className="h-[40vh] bg-black flex items-center justify-center">
-            <h1 className="text-5xl font-bold">
-              Buzu<span className="text-blue-500">TV</span>
-            </h1>
-          </div>
+          <div className="max-w-full px-2 py-8">
+            {/* Page Title */}
+            <div className="px-4 mb-8">
+              <h1 className="text-4xl font-bold text-white mb-2">My List</h1>
+              <p className="text-gray-400">Your saved movies, shows, and subscriptions</p>
+            </div>
 
-          <div className="max-w-full px-2 py-4">
             {/* My Subscriptions */}
             {subscribedChannels.length > 0 && (
-              <section className="mb-4">
-                <h2 className="text-2xl font-bold mb-3 px-4">
+              <section className="mb-8">
+                <h2 className="text-2xl font-bold mb-4 px-4">
                   My Subscriptions ({subscribedChannels.length})
                 </h2>
                 <div className="overflow-x-auto">
@@ -105,8 +105,8 @@ const MyList = () => {
 
             {/* Movies */}
             {savedMovies.length > 0 && (
-              <section className="mb-4">
-                <h2 className="text-2xl font-bold mb-3 px-4">
+              <section className="mb-8">
+                <h2 className="text-2xl font-bold mb-4 px-4">
                   Movies ({savedMovies.length})
                 </h2>
                 <div className="overflow-x-auto">
@@ -123,8 +123,8 @@ const MyList = () => {
 
             {/* TV Shows */}
             {savedTVShows.length > 0 && (
-              <section className="mb-4">
-                <h2 className="text-2xl font-bold mb-3 px-4">
+              <section className="mb-8">
+                <h2 className="text-2xl font-bold mb-4 px-4">
                   TV Shows ({savedTVShows.length})
                 </h2>
                 <div className="overflow-x-auto">

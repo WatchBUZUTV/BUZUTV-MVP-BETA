@@ -8,12 +8,13 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Switch } from '@/components/ui/switch';
+import ImageUpload from '@/components/forms/ImageUpload';
 
 const channelSchema = z.object({
   name: z.string().min(1, 'Channel name is required'),
   description: z.string().optional(),
-  logoUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
-  bannerUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  logoUrl: z.string().optional(),
+  bannerUrl: z.string().optional(),
   isActive: z.boolean().default(true)
 });
 
@@ -88,12 +89,12 @@ const ChannelForm: React.FC<ChannelFormProps> = ({
           name="logoUrl"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-white">Logo URL</FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  placeholder="https://example.com/logo.png"
-                  className="bg-gray-700 border-gray-600 text-white"
+                <ImageUpload
+                  label="Channel Logo"
+                  value={field.value}
+                  onChange={field.onChange}
+                  disabled={isLoading}
                 />
               </FormControl>
               <FormMessage />
@@ -106,12 +107,12 @@ const ChannelForm: React.FC<ChannelFormProps> = ({
           name="bannerUrl"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-white">Banner URL</FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  placeholder="https://example.com/banner.png"
-                  className="bg-gray-700 border-gray-600 text-white"
+                <ImageUpload
+                  label="Channel Banner"
+                  value={field.value}
+                  onChange={field.onChange}
+                  disabled={isLoading}
                 />
               </FormControl>
               <FormMessage />

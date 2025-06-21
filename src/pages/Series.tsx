@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { genres } from "@/data/mockMovies";
 import MovieCard from "@/components/MovieCard";
@@ -16,7 +17,7 @@ const Series = () => {
   const trendingSeries = series.filter(show => show.isTrending);
   const topRankedSeries = series.sort((a, b) => b.rating - a.rating).slice(0, 5);
   const recommendedSeries = series.slice(0, 6);
-  const newSeries = series.slice(1, 7);
+  const newSeries = series.slice(2, 8);
   
   const filteredSeries = series.filter(show => {
     return show.title.toLowerCase().includes(searchQuery.toLowerCase());
@@ -69,12 +70,12 @@ const Series = () => {
         <div className="pt-16">
           {/* Search Results */}
           {searchQuery && !showSearchOverlay && (
-            <div className="max-w-full px-2 py-8">
-              <section className="mb-12">
-                <h2 className="text-2xl font-bold mb-6 px-4">
+            <div className="max-w-full px-2 py-4">
+              <section className="mb-6">
+                <h2 className="text-2xl font-bold mb-3 px-4">
                   Search Results ({filteredSeries.length})
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 px-4">
                   {filteredSeries.map((show) => (
                     <MovieCard key={show.id} movie={show} />
                   ))}
@@ -89,8 +90,8 @@ const Series = () => {
               {series.length > 0 ? (
                 <>
                   {/* Top Section */}
-                  <div className="max-w-full px-2 py-8">
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12 px-4">
+                  <div className="max-w-full px-2 py-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-6 px-4">
                       {/* Left - Hero Banner */}
                       <div className="lg:col-span-2">
                         <HeroBanner movies={featuredSeries} />
@@ -98,8 +99,8 @@ const Series = () => {
                       
                       {/* Right - Top Ranked */}
                       <div>
-                        <h2 className="text-2xl font-bold mb-6">Top Ranked Series</h2>
-                        <div className="space-y-4">
+                        <h2 className="text-2xl font-bold mb-3">Top Ranked Series</h2>
+                        <div className="space-y-2">
                           {topRankedSeries.map((show, index) => (
                             <div key={show.id} className="flex items-center space-x-4 bg-gray-800 rounded-lg p-3">
                               <span className="text-2xl font-bold text-blue-500">#{index + 1}</span>
@@ -124,12 +125,12 @@ const Series = () => {
                   </div>
 
                   {/* Content Rows */}
-                  <div className="max-w-full px-2 pb-8">
+                  <div className="max-w-full px-2 pb-4">
                     {/* Recommended */}
-                    <section className="mb-12">
-                      <h2 className="text-2xl font-bold mb-6 px-4">Recommended</h2>
+                    <section className="mb-4">
+                      <h2 className="text-2xl font-bold mb-3 px-4">Recommended</h2>
                       <div className="overflow-x-auto">
-                        <div className="flex space-x-4 pb-4 px-4">
+                        <div className="flex space-x-2 pb-2 px-4">
                           {recommendedSeries.map((show) => (
                             <div key={show.id} className="flex-shrink-0 w-64">
                               <MovieCard movie={show} />
@@ -140,10 +141,10 @@ const Series = () => {
                     </section>
 
                     {/* Trending Series */}
-                    <section className="mb-12">
-                      <h2 className="text-2xl font-bold mb-6 px-4">Trending Series</h2>
+                    <section className="mb-4">
+                      <h2 className="text-2xl font-bold mb-3 px-4">Trending Series</h2>
                       <div className="overflow-x-auto">
-                        <div className="flex space-x-4 pb-4 px-4">
+                        <div className="flex space-x-2 pb-2 px-4">
                           {trendingSeries.map((show) => (
                             <div key={show.id} className="flex-shrink-0 w-64">
                               <MovieCard movie={show} />
@@ -154,10 +155,10 @@ const Series = () => {
                     </section>
 
                     {/* New Series */}
-                    <section className="mb-12">
-                      <h2 className="text-2xl font-bold mb-6 px-4">New Series</h2>
+                    <section className="mb-4">
+                      <h2 className="text-2xl font-bold mb-3 px-4">New Series</h2>
                       <div className="overflow-x-auto">
-                        <div className="flex space-x-4 pb-4 px-4">
+                        <div className="flex space-x-2 pb-2 px-4">
                           {newSeries.map((show) => (
                             <div key={show.id} className="flex-shrink-0 w-64">
                               <MovieCard movie={show} />
@@ -170,10 +171,10 @@ const Series = () => {
                     {/* Genre Sections */}
                     {Object.entries(seriesByGenre).map(([genre, genreShows]) => (
                       genreShows.length > 0 && (
-                        <section key={genre} className="mb-12">
-                          <h2 className="text-2xl font-bold mb-6 px-4">{genre}</h2>
+                        <section key={genre} className="mb-4">
+                          <h2 className="text-2xl font-bold mb-3 px-4">{genre}</h2>
                           <div className="overflow-x-auto">
-                            <div className="flex space-x-4 pb-4 px-4">
+                            <div className="flex space-x-2 pb-2 px-4">
                               {genreShows.map((show) => (
                                 <div key={show.id} className="flex-shrink-0 w-64">
                                   <MovieCard movie={show} />
