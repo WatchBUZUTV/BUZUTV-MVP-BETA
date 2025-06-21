@@ -33,10 +33,10 @@ const ChannelCard = ({ channel, isSubscribed = false, onSubscribe }: ChannelCard
             <img 
               src={channel.logoUrl} 
               alt={channel.name}
-              className="w-20 h-20 object-contain" // Increased from w-16 h-16 to w-20 h-20
+              className="w-16 h-16 object-contain"
             />
           ) : (
-            <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
               {channel.name.charAt(0).toUpperCase()}
             </div>
           )}

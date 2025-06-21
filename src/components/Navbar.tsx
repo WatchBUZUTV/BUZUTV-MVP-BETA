@@ -64,18 +64,18 @@ const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => 
           <div className="flex items-center space-x-4">
             {/* Always visible search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
-                placeholder="Search movies..."
+                placeholder="Search"
                 value={searchQuery}
                 onChange={onSearchChange}
-                className="bg-gray-800 text-white pl-10 pr-4 py-2 rounded-md w-64 focus:outline-none focus:ring-1 focus:ring-gray-600 border border-gray-700"
+                className="bg-black text-white pl-4 pr-10 py-1.5 rounded-md w-64 focus:outline-none focus:ring-1 focus:ring-gray-600 border border-gray-700"
               />
+              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               {searchQuery && (
                 <button
                   onClick={onSearchClear}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                  className="absolute right-8 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -117,7 +117,7 @@ const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => 
                 </button>
                 <button
                   onClick={handleLoginClick}
-                  className="bg-gradient-to-bl from-blue-500 via-purple-500 to-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:opacity-90 transition-opacity"
+                  className="bg-[#601EF9] hover:bg-[#5016d4] text-white px-4 py-2 rounded text-sm font-medium hover:opacity-90 transition-opacity"
                 >
                   Log In
                 </button>
