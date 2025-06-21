@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -97,15 +96,13 @@ const LoginModal = () => {
               >
                 <ArrowUpRight className="w-5 h-5" />
               </button>
-              {location.pathname === '/' && (
-                <button
-                  onClick={handleClose}
-                  className="text-gray-400 hover:text-white transition-colors p-1"
-                  title="Close"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              )}
+              <button
+                onClick={handleClose}
+                className="text-gray-400 hover:text-white transition-colors p-1"
+                title="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
           </div>
         </DialogHeader>
@@ -121,7 +118,7 @@ const LoginModal = () => {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-colors"
+                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#601EF9] transition-colors"
                 placeholder="Enter your full name"
               />
             </div>
@@ -136,7 +133,7 @@ const LoginModal = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-colors"
+              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#601EF9] transition-colors"
               placeholder="Enter your email"
             />
           </div>
@@ -150,7 +147,7 @@ const LoginModal = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-colors"
+              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[#601EF9] transition-colors"
               placeholder="Enter your password"
             />
           </div>
@@ -158,7 +155,7 @@ const LoginModal = () => {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50"
+            className="w-full bg-[#601EF9] hover:bg-[#5016d4] disabled:opacity-50"
           >
             {isLoading ? 'Please wait...' : (isSignUp ? 'Sign Up' : 'Sign In')}
           </Button>
