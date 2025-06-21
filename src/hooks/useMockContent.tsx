@@ -14,7 +14,7 @@ const transformDatabaseContent = (dbContent: any[]) => {
     id: item.id,
     title: item.title,
     description: item.description || '',
-    type: item.type,
+    type: item.type === 'tv' ? 'series' : item.type, // Convert tv to series
     genre: item.genre || 'Drama',
     year: item.year || new Date().getFullYear(),
     rating: item.rating || 0,
@@ -28,6 +28,14 @@ const transformDatabaseContent = (dbContent: any[]) => {
     isFeatured: item.is_featured || false,
     isTrending: item.is_trending || false,
     channelId: item.channel_id
+  }));
+};
+
+// Transform mock movies to use consistent type naming
+const transformMockContent = (mockContent: typeof mockMovies) => {
+  return mockContent.map(item => ({
+    ...item,
+    type: item.type === 'tv' ? 'series' : item.type // Convert tv to series
   }));
 };
 
@@ -65,8 +73,9 @@ export const useMockContent = () => {
         const isDemoUser = user.email && demoUsers.includes(user.email);
         
         if (isDemoUser) {
-          // Demo user gets mock content + real content
-          setContent([...mockMovies, ...transformedDbContent]);
+          // Demo user gets mock content + real content (both transformed)
+          const transformedMockContent = transformMockContent(mockMovies);
+          setContent([...transformedMockContent, ...transformedDbContent]);
           setChannelsData([...channels, ...transformedDbChannels]);
         } else {
           // Real user gets only real content from database
