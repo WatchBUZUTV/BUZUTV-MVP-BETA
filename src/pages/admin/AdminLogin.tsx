@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -90,7 +91,8 @@ const AdminLogin = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white py-2 px-4 rounded-lg font-semibold transition-colors"
+              className="w-full text-white py-2 px-4 rounded-lg font-semibold transition-colors disabled:opacity-50"
+              style={{ backgroundColor: '#601EF9' }}
             >
               {isLoading ? "Signing in..." : "Sign In"}
             </button>

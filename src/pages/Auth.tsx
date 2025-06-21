@@ -144,7 +144,8 @@ const Auth = () => {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50"
+                className="w-full disabled:opacity-50"
+                style={{ backgroundColor: '#601EF9' }}
               >
                 {isLoading ? 'Please wait...' : (isSignUp ? 'Sign Up' : 'Sign In')}
               </Button>

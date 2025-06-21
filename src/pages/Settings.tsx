@@ -156,7 +156,10 @@ const Settings = () => {
 
           {/* Save Button */}
           <div className="mt-8">
-            <button className="bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 hover:opacity-90 text-white px-6 py-3 rounded-lg font-semibold transition-opacity">
+            <button 
+              className="text-white px-6 py-3 rounded-lg font-semibold transition-opacity hover:opacity-90"
+              style={{ backgroundColor: '#601EF9' }}
+            >
               Save Changes
             </button>
           </div>

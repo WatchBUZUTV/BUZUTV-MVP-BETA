@@ -97,15 +97,13 @@ const LoginModal = () => {
               >
                 <ArrowUpRight className="w-5 h-5" />
               </button>
-              {location.pathname === '/' && (
-                <button
-                  onClick={handleClose}
-                  className="text-gray-400 hover:text-white transition-colors p-1"
-                  title="Close"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              )}
+              <button
+                onClick={handleClose}
+                className="text-gray-400 hover:text-white transition-colors p-1"
+                title="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
           </div>
         </DialogHeader>
@@ -158,7 +156,8 @@ const LoginModal = () => {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50"
+            className="w-full disabled:opacity-50"
+            style={{ backgroundColor: '#601EF9' }}
           >
             {isLoading ? 'Please wait...' : (isSignUp ? 'Sign Up' : 'Sign In')}
           </Button>
