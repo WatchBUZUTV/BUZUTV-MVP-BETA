@@ -1,6 +1,6 @@
 
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Star, Play, Heart, Plus } from "lucide-react";
+import { ArrowLeft, Star, Play, Heart, Plus, X } from "lucide-react";
 import { mockMovies } from "@/data/mockMovies";
 import MovieCard from "@/components/MovieCard";
 import { useState, useRef, useCallback } from "react";
