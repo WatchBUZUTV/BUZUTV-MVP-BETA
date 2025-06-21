@@ -1,6 +1,7 @@
 import { useState } from "react";
 import MovieCard from "@/components/MovieCard";
 import ChannelCard from "@/components/ChannelCard";
+import ChannelModal from "@/components/ChannelModal";
 import SearchOverlay from "@/components/SearchOverlay";
 import ProtectedContent from "@/components/auth/ProtectedContent";
 import Navbar from "@/components/Navbar";
@@ -12,6 +13,8 @@ const Index = () => {
   console.log('Index component rendering');
   
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedChannel, setSelectedChannel] = useState<any>(null);
+  const [showChannelModal, setShowChannelModal] = useState(false);
   const { movies, channels, isLoading } = useMockContent();
   const { subscriptionIds, toggleSubscription } = useUserSubscriptions();
 
@@ -36,6 +39,16 @@ const Index = () => {
     setSearchQuery("");
   };
 
+  const handleChannelClick = (channel: any) => {
+    setSelectedChannel(channel);
+    setShowChannelModal(true);
+  };
+
+  const handleCloseChannelModal = () => {
+    setShowChannelModal(false);
+    setSelectedChannel(null);
+  };
+
   // Show search overlay when there's a search query
   const showSearchOverlay = searchQuery.trim().length > 0;
 
@@ -49,6 +62,13 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
+      {/* Channel Modal */}
+      <ChannelModal 
+        isOpen={showChannelModal}
+        onClose={handleCloseChannelModal}
+        channel={selectedChannel}
+      />
+
       {/* Search Overlay */}
       {showSearchOverlay && (
         <SearchOverlay 
@@ -81,11 +101,13 @@ const Index = () => {
                     {channels.map((channel) => (
                       <div key={channel.id} className="flex-shrink-0 w-48">
                         <ProtectedContent>
-                          <ChannelCard 
-                            channel={channel}
-                            isSubscribed={subscriptionIds.includes(channel.id)}
-                            onSubscribe={toggleSubscription}
-                          />
+                          <div onClick={() => handleChannelClick(channel)}>
+                            <ChannelCard 
+                              channel={channel}
+                              isSubscribed={subscriptionIds.includes(channel.id)}
+                              onSubscribe={toggleSubscription}
+                            />
+                          </div>
                         </ProtectedContent>
                       </div>
                     ))}

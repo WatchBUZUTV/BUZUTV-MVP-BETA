@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -49,8 +48,8 @@ const AdminLogin = () => {
         <div className="bg-gray-800 rounded-lg shadow-xl p-8">
           {/* Logo */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white">
-              Buzu<span className="text-blue-500">TV</span>
+            <h1 className="text-3xl font-bold">
+              <span className="bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 bg-clip-text text-transparent">BUZUTV</span>
             </h1>
             <p className="text-gray-400 mt-2">Admin Portal</p>
             {user?.isAdmin && (
@@ -91,7 +90,7 @@ const AdminLogin = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white py-2 px-4 rounded-lg font-semibold transition-colors"
+              className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white py-2 px-4 rounded-lg font-semibold transition-colors"
             >
               {isLoading ? "Signing in..." : "Sign In"}
             </button>

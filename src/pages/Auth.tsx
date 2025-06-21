@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
@@ -145,7 +144,7 @@ const Auth = () => {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 hover:opacity-90 disabled:opacity-50"
+                className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50"
               >
                 {isLoading ? 'Please wait...' : (isSignUp ? 'Sign Up' : 'Sign In')}
               </Button>

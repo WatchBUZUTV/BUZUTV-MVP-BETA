@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, Edit, Trash2, Plus, PlayCircle } from "lucide-react";
@@ -90,7 +91,7 @@ const AdminChannels = () => {
           </div>
           <Link
             to="/admin/add-channel"
-            className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+            className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors"
           >
             <Plus className="w-4 h-4" />
             <span>Add Channel</span>
@@ -113,7 +114,7 @@ const AdminChannels = () => {
 
         {/* Bulk Actions */}
         {selectedChannels.length > 0 && (
-          <div className="bg-blue-600 rounded-lg p-4">
+          <div className="bg-purple-600 rounded-lg p-4">
             <div className="flex items-center justify-between">
               <span className="text-white font-medium">
                 {selectedChannels.length} channel(s) selected
@@ -129,7 +130,7 @@ const AdminChannels = () => {
                 </button>
                 <button
                   onClick={() => setSelectedChannels([])}
-                  className="text-blue-100 hover:text-white transition-colors"
+                  className="text-purple-100 hover:text-white transition-colors"
                 >
                   Clear Selection
                 </button>
