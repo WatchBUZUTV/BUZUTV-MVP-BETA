@@ -66,8 +66,8 @@ const Auth = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="flex items-center space-x-2">
-              <span className="text-2xl font-bold">
-                Bizu<span className="text-blue-500">TV</span>
+              <span className="text-2xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 bg-clip-text text-transparent">
+                BUZUTV
               </span>
             </Link>
             
@@ -89,7 +89,7 @@ const Auth = () => {
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold">
                 {isSignUp ? 'Sign Up' : 'Sign In'} to{' '}
-                <span className="text-blue-500">BizuTV</span>
+                <span className="bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 bg-clip-text text-transparent">BUZUTV</span>
               </h1>
               <p className="text-gray-400 mt-2">
                 {isSignUp ? 'Create your account' : 'Welcome back'}
@@ -108,7 +108,7 @@ const Auth = () => {
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors"
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-colors"
                     placeholder="Enter your full name"
                   />
                 </div>
@@ -123,7 +123,7 @@ const Auth = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-colors"
                   placeholder="Enter your email"
                 />
               </div>
@@ -137,7 +137,7 @@ const Auth = () => {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-colors"
                   placeholder="Enter your password"
                 />
               </div>
@@ -145,7 +145,7 @@ const Auth = () => {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+                className="w-full bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 hover:opacity-90 disabled:opacity-50"
               >
                 {isLoading ? 'Please wait...' : (isSignUp ? 'Sign Up' : 'Sign In')}
               </Button>

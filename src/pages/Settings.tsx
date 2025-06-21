@@ -30,8 +30,8 @@ const Settings = () => {
             <div className="flex items-center justify-between h-16">
               <button onClick={handleBack} className="flex items-center space-x-2">
                 <ArrowLeft className="w-5 h-5" />
-                <span className="text-2xl font-bold">
-                  Bizu<span className="text-blue-500">TV</span>
+                <span className="text-2xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 bg-clip-text text-transparent">
+                  BUZUTV
                 </span>
               </button>
             </div>
@@ -44,7 +44,7 @@ const Settings = () => {
           {/* User Profile Section */}
           <div className="bg-gray-800 rounded-lg p-6 mb-6">
             <div className="flex items-center space-x-4 mb-6">
-              <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center">
+              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 rounded-full flex items-center justify-center">
                 <User className="w-8 h-8" />
               </div>
               <div>
@@ -59,7 +59,7 @@ const Settings = () => {
                 <input 
                   type="text" 
                   defaultValue={user?.name || "User"}
-                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
               <div>
@@ -67,7 +67,7 @@ const Settings = () => {
                 <input 
                   type="email" 
                   defaultValue={user?.email || "user@example.com"}
-                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
             </div>
@@ -88,7 +88,7 @@ const Settings = () => {
                 </div>
                 <button 
                   onClick={() => setAutoplay(!autoplay)}
-                  className={`relative w-12 h-6 rounded-full transition-colors ${autoplay ? 'bg-blue-600' : 'bg-gray-600'}`}
+                  className={`relative w-12 h-6 rounded-full transition-colors ${autoplay ? 'bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600' : 'bg-gray-600'}`}
                 >
                   <div className={`absolute w-5 h-5 bg-white rounded-full top-0.5 transition-transform ${autoplay ? 'translate-x-6' : 'translate-x-0.5'}`} />
                 </button>
@@ -99,7 +99,7 @@ const Settings = () => {
                 <select 
                   value={quality}
                   onChange={(e) => setQuality(e.target.value)}
-                  className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
                   <option value="720p">720p HD</option>
                   <option value="1080p">1080p Full HD</option>
@@ -124,7 +124,7 @@ const Settings = () => {
               </div>
               <button 
                 onClick={() => setNotifications(!notifications)}
-                className={`relative w-12 h-6 rounded-full transition-colors ${notifications ? 'bg-blue-600' : 'bg-gray-600'}`}
+                className={`relative w-12 h-6 rounded-full transition-colors ${notifications ? 'bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600' : 'bg-gray-600'}`}
               >
                 <div className={`absolute w-5 h-5 bg-white rounded-full top-0.5 transition-transform ${notifications ? 'translate-x-6' : 'translate-x-0.5'}`} />
               </button>
@@ -156,7 +156,7 @@ const Settings = () => {
 
           {/* Save Button */}
           <div className="mt-8">
-            <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+            <button className="bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 hover:opacity-90 text-white px-6 py-3 rounded-lg font-semibold transition-opacity">
               Save Changes
             </button>
           </div>

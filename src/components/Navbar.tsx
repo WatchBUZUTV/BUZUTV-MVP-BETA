@@ -133,12 +133,26 @@ const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => 
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <button
-                onClick={handleLoginClick}
-                className="flex items-center text-white hover:text-gray-300 transition-colors"
-              >
-                <User className="w-6 h-6" />
-              </button>
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={handleLoginClick}
+                  className="bg-white text-black px-4 py-2 rounded text-sm font-medium hover:bg-gray-200 transition-colors"
+                >
+                  Sign Up
+                </button>
+                <button
+                  onClick={handleLoginClick}
+                  className="bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:opacity-90 transition-opacity"
+                >
+                  Log In
+                </button>
+                <button
+                  onClick={handleLoginClick}
+                  className="flex items-center text-white hover:text-gray-300 transition-colors"
+                >
+                  <User className="w-6 h-6" />
+                </button>
+              </div>
             )}
 
             {/* Mobile menu button */}

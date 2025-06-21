@@ -87,7 +87,7 @@ const LoginModal = () => {
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl font-bold">
               {isSignUp ? 'Sign Up' : 'Sign In'} to{' '}
-              <span className="text-blue-500">BuzuTV</span>
+              <span className="bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 bg-clip-text text-transparent">BUZUTV</span>
             </DialogTitle>
             <div className="flex items-center space-x-2">
               <button
@@ -121,7 +121,7 @@ const LoginModal = () => {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-colors"
                 placeholder="Enter your full name"
               />
             </div>
@@ -136,7 +136,7 @@ const LoginModal = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors"
+              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-colors"
               placeholder="Enter your email"
             />
           </div>
@@ -150,7 +150,7 @@ const LoginModal = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors"
+              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-colors"
               placeholder="Enter your password"
             />
           </div>
@@ -158,7 +158,7 @@ const LoginModal = () => {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+            className="w-full bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 hover:opacity-90 disabled:opacity-50"
           >
             {isLoading ? 'Please wait...' : (isSignUp ? 'Sign Up' : 'Sign In')}
           </Button>
