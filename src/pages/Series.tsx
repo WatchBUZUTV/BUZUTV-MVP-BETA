@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { genres } from "@/data/mockMovies";
 import MovieCard from "@/components/MovieCard";
@@ -11,8 +12,8 @@ const Series = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { movies: allMovies, isLoading } = useMockContent();
 
-  // Filter for series content - the transformed content uses "series" type
-  const series = allMovies.filter(item => item.type === "series");
+  // Filter for series content - database content uses "tv" type after transformation
+  const series = allMovies.filter(item => item.type === "tv");
   const featuredSeries = series.filter(show => show.isFeatured);
   const trendingSeries = series.filter(show => show.isTrending);
   const topRankedSeries = series.sort((a, b) => b.rating - a.rating).slice(0, 5);
