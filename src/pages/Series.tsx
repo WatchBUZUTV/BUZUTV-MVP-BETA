@@ -12,7 +12,8 @@ const Series = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { movies: allMovies, isLoading } = useMockContent();
 
-  const series = allMovies.filter(item => item.type === "tv");
+  // Filter for series content - check both "series" and "tv" types for compatibility
+  const series = allMovies.filter(item => item.type === "series" || item.type === "tv");
   const featuredSeries = series.filter(show => show.isFeatured);
   const trendingSeries = series.filter(show => show.isTrending);
   const topRankedSeries = series.sort((a, b) => b.rating - a.rating).slice(0, 5);
@@ -37,6 +38,10 @@ const Series = () => {
   };
 
   const showSearchOverlay = searchQuery.trim().length > 0;
+
+  console.log('Series page - All movies:', allMovies.length);
+  console.log('Series page - Filtered series:', series.length);
+  console.log('Series page - Content types:', allMovies.map(item => ({ title: item.title, type: item.type })));
 
   if (isLoading) {
     return (
@@ -94,7 +99,7 @@ const Series = () => {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-6 px-4">
                       {/* Left - Hero Banner */}
                       <div className="lg:col-span-2">
-                        <HeroBanner movies={featuredSeries} />
+                        <HeroBanner movies={featuredSeries.length > 0 ? featuredSeries : series.slice(0, 3)} />
                       </div>
                       
                       {/* Right - Top Ranked */}
@@ -156,7 +161,7 @@ const Series = () => {
 
                     {/* New Series */}
                     <section className="mb-4">
-                      <h2 className="text-2xl font-bold mb-3 px-4">New Series</h2>
+                      <h2 class name="text-2xl font-bold mb-3 px-4">New Series</h2>
                       <div className="overflow-x-auto">
                         <div className="flex space-x-2 pb-2 px-4">
                           {newSeries.map((show) => (
