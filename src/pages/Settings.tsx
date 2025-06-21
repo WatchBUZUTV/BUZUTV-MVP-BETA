@@ -59,7 +59,7 @@ const Settings = () => {
                 <input 
                   type="text" 
                   defaultValue={user?.name || "User"}
-                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#601EF9]"
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
               <div>
@@ -67,7 +67,7 @@ const Settings = () => {
                 <input 
                   type="email" 
                   defaultValue={user?.email || "user@example.com"}
-                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#601EF9]"
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
             </div>
@@ -88,7 +88,7 @@ const Settings = () => {
                 </div>
                 <button 
                   onClick={() => setAutoplay(!autoplay)}
-                  className={`relative w-12 h-6 rounded-full transition-colors ${autoplay ? 'bg-[#601EF9]' : 'bg-gray-600'}`}
+                  className={`relative w-12 h-6 rounded-full transition-colors ${autoplay ? 'bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600' : 'bg-gray-600'}`}
                 >
                   <div className={`absolute w-5 h-5 bg-white rounded-full top-0.5 transition-transform ${autoplay ? 'translate-x-6' : 'translate-x-0.5'}`} />
                 </button>
@@ -99,7 +99,7 @@ const Settings = () => {
                 <select 
                   value={quality}
                   onChange={(e) => setQuality(e.target.value)}
-                  className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#601EF9]"
+                  className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
                   <option value="720p">720p HD</option>
                   <option value="1080p">1080p Full HD</option>
@@ -124,7 +124,7 @@ const Settings = () => {
               </div>
               <button 
                 onClick={() => setNotifications(!notifications)}
-                className={`relative w-12 h-6 rounded-full transition-colors ${notifications ? 'bg-[#601EF9]' : 'bg-gray-600'}`}
+                className={`relative w-12 h-6 rounded-full transition-colors ${notifications ? 'bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600' : 'bg-gray-600'}`}
               >
                 <div className={`absolute w-5 h-5 bg-white rounded-full top-0.5 transition-transform ${notifications ? 'translate-x-6' : 'translate-x-0.5'}`} />
               </button>
@@ -156,7 +156,7 @@ const Settings = () => {
 
           {/* Save Button */}
           <div className="mt-8">
-            <button className="bg-[#601EF9] hover:bg-[#5016d4] text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+            <button className="bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 hover:opacity-90 text-white px-6 py-3 rounded-lg font-semibold transition-opacity">
               Save Changes
             </button>
           </div>

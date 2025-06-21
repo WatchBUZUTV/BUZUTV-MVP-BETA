@@ -19,6 +19,7 @@ interface NavbarProps {
 
 const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { isLoggedIn, user, logout, setShowLoginModal } = useAuth();
 
   const handleLoginClick = () => {
@@ -27,6 +28,19 @@ const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => 
 
   const handleLogout = () => {
     logout();
+  };
+
+  const handleSearchToggle = () => {
+    setIsSearchOpen(!isSearchOpen);
+    if (!isSearchOpen) {
+      // Focus on input when opening
+      setTimeout(() => {
+        const input = document.querySelector('input[placeholder="Search movies..."]') as HTMLInputElement;
+        if (input) input.focus();
+      }, 100);
+    } else {
+      onSearchClear();
+    }
   };
 
   return (
@@ -62,23 +76,34 @@ const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => 
 
           {/* Right Side - Search and User */}
           <div className="flex items-center space-x-4">
-            {/* Always visible search */}
+            {/* Search */}
             <div className="relative">
-              <input
-                type="text"
-                placeholder="Search"
-                value={searchQuery}
-                onChange={onSearchChange}
-                className="bg-black text-white pl-4 pr-10 py-1.5 rounded-md w-64 focus:outline-none focus:ring-1 focus:ring-gray-600 border border-gray-700"
-              />
-              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              {searchQuery && (
+              {!isSearchOpen ? (
                 <button
-                  onClick={onSearchClear}
-                  className="absolute right-8 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                  onClick={handleSearchToggle}
+                  className="text-white hover:text-gray-300 transition-colors p-2"
                 >
-                  <X className="w-4 h-4" />
+                  <Search className="w-5 h-5" />
                 </button>
+              ) : (
+                <div className="flex items-center">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <input
+                      type="text"
+                      placeholder="Search movies..."
+                      value={searchQuery}
+                      onChange={onSearchChange}
+                      className="bg-gray-800 text-white pl-10 pr-4 py-2 rounded-md w-64 focus:outline-none focus:ring-1 focus:ring-gray-600 border border-gray-700"
+                    />
+                  </div>
+                  <button
+                    onClick={handleSearchToggle}
+                    className="ml-2 text-gray-400 hover:text-white transition-colors p-1"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
               )}
             </div>
 
@@ -117,7 +142,7 @@ const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => 
                 </button>
                 <button
                   onClick={handleLoginClick}
-                  className="bg-[#601EF9] hover:bg-[#5016d4] text-white px-4 py-2 rounded text-sm font-medium hover:opacity-90 transition-opacity"
+                  className="bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:opacity-90 transition-opacity"
                 >
                   Log In
                 </button>

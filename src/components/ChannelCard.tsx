@@ -1,15 +1,6 @@
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Heart, HeartOff } from "lucide-react";
-
-interface Channel {
-  id: string;
-  name: string;
-  description?: string;
-  logoUrl?: string;
-  bannerUrl?: string;
-}
+import { UserPlus, UserCheck } from "lucide-react";
+import { Channel } from "@/data/mockMovies";
 
 interface ChannelCardProps {
   channel: Channel;
@@ -19,60 +10,56 @@ interface ChannelCardProps {
 
 const ChannelCard = ({ channel, isSubscribed = false, onSubscribe }: ChannelCardProps) => {
   const handleSubscribe = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
+    console.log('Subscribe button clicked for channel:', channel.id);
     if (onSubscribe) {
       onSubscribe(channel.id);
     }
   };
 
   return (
-    <Card className="bg-gray-800 border-gray-700 hover:bg-gray-700 transition-colors cursor-pointer group">
-      <CardContent className="p-4">
-        <div className="aspect-square bg-gray-700 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
-          {channel.logoUrl ? (
-            <img 
-              src={channel.logoUrl} 
-              alt={channel.name}
-              className="w-16 h-16 object-contain"
-            />
-          ) : (
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
-              {channel.name.charAt(0).toUpperCase()}
-            </div>
-          )}
+    <div className="group cursor-pointer">
+      <div className="relative overflow-hidden rounded-lg bg-gray-800 shadow-lg transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl">
+        <div className="aspect-video overflow-hidden bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
+          <img
+            src={channel.logoUrl}
+            alt={channel.name}
+            className="w-16 h-16 object-contain rounded-lg bg-white/10 p-2"
+          />
         </div>
         
-        <div className="space-y-2">
-          <h3 className="font-semibold text-white truncate">{channel.name}</h3>
-          {channel.description && (
-            <p className="text-sm text-gray-400 line-clamp-2">{channel.description}</p>
-          )}
-          
-          <Button
+        {/* Subscribe Button */}
+        {onSubscribe && (
+          <button
             onClick={handleSubscribe}
-            variant={isSubscribed ? "secondary" : "default"}
-            size="sm"
-            className={`w-full ${
+            className={`absolute top-2 right-2 p-2 rounded-full transition-all duration-200 z-10 cursor-pointer ${
               isSubscribed 
-                ? "bg-gray-600 hover:bg-gray-500 text-white" 
-                : "bg-[#601EF9] hover:bg-[#5016d4] text-white"
+                ? 'bg-green-600 text-white hover:bg-green-700' 
+                : 'bg-black/50 text-white hover:bg-black/70'
             }`}
+            style={{ pointerEvents: 'auto' }}
           >
             {isSubscribed ? (
-              <>
-                <HeartOff className="w-4 h-4 mr-2" />
-                Unsubscribe
-              </>
+              <UserCheck className="w-4 h-4" />
             ) : (
-              <>
-                <Heart className="w-4 h-4 mr-2" />
-                Subscribe
-              </>
+              <UserPlus className="w-4 h-4" />
             )}
-          </Button>
+          </button>
+        )}
+        
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+          <div className="absolute bottom-0 left-0 right-0 p-3">
+            <p className="text-xs text-gray-300 line-clamp-2">{channel.description}</p>
+          </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+      
+      <div className="mt-2">
+        <h3 className="font-medium text-white text-sm">{channel.name}</h3>
+      </div>
+    </div>
   );
 };
 
