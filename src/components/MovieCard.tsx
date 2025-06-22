@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Star, Heart, Play, X } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
@@ -267,11 +268,11 @@ const MovieCard = ({
                 {/* Only bottom gradient for fade effect */}
                 <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent" />
                 
-                {/* Content overlay - moved much lower into the navy area */}
-                <div className="absolute bottom-0 left-0 right-0 p-8 z-10" style={{ paddingBottom: '2rem' }}>
+                {/* Content overlay - moved much much lower, almost to More Like This */}
+                <div className="absolute bottom-0 left-0 right-0 p-8 z-10" style={{ transform: 'translateY(50%)' }}>
                   <h1 className="text-5xl font-bold text-white mb-4">{movie.title}</h1>
                   
-                  {/* Action Buttons Row - moved much lower */}
+                  {/* Action Buttons Row */}
                   <div className="flex items-center space-x-4 mb-4">
                     <button
                       onClick={handleModalPlayClick}
@@ -299,7 +300,7 @@ const MovieCard = ({
                     </span>
                   </div>
                   
-                  {/* Netflix-style Info Row - moved much lower */}
+                  {/* Netflix-style Info Row */}
                   <div className="flex items-center space-x-4 text-sm">
                     <div className="flex items-center space-x-1">
                       <Star className="w-4 h-4 text-yellow-400 fill-current" />
