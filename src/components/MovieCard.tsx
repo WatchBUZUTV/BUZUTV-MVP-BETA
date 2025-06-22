@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Star, Heart, Play, X } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
@@ -49,7 +50,7 @@ const MovieCard = ({
   const [isHovered, setIsHovered] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [showImmediateBorder, setShowImmediateBorder] = useState(false);
+  const [isMouseOver, setIsMouseOver] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const exitTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -73,7 +74,7 @@ const MovieCard = ({
 
   const handleMouseEnter = () => {
     // Show immediate border
-    setShowImmediateBorder(true);
+    setIsMouseOver(true);
     
     // Clear any exit timeout
     if (exitTimeoutRef.current) {
@@ -88,17 +89,16 @@ const MovieCard = ({
 
     // Set a delay before showing hover effect
     hoverTimeoutRef.current = setTimeout(() => {
-      if (!isAnyCardTransitioning) {
+      if (!isAnyCardTransitioning && isMouseOver) {
         currentHoveredCard = movie.id;
         setIsHovered(true);
-        setShowImmediateBorder(false); // Hide border when popup appears
       }
     }, 1000); // 1 second delay
   };
 
   const handleMouseLeave = () => {
     // Remove immediate border effect
-    setShowImmediateBorder(false);
+    setIsMouseOver(false);
     
     // Clear hover timeout if still pending
     if (hoverTimeoutRef.current) {
@@ -192,7 +192,7 @@ const MovieCard = ({
               ? 'scale-125 shadow-2xl shadow-black/60 z-50' 
               : 'shadow-lg z-10'
           } ${
-            showImmediateBorder && !isHovered
+            isMouseOver && !isHovered
               ? 'ring-2 ring-blue-600'
               : ''
           }`}
