@@ -249,7 +249,7 @@ const MovieCard = ({
           <DialogTitle className="sr-only">{movie.title}</DialogTitle>
           <ScrollArea className="h-[90vh]">
             <div className="relative">
-              {/* Hero Section with Better Gradient */}
+              {/* Hero Section with Improved Gradient */}
               <div className="relative h-[60vh] overflow-hidden">
                 {/* Background Image */}
                 <div className="absolute inset-0 -z-10">
@@ -260,14 +260,27 @@ const MovieCard = ({
                   />
                 </div>
                 
-                {/* Multiple gradient overlays for natural fade */}
-                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/60 to-transparent" />
-                <div className="absolute inset-0 bg-gradient-to-r from-gray-900/80 via-gray-900/20 to-transparent" />
+                {/* Improved gradient overlays - lighter at top, stronger at bottom */}
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-gray-900/10" />
+                <div className="absolute inset-0 bg-gradient-to-r from-gray-900/60 via-gray-900/10 to-transparent" />
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-gray-900" />
                 
                 {/* Content overlay */}
                 <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
                   <h1 className="text-5xl font-bold text-white mb-6">{movie.title}</h1>
+                  
+                  {/* Netflix-style Info Row */}
+                  <div className="flex items-center space-x-4 mb-6 text-sm">
+                    <div className="flex items-center space-x-1">
+                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                      <span className="text-green-400 font-semibold">{movie.rating}</span>
+                    </div>
+                    <span className="text-white font-medium">{movie.year}</span>
+                    <span className="border border-gray-400 px-2 py-0.5 text-xs text-gray-300 font-medium">
+                      TV-MA
+                    </span>
+                    <span className="text-white">{movie.genre}</span>
+                  </div>
                   
                   {/* Action Buttons */}
                   <div className="flex items-center space-x-4">
@@ -284,51 +297,37 @@ const MovieCard = ({
                       <span>Play</span>
                     </button>
                     
-                    <button
-                      onClick={handleSave}
-                      className="bg-gray-700/80 hover:bg-gray-600/80 text-white p-3 rounded-full transition-colors backdrop-blur-sm"
-                    >
-                      <Heart className={`w-6 h-6 ${isSaved ? 'fill-current text-red-500' : ''}`} />
-                    </button>
+                    <div className="flex items-center space-x-3">
+                      <button
+                        onClick={handleSave}
+                        className="bg-gray-700/80 hover:bg-gray-600/80 text-white p-3 rounded-full transition-colors backdrop-blur-sm"
+                      >
+                        <Heart className={`w-6 h-6 ${isSaved ? 'fill-current text-red-500' : ''}`} />
+                      </button>
+                      
+                      {/* Duration next to heart button */}
+                      <span className="text-white text-sm font-medium">
+                        {formatDuration(contentItem?.duration_minutes)}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Content Section */}
               <div className="bg-gray-900 p-8">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-                  {/* Left side - Description */}
-                  <div className="md:col-span-2">
-                    <p className="text-gray-300 text-lg leading-relaxed">
-                      {movie.description || "No description available for this content."}
+                <div className="mb-8">
+                  {/* Description */}
+                  {movie.description && (
+                    <p className="text-gray-300 text-lg leading-relaxed mb-4">
+                      {movie.description}
                     </p>
-                  </div>
+                  )}
                   
-                  {/* Right side - Movie Details */}
-                  <div className="space-y-3 text-sm">
-                    <div>
-                      <span className="text-gray-400">Genre: </span>
-                      <span className="text-white">{movie.genre}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-400">Year: </span>
-                      <span className="text-white">{movie.year}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-400">Rating: </span>
-                      <div className="inline-flex items-center space-x-1">
-                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                        <span className="text-white">{movie.rating}</span>
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-gray-400">Duration: </span>
-                      <span className="text-white">{formatDuration(contentItem?.duration_minutes)}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-400">Channel: </span>
-                      <span className="text-white">{movie.channelId || "BizuTV"}</span>
-                    </div>
+                  {/* Channel info in Netflix style */}
+                  <div className="text-sm">
+                    <span className="text-gray-400">Channel: </span>
+                    <span className="text-white">{movie.channelId || "BizuTV"}</span>
                   </div>
                 </div>
 
