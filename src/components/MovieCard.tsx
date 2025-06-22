@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Star, Heart, Play, X } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
@@ -128,12 +127,7 @@ const MovieCard = ({
   const handlePlayClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    // Find the content item from backend data
-    const contentItem = content.find(item => item.id === movie.id);
-    if (contentItem?.video_url) {
-      setIsPlaying(true);
-    }
+    setShowModal(true);
   };
 
   const handleModalPlayClick = () => {
@@ -238,18 +232,6 @@ const MovieCard = ({
                     <Play className="w-6 h-6 fill-current" />
                   </button>
                 </div>
-
-                {/* More Info Button */}
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setShowModal(true);
-                  }}
-                  className="absolute bottom-3 left-3 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full transition-colors"
-                >
-                  <Star className="w-4 h-4" />
-                </button>
 
                 {/* Heart Button Bottom Right */}
                 <button
