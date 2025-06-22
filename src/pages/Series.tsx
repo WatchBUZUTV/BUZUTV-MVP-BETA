@@ -79,8 +79,8 @@ const Series = () => {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="bg-blue-600/80 hover:bg-blue-700/90 border-none text-white -left-6 h-12 w-12" />
-        <CarouselNext className="bg-blue-600/80 hover:bg-blue-700/90 border-none text-white -right-6 h-12 w-12" />
+        <CarouselPrevious />
+        <CarouselNext />
       </Carousel>
     </section>
   );

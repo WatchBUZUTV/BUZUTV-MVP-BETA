@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Star, Heart, Play, X } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
@@ -48,9 +47,9 @@ const MovieCard = ({
   const { content } = useContent();
   const { channels } = useChannels();
   const [isHovered, setIsHovered] = useState(false);
-  const [isImmediateHover, setIsImmediateHover] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [showImmediateBorder, setShowImmediateBorder] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const exitTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -73,8 +72,8 @@ const MovieCard = ({
   };
 
   const handleMouseEnter = () => {
-    // Immediate border effect
-    setIsImmediateHover(true);
+    // Show immediate border
+    setShowImmediateBorder(true);
     
     // Clear any exit timeout
     if (exitTimeoutRef.current) {
@@ -92,14 +91,14 @@ const MovieCard = ({
       if (!isAnyCardTransitioning) {
         currentHoveredCard = movie.id;
         setIsHovered(true);
-        setIsImmediateHover(false); // Hide border when popup appears
+        setShowImmediateBorder(false); // Hide border when popup appears
       }
     }, 1000); // 1 second delay
   };
 
   const handleMouseLeave = () => {
     // Remove immediate border effect
-    setIsImmediateHover(false);
+    setShowImmediateBorder(false);
     
     // Clear hover timeout if still pending
     if (hoverTimeoutRef.current) {
@@ -193,8 +192,8 @@ const MovieCard = ({
               ? 'scale-125 shadow-2xl shadow-black/60 z-50' 
               : 'shadow-lg z-10'
           } ${
-            isImmediateHover && !isHovered
-              ? 'ring-2 ring-blue-500'
+            showImmediateBorder && !isHovered
+              ? 'ring-2 ring-blue-600'
               : ''
           }`}
           style={{
@@ -272,7 +271,7 @@ const MovieCard = ({
           </div>
         </div>
       </div>
-
+      
       {/* Full Screen Video Player */}
       {isPlaying && embedUrl && (
         <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center">
