@@ -1,5 +1,3 @@
-
-
 import { Link } from "react-router-dom";
 import { Star, Heart, Play, X } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
@@ -269,13 +267,10 @@ const MovieCard = ({
                 {/* Only bottom gradient for fade effect */}
                 <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent" />
                 
-                {/* Title - stays in original position */}
+                {/* Title and Info Container */}
                 <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
-                  <h1 className="text-5xl font-bold text-white mb-8">{movie.title}</h1>
-                </div>
-                
-                {/* Action Buttons and Info - positioned lower */}
-                <div className="absolute bottom-0 left-0 right-0 p-8 z-10" style={{ transform: 'translateY(80px)' }}>
+                  <h1 className="text-5xl font-bold text-white mb-6">{movie.title}</h1>
+                  
                   {/* Action Buttons Row */}
                   <div className="flex items-center space-x-4 mb-4">
                     <button
@@ -330,8 +325,8 @@ const MovieCard = ({
                 </div>
               </div>
 
-              {/* Content Section */}
-              <div className="bg-gray-900 p-8" style={{ marginTop: '80px' }}>
+              {/* Content Section - reduced margin */}
+              <div className="bg-gray-900 p-8" style={{ marginTop: '20px' }}>
                 <div className="mb-8">
                   {/* Description */}
                   {movie.description && (
@@ -374,4 +369,3 @@ const MovieCard = ({
 };
 
 export default MovieCard;
-
