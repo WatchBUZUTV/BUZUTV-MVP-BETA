@@ -45,9 +45,9 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
         <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent" />
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 flex items-center h-full">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      {/* Content - Moved to bottom left */}
+      <div className="relative z-10 flex items-end h-full">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pb-8">
           <div className="max-w-xl">
             <h1 className="text-3xl md:text-4xl font-bold mb-3 text-white">
               {currentMovie.title}
