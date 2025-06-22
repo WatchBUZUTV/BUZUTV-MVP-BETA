@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useUserFavorites } from "@/hooks/useUserFavorites";
 import { useContent } from "@/hooks/useContent";
+import { useChannels } from "@/hooks/useChannels";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface MovieCardProps {
@@ -43,6 +44,7 @@ const MovieCard = ({
 }: MovieCardProps) => {
   const { favoriteIds, addToFavorites, removeFromFavorites } = useUserFavorites();
   const { content } = useContent();
+  const { channels } = useChannels();
   const [isHovered, setIsHovered] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -119,6 +121,9 @@ const MovieCard = ({
 
   // Convert YouTube URL to embed format if needed
   const embedUrl = videoUrl ? getYouTubeEmbedUrl(videoUrl) || videoUrl : null;
+
+  // Get channel information
+  const channel = channels.find(ch => ch.id === movie.channelId);
 
   return (
     <>
@@ -249,28 +254,56 @@ const MovieCard = ({
           <DialogTitle className="sr-only">{movie.title}</DialogTitle>
           <ScrollArea className="h-[90vh]">
             <div className="relative">
-              {/* Hero Section with Improved Gradient */}
+              {/* Hero Section with Fixed Gradient - only fade at bottom */}
               <div className="relative h-[60vh] overflow-hidden">
                 {/* Background Image */}
-                <div className="absolute inset-0 -z-10">
+                <div className="absolute inset-0">
                   <img
                     src={movie.posterUrl}
                     alt={movie.title}
-                    className="w-full h-full object-cover opacity-40"
+                    className="w-full h-full object-cover"
                   />
                 </div>
                 
-                {/* Improved gradient overlays - lighter at top, stronger at bottom */}
-                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-gray-900/10" />
-                <div className="absolute inset-0 bg-gradient-to-r from-gray-900/60 via-gray-900/10 to-transparent" />
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-gray-900" />
+                {/* Only bottom gradient for fade effect */}
+                <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent" />
                 
                 {/* Content overlay */}
                 <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
                   <h1 className="text-5xl font-bold text-white mb-6">{movie.title}</h1>
                   
+                  {/* Action Buttons Row */}
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center space-x-4">
+                      <button
+                        onClick={handleModalPlayClick}
+                        disabled={!videoUrl}
+                        className={`px-8 py-3 rounded-lg font-semibold flex items-center space-x-3 transition-colors ${
+                          videoUrl 
+                            ? 'bg-white text-black hover:bg-gray-200' 
+                            : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                        }`}
+                      >
+                        <Play className="w-6 h-6 fill-current" />
+                        <span>Play</span>
+                      </button>
+                      
+                      <button
+                        onClick={handleSave}
+                        className="bg-gray-700/80 hover:bg-gray-600/80 text-white p-3 rounded-full transition-colors backdrop-blur-sm"
+                      >
+                        <Heart className={`w-6 h-6 ${isSaved ? 'fill-current text-red-500' : ''}`} />
+                      </button>
+                    </div>
+                    
+                    {/* Duration on the right */}
+                    <span className="text-gray-400 text-lg font-medium">
+                      {formatDuration(contentItem?.duration_minutes)}
+                    </span>
+                  </div>
+                  
                   {/* Netflix-style Info Row */}
-                  <div className="flex items-center space-x-4 mb-6 text-sm">
+                  <div className="flex items-center space-x-4 text-sm">
                     <div className="flex items-center space-x-1">
                       <Star className="w-4 h-4 text-yellow-400 fill-current" />
                       <span className="text-green-400 font-semibold">{movie.rating}</span>
@@ -280,36 +313,17 @@ const MovieCard = ({
                       TV-MA
                     </span>
                     <span className="text-white">{movie.genre}</span>
-                  </div>
-                  
-                  {/* Action Buttons */}
-                  <div className="flex items-center space-x-4">
-                    <button
-                      onClick={handleModalPlayClick}
-                      disabled={!videoUrl}
-                      className={`px-8 py-3 rounded-lg font-semibold flex items-center space-x-3 transition-colors ${
-                        videoUrl 
-                          ? 'bg-white text-black hover:bg-gray-200' 
-                          : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                      }`}
-                    >
-                      <Play className="w-6 h-6 fill-current" />
-                      <span>Play</span>
-                    </button>
                     
-                    <div className="flex items-center space-x-3">
-                      <button
-                        onClick={handleSave}
-                        className="bg-gray-700/80 hover:bg-gray-600/80 text-white p-3 rounded-full transition-colors backdrop-blur-sm"
-                      >
-                        <Heart className={`w-6 h-6 ${isSaved ? 'fill-current text-red-500' : ''}`} />
-                      </button>
-                      
-                      {/* Duration next to heart button */}
-                      <span className="text-white text-sm font-medium">
-                        {formatDuration(contentItem?.duration_minutes)}
-                      </span>
-                    </div>
+                    {/* Channel Logo */}
+                    {channel && channel.logo_url && (
+                      <div className="flex items-center">
+                        <img
+                          src={channel.logo_url}
+                          alt={channel.name}
+                          className="w-8 h-8 object-contain rounded"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -323,12 +337,6 @@ const MovieCard = ({
                       {movie.description}
                     </p>
                   )}
-                  
-                  {/* Channel info in Netflix style */}
-                  <div className="text-sm">
-                    <span className="text-gray-400">Channel: </span>
-                    <span className="text-white">{movie.channelId || "BizuTV"}</span>
-                  </div>
                 </div>
 
                 {/* More Like This Section */}
