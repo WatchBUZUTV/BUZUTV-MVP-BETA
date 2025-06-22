@@ -266,13 +266,13 @@ const MovieCard = ({
                 </div>
                 
                 {/* Only bottom gradient for fade effect */}
-                <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-gray-900 via-gray-900/90 to-transparent" />
                 
-                {/* Content overlay */}
+                {/* Content overlay - moved lower into the navy area */}
                 <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
-                  <h1 className="text-5xl font-bold text-white mb-6">{movie.title}</h1>
+                  <h1 className="text-5xl font-bold text-white mb-8">{movie.title}</h1>
                   
-                  {/* Action Buttons Row */}
+                  {/* Action Buttons Row - moved lower */}
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center space-x-4">
                       <button
@@ -296,13 +296,13 @@ const MovieCard = ({
                       </button>
                     </div>
                     
-                    {/* Duration on the right */}
-                    <span className="text-gray-400 text-lg font-medium">
+                    {/* Duration directly next to heart button */}
+                    <span className="text-white text-xl font-medium ml-4">
                       {formatDuration(contentItem?.duration_minutes)}
                     </span>
                   </div>
                   
-                  {/* Netflix-style Info Row */}
+                  {/* Netflix-style Info Row - moved lower */}
                   <div className="flex items-center space-x-4 text-sm">
                     <div className="flex items-center space-x-1">
                       <Star className="w-4 h-4 text-yellow-400 fill-current" />
