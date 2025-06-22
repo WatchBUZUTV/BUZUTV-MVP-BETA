@@ -45,14 +45,15 @@ const ChannelModal = ({ isOpen, onClose, channel }: ChannelModalProps) => {
       description: item.description || '',
       year: item.year || new Date().getFullYear(),
       genre: item.genre || 'Unknown',
-      rating: item.rating?.toString() || '0',
+      rating: item.rating || 0, // Keep as number
       posterUrl: item.poster_url || '/placeholder.svg',
       backdropUrl: item.backdrop_url || '/placeholder.svg',
       duration: item.duration_minutes || 0,
       channelId: item.channel_id || '',
       youtubeId: '', // We'll use video_url instead
       isTrending: item.is_trending || false,
-      type: item.type as 'movie' | 'series'
+      isFeatured: item.is_featured || false, // Add missing property
+      type: item.type === 'series' ? 'tv' : 'movie' as 'movie' | 'tv' // Convert series to tv
     } as Movie));
   }, [channel, content]);
 
@@ -62,7 +63,8 @@ const ChannelModal = ({ isOpen, onClose, channel }: ChannelModalProps) => {
 
     // Filter by type
     if (typeFilter !== 'all') {
-      filtered = filtered.filter(item => item.type === typeFilter);
+      const filterType = typeFilter === 'movie' ? 'movie' : 'tv';
+      filtered = filtered.filter(item => item.type === filterType);
     }
 
     // Filter by genre
@@ -72,7 +74,7 @@ const ChannelModal = ({ isOpen, onClose, channel }: ChannelModalProps) => {
 
     // Filter by year
     if (yearFilter !== 'all') {
-      filtered = filtered.filter(item => item.year.toString() === yearFilter);
+      filtered = filtered.filter(item => item.year === parseInt(yearFilter)); // Convert string to number for comparison
     }
 
     // Sort
@@ -85,7 +87,7 @@ const ChannelModal = ({ isOpen, onClose, channel }: ChannelModalProps) => {
         case 'year':
           return b.year - a.year;
         case 'rating':
-          return parseFloat(b.rating) - parseFloat(a.rating);
+          return b.rating - a.rating; // Both are numbers now
         default:
           return 0;
       }
@@ -173,7 +175,7 @@ const ChannelModal = ({ isOpen, onClose, channel }: ChannelModalProps) => {
                   <option value="all">All Types</option>
                   {availableTypes.map(type => (
                     <option key={type} value={type}>
-                      {type === 'movie' ? 'Movies' : 'Series'}
+                      {type === 'movie' ? 'Movies' : 'TV Shows'}
                     </option>
                   ))}
                 </select>
