@@ -48,6 +48,7 @@ const MovieCard = ({
   const { content } = useContent();
   const { channels } = useChannels();
   const [isHovered, setIsHovered] = useState(false);
+  const [isImmediateHover, setIsImmediateHover] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -72,6 +73,9 @@ const MovieCard = ({
   };
 
   const handleMouseEnter = () => {
+    // Immediate border effect
+    setIsImmediateHover(true);
+    
     // Clear any exit timeout
     if (exitTimeoutRef.current) {
       clearTimeout(exitTimeoutRef.current);
@@ -88,11 +92,15 @@ const MovieCard = ({
       if (!isAnyCardTransitioning) {
         currentHoveredCard = movie.id;
         setIsHovered(true);
+        setIsImmediateHover(false); // Hide border when popup appears
       }
     }, 1000); // 1 second delay
   };
 
   const handleMouseLeave = () => {
+    // Remove immediate border effect
+    setIsImmediateHover(false);
+    
     // Clear hover timeout if still pending
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
@@ -184,6 +192,10 @@ const MovieCard = ({
             isHovered 
               ? 'scale-125 shadow-2xl shadow-black/60 z-50' 
               : 'shadow-lg z-10'
+          } ${
+            isImmediateHover && !isHovered
+              ? 'ring-2 ring-blue-500'
+              : ''
           }`}
           style={{
             aspectRatio: '16/9',

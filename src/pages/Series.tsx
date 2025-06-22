@@ -7,6 +7,13 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Navbar from "@/components/Navbar";
 import SearchOverlay from "@/components/SearchOverlay";
 import { useMockContent } from "@/hooks/useMockContent";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const Series = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -52,6 +59,31 @@ const Series = () => {
       </ProtectedRoute>
     );
   }
+
+  const SeriesRow = ({ title, series }: { title: string; series: typeof allMovies }) => (
+    <section className="mb-8 px-4">
+      <h2 className="text-2xl font-bold mb-4">{title}</h2>
+      <Carousel
+        opts={{
+          align: "start",
+          skipSnaps: false,
+        }}
+        className="w-full"
+      >
+        <CarouselContent className="-ml-2 md:-ml-4">
+          {series.map((show) => (
+            <CarouselItem key={show.id} className="pl-2 md:pl-4 basis-auto">
+              <div className="w-64">
+                <MovieCard movie={show} />
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <CarouselPrevious className="bg-blue-600/80 hover:bg-blue-700/90 border-none text-white -left-6 h-12 w-12" />
+        <CarouselNext className="bg-blue-600/80 hover:bg-blue-700/90 border-none text-white -right-6 h-12 w-12" />
+      </Carousel>
+    </section>
+  );
 
   return (
     <ProtectedRoute>
@@ -130,64 +162,15 @@ const Series = () => {
                   </div>
 
                   {/* Content Rows */}
-                  <div className="max-w-full px-2 pb-4">
-                    {/* Recommended */}
-                    <section className="mb-4">
-                      <h2 className="text-2xl font-bold mb-3 px-4">Recommended</h2>
-                      <div className="overflow-x-auto">
-                        <div className="flex space-x-2 pb-2 px-4">
-                          {recommendedSeries.map((show) => (
-                            <div key={show.id} className="flex-shrink-0 w-64">
-                              <MovieCard movie={show} />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </section>
-
-                    {/* Trending Series */}
-                    <section className="mb-4">
-                      <h2 className="text-2xl font-bold mb-3 px-4">Trending Series</h2>
-                      <div className="overflow-x-auto">
-                        <div className="flex space-x-2 pb-2 px-4">
-                          {trendingSeries.map((show) => (
-                            <div key={show.id} className="flex-shrink-0 w-64">
-                              <MovieCard movie={show} />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </section>
-
-                    {/* New Series */}
-                    <section className="mb-4">
-                      <h2 className="text-2xl font-bold mb-3 px-4">New Series</h2>
-                      <div className="overflow-x-auto">
-                        <div className="flex space-x-2 pb-2 px-4">
-                          {newSeries.map((show) => (
-                            <div key={show.id} className="flex-shrink-0 w-64">
-                              <MovieCard movie={show} />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </section>
-
+                  <div className="max-w-full pb-4">
+                    <SeriesRow title="Recommended" series={recommendedSeries} />
+                    <SeriesRow title="Trending Series" series={trendingSeries} />
+                    <SeriesRow title="New Series" series={newSeries} />
+                    
                     {/* Genre Sections */}
                     {Object.entries(seriesByGenre).map(([genre, genreShows]) => (
                       genreShows.length > 0 && (
-                        <section key={genre} className="mb-4">
-                          <h2 className="text-2xl font-bold mb-3 px-4">{genre}</h2>
-                          <div className="overflow-x-auto">
-                            <div className="flex space-x-2 pb-2 px-4">
-                              {genreShows.map((show) => (
-                                <div key={show.id} className="flex-shrink-0 w-64">
-                                  <MovieCard movie={show} />
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </section>
+                        <SeriesRow key={genre} title={genre} series={genreShows} />
                       )
                     ))}
                   </div>
