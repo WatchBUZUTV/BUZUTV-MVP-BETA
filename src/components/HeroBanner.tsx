@@ -10,6 +10,7 @@ interface HeroBannerProps {
 
 const HeroBanner = ({ movies }: HeroBannerProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     if (movies.length > 1) {
@@ -26,6 +27,15 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
 
   const prevSlide = () => {
     setCurrentIndex((prev) => (prev - 1 + movies.length) % movies.length);
+  };
+
+  const handleWatchNow = () => {
+    // Play video immediately - redirect to movie detail page which will auto-play
+    window.location.href = `/movie/${currentMovie.id}?autoplay=true`;
+  };
+
+  const handleMoreInfo = () => {
+    setShowModal(true);
   };
 
   if (movies.length === 0) return null;
@@ -66,20 +76,20 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
               </div>
             </div>
             <div className="flex items-center space-x-3">
-              <Link
-                to={`/movie/${currentMovie.id}`}
+              <button
+                onClick={handleWatchNow}
                 className="flex items-center space-x-2 bg-white text-black px-4 py-2 rounded-lg font-semibold hover:bg-gray-200 transition-colors text-sm"
               >
                 <Play className="w-4 h-4" />
                 <span>Watch Now</span>
-              </Link>
-              <Link
-                to={`/movie/${currentMovie.id}`}
+              </button>
+              <button
+                onClick={handleMoreInfo}
                 className="flex items-center space-x-2 bg-gray-800/80 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-700/80 transition-colors text-sm"
               >
                 <Info className="w-4 h-4" />
                 <span>More Info</span>
-              </Link>
+              </button>
             </div>
           </div>
         </div>

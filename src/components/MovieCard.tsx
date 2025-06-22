@@ -1,7 +1,8 @@
+
 import { Link } from "react-router-dom";
 import { Star, Heart, Play, X } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useUserFavorites } from "@/hooks/useUserFavorites";
 import { useContent } from "@/hooks/useContent";
@@ -16,6 +17,8 @@ interface MovieCardProps {
   showResumeButton?: boolean;
 }
 
+// Global state to manage hover interactions
+let isAnyCardTransitioning = false;
 let currentHoveredCard: string | null = null;
 
 // Helper function to convert YouTube URLs to embed format
@@ -47,6 +50,8 @@ const MovieCard = ({
   const [isHovered, setIsHovered] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const exitTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Check if movie is in favorites
   const isSaved = favoriteIds.includes(movie.id);
@@ -63,24 +68,72 @@ const MovieCard = ({
   };
 
   const handleMouseEnter = () => {
-    if (currentHoveredCard && currentHoveredCard !== movie.id) {
+    // Clear any exit timeout
+    if (exitTimeoutRef.current) {
+      clearTimeout(exitTimeoutRef.current);
+      exitTimeoutRef.current = null;
+    }
+
+    // Don't allow hover if another card is transitioning or if this card is already hovered
+    if (isAnyCardTransitioning || currentHoveredCard === movie.id) {
       return;
     }
-    currentHoveredCard = movie.id;
-    setIsHovered(true);
+
+    // Set a delay before showing hover effect
+    hoverTimeoutRef.current = setTimeout(() => {
+      if (!isAnyCardTransitioning) {
+        currentHoveredCard = movie.id;
+        setIsHovered(true);
+      }
+    }, 1000); // 1 second delay
   };
 
   const handleMouseLeave = () => {
-    if (currentHoveredCard === movie.id) {
-      currentHoveredCard = null;
+    // Clear hover timeout if still pending
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
     }
-    setIsHovered(false);
+
+    // Only proceed if this card is currently hovered
+    if (currentHoveredCard === movie.id) {
+      setIsHovered(false);
+      isAnyCardTransitioning = true;
+      
+      // Set timeout to allow transition to complete before allowing new hovers
+      exitTimeoutRef.current = setTimeout(() => {
+        currentHoveredCard = null;
+        isAnyCardTransitioning = false;
+      }, 300); // Match transition duration
+    }
   };
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+      if (exitTimeoutRef.current) {
+        clearTimeout(exitTimeoutRef.current);
+      }
+      // Reset global state if this card was the current one
+      if (currentHoveredCard === movie.id) {
+        currentHoveredCard = null;
+        isAnyCardTransitioning = false;
+      }
+    };
+  }, [movie.id]);
 
   const handlePlayClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setShowModal(true);
+    
+    // Find the content item from backend data
+    const contentItem = content.find(item => item.id === movie.id);
+    if (contentItem?.video_url) {
+      setIsPlaying(true);
+    }
   };
 
   const handleModalPlayClick = () => {
@@ -130,12 +183,14 @@ const MovieCard = ({
         <div className="block">
           <div className={`relative overflow-hidden rounded-lg bg-gray-800 transition-all duration-300 ${
             isHovered 
-              ? 'scale-110 shadow-2xl shadow-black/50' 
-              : 'shadow-lg'
+              ? 'scale-125 shadow-2xl shadow-black/60 z-50' 
+              : 'shadow-lg z-10'
           }`}
           style={{
             aspectRatio: '16/9',
-            boxShadow: isHovered ? '0 20px 40px rgba(0,0,0,0.6)' : '0 4px 8px rgba(0,0,0,0.3)'
+            boxShadow: isHovered ? '0 25px 50px rgba(0,0,0,0.8)' : '0 4px 8px rgba(0,0,0,0.3)',
+            position: 'relative',
+            zIndex: isHovered ? 50 : 10
           }}>
             <div className="w-full h-full overflow-hidden">
               {isHovered ? (
@@ -183,6 +238,18 @@ const MovieCard = ({
                     <Play className="w-6 h-6 fill-current" />
                   </button>
                 </div>
+
+                {/* More Info Button */}
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowModal(true);
+                  }}
+                  className="absolute bottom-3 left-3 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full transition-colors"
+                >
+                  <Star className="w-4 h-4" />
+                </button>
 
                 {/* Heart Button Bottom Right */}
                 <button
