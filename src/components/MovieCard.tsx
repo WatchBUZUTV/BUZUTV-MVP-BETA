@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Star, Heart, Play, X } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
@@ -64,6 +65,10 @@ const MovieCard = ({
     } else {
       addToFavorites(movie.id);
     }
+  };
+
+  const handleCardClick = () => {
+    setShowModal(true);
   };
 
   const handleMouseEnter = () => {
@@ -174,7 +179,7 @@ const MovieCard = ({
   return (
     <>
       <div className="group" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-        <div className="block">
+        <div className="block cursor-pointer" onClick={handleCardClick}>
           <div className={`relative overflow-hidden rounded-lg bg-gray-800 transition-all duration-300 ${
             isHovered 
               ? 'scale-125 shadow-2xl shadow-black/60 z-50' 

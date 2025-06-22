@@ -1,12 +1,12 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Play, Info, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Play, Info, ChevronLeft, ChevronRight, X, Heart, Star } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useContent } from "@/hooks/useContent";
 import { useChannels } from "@/hooks/useChannels";
+import { useUserFavorites } from "@/hooks/useUserFavorites";
 
 interface HeroBannerProps {
   movies: Movie[];
@@ -34,6 +34,7 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const { content } = useContent();
   const { channels } = useChannels();
+  const { favoriteIds, addToFavorites, removeFromFavorites } = useUserFavorites();
 
   useEffect(() => {
     if (movies.length > 1) {
@@ -68,6 +69,22 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
     setIsPlaying(false);
   };
 
+  const handleModalPlayClick = () => {
+    // Find the content item from backend data
+    const contentItem = content.find(item => item.id === currentMovie.id);
+    if (contentItem?.video_url) {
+      setIsPlaying(true);
+    }
+  };
+
+  const handleSave = () => {
+    if (isSaved) {
+      removeFromFavorites(currentMovie.id);
+    } else {
+      addToFavorites(currentMovie.id);
+    }
+  };
+
   if (movies.length === 0) return null;
 
   const currentMovie = movies[currentIndex];
@@ -79,6 +96,28 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
   
   // Get channel information
   const channel = channels.find(ch => ch.id === currentMovie.channelId);
+
+  // Check if movie is in favorites
+  const isSaved = favoriteIds.includes(currentMovie.id);
+
+  // Get recommended content from backend (same channel or genre)
+  const recommendedContent = content
+    .filter(item => 
+      item.id !== currentMovie.id && 
+      (item.genre === currentMovie.genre || item.channel_id === currentMovie.channelId)
+    )
+    .slice(0, 6);
+
+  // Format duration from minutes to "Xh Ym" format
+  const formatDuration = (minutes: number | undefined) => {
+    if (!minutes) return "N/A";
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours > 0) {
+      return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+    }
+    return `${mins}m`;
+  };
 
   return (
     <>
@@ -211,7 +250,7 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
         </div>
       )}
 
-      {/* More Info Modal */}
+      {/* More Info Modal - Same structure as MovieCard */}
       <Dialog open={showModal && !isPlaying} onOpenChange={setShowModal}>
         <DialogContent className="max-w-[75vw] max-h-[90vh] bg-gray-900 text-white border-none p-0 overflow-hidden">
           <DialogTitle className="sr-only">{currentMovie.title}</DialogTitle>
@@ -234,7 +273,7 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
                   
                   <div className="flex items-center space-x-4 mb-4">
                     <button
-                      onClick={handleWatchNow}
+                      onClick={handleModalPlayClick}
                       disabled={!videoUrl}
                       className={`px-8 py-3 rounded-lg font-semibold flex items-center space-x-3 transition-colors ${
                         videoUrl 
@@ -246,13 +285,23 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
                       <span>Play</span>
                     </button>
                     
+                    <button
+                      onClick={handleSave}
+                      className="bg-gray-700/80 hover:bg-gray-600/80 text-white p-3 rounded-full transition-colors backdrop-blur-sm"
+                    >
+                      <Heart className={`w-6 h-6 ${isSaved ? 'fill-current text-red-500' : ''}`} />
+                    </button>
+                    
                     <span className="text-white text-xl font-medium">
-                      {contentItem?.duration_minutes ? `${Math.floor(contentItem.duration_minutes / 60)}h ${contentItem.duration_minutes % 60}m` : 'N/A'}
+                      {formatDuration(contentItem?.duration_minutes)}
                     </span>
                   </div>
                   
                   <div className="flex items-center space-x-4 text-sm">
-                    <span className="text-green-400 font-semibold">{currentMovie.rating}</span>
+                    <div className="flex items-center space-x-1">
+                      <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                      <span className="text-green-400 font-semibold">{currentMovie.rating}</span>
+                    </div>
                     <span className="text-white font-medium">{currentMovie.year}</span>
                     <span className="border border-gray-400 px-2 py-0.5 text-xs text-gray-300 font-medium">
                       TV-MA
@@ -280,6 +329,30 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
                     </p>
                   )}
                 </div>
+
+                {/* More Like This Section */}
+                {recommendedContent.length > 0 && (
+                  <div>
+                    <h3 className="text-xl font-bold mb-4">More Like This</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-1">
+                      {recommendedContent.map((item) => (
+                        <div key={item.id} className="group cursor-pointer">
+                          <div className="aspect-video relative overflow-hidden rounded-lg bg-gray-800">
+                            <img
+                              src={item.poster_url || '/placeholder.svg'}
+                              alt={item.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
+                              <Play className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 fill-current" />
+                            </div>
+                          </div>
+                          <h4 className="text-sm font-medium text-white mt-2 line-clamp-2">{item.title}</h4>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </ScrollArea>
