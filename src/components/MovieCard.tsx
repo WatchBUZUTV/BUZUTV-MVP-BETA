@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Star, Heart, Play, X } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
@@ -266,43 +265,41 @@ const MovieCard = ({
                 </div>
                 
                 {/* Only bottom gradient for fade effect */}
-                <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-gray-900 via-gray-900/90 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent" />
                 
-                {/* Content overlay - moved lower into the navy area */}
-                <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
-                  <h1 className="text-5xl font-bold text-white mb-8">{movie.title}</h1>
+                {/* Content overlay - moved much lower into the navy area */}
+                <div className="absolute bottom-0 left-0 right-0 p-8 z-10" style={{ paddingBottom: '2rem' }}>
+                  <h1 className="text-5xl font-bold text-white mb-4">{movie.title}</h1>
                   
-                  {/* Action Buttons Row - moved lower */}
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center space-x-4">
-                      <button
-                        onClick={handleModalPlayClick}
-                        disabled={!videoUrl}
-                        className={`px-8 py-3 rounded-lg font-semibold flex items-center space-x-3 transition-colors ${
-                          videoUrl 
-                            ? 'bg-white text-black hover:bg-gray-200' 
-                            : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                        }`}
-                      >
-                        <Play className="w-6 h-6 fill-current" />
-                        <span>Play</span>
-                      </button>
-                      
-                      <button
-                        onClick={handleSave}
-                        className="bg-gray-700/80 hover:bg-gray-600/80 text-white p-3 rounded-full transition-colors backdrop-blur-sm"
-                      >
-                        <Heart className={`w-6 h-6 ${isSaved ? 'fill-current text-red-500' : ''}`} />
-                      </button>
-                    </div>
+                  {/* Action Buttons Row - moved much lower */}
+                  <div className="flex items-center space-x-4 mb-4">
+                    <button
+                      onClick={handleModalPlayClick}
+                      disabled={!videoUrl}
+                      className={`px-8 py-3 rounded-lg font-semibold flex items-center space-x-3 transition-colors ${
+                        videoUrl 
+                          ? 'bg-white text-black hover:bg-gray-200' 
+                          : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                      }`}
+                    >
+                      <Play className="w-6 h-6 fill-current" />
+                      <span>Play</span>
+                    </button>
+                    
+                    <button
+                      onClick={handleSave}
+                      className="bg-gray-700/80 hover:bg-gray-600/80 text-white p-3 rounded-full transition-colors backdrop-blur-sm"
+                    >
+                      <Heart className={`w-6 h-6 ${isSaved ? 'fill-current text-red-500' : ''}`} />
+                    </button>
                     
                     {/* Duration directly next to heart button */}
-                    <span className="text-white text-xl font-medium ml-4">
+                    <span className="text-white text-xl font-medium">
                       {formatDuration(contentItem?.duration_minutes)}
                     </span>
                   </div>
                   
-                  {/* Netflix-style Info Row - moved lower */}
+                  {/* Netflix-style Info Row - moved much lower */}
                   <div className="flex items-center space-x-4 text-sm">
                     <div className="flex items-center space-x-1">
                       <Star className="w-4 h-4 text-yellow-400 fill-current" />
