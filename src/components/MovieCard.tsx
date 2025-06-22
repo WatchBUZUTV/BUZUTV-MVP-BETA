@@ -73,7 +73,6 @@ const MovieCard = ({
   };
 
   const handleMouseEnter = () => {
-    // Show immediate border
     setIsMouseOver(true);
     
     // Clear any exit timeout
@@ -82,14 +81,14 @@ const MovieCard = ({
       exitTimeoutRef.current = null;
     }
 
-    // Don't allow hover if another card is transitioning or if this card is already hovered
-    if (isAnyCardTransitioning || currentHoveredCard === movie.id) {
+    // Don't allow hover if another card is transitioning
+    if (isAnyCardTransitioning) {
       return;
     }
 
     // Set a delay before showing hover effect
     hoverTimeoutRef.current = setTimeout(() => {
-      if (!isAnyCardTransitioning && isMouseOver) {
+      if (isMouseOver && !isAnyCardTransitioning) {
         currentHoveredCard = movie.id;
         setIsHovered(true);
       }
@@ -97,7 +96,6 @@ const MovieCard = ({
   };
 
   const handleMouseLeave = () => {
-    // Remove immediate border effect
     setIsMouseOver(false);
     
     // Clear hover timeout if still pending
@@ -191,10 +189,6 @@ const MovieCard = ({
             isHovered 
               ? 'scale-125 shadow-2xl shadow-black/60 z-50' 
               : 'shadow-lg z-10'
-          } ${
-            isMouseOver && !isHovered
-              ? 'ring-2 ring-blue-600'
-              : ''
           }`}
           style={{
             aspectRatio: '16/9',
