@@ -1,5 +1,5 @@
 
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
 import MovieCard from "@/components/MovieCard";
@@ -18,14 +18,14 @@ interface ContentRowProps {
 }
 
 const ContentRow = React.memo(({ title, movies }: ContentRowProps) => {
-  const carouselRef = useRef<CarouselApi>();
+  const [api, setApi] = React.useState<CarouselApi>();
   
   const scrollPrev = () => {
-    carouselRef.current?.scrollPrev();
+    api?.scrollPrev();
   };
 
   const scrollNext = () => {
-    carouselRef.current?.scrollNext();
+    api?.scrollNext();
   };
 
   if (movies.length === 0) return null;
@@ -50,9 +50,7 @@ const ContentRow = React.memo(({ title, movies }: ContentRowProps) => {
         </div>
       </div>
       <Carousel
-        setApi={(api) => {
-          carouselRef.current = api;
-        }}
+        setApi={setApi}
         opts={{
           align: "start",
           skipSnaps: false,

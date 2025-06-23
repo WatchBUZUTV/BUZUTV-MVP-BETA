@@ -10,7 +10,7 @@ import SearchOverlay from "@/components/SearchOverlay";
 import MovieHoverRow from "@/components/MovieHoverRow";
 import { useUserFavorites } from "@/hooks/useUserFavorites";
 import { useUserSubscriptions } from "@/hooks/useUserSubscriptions";
-import { useMockContent } from "@/hooks/useMockContent";
+import { useAppContent } from "@/hooks/useAppContent";
 import {
   Carousel,
   CarouselContent,
@@ -25,7 +25,7 @@ const MyList = () => {
   const [showChannelModal, setShowChannelModal] = useState(false);
   const { favoriteIds, isLoading: favoritesLoading } = useUserFavorites();
   const { subscriptionIds, toggleSubscription, isLoading: subscriptionsLoading } = useUserSubscriptions();
-  const { movies, channels } = useMockContent();
+  const { movies, channels } = useAppContent();
   
   const savedContent = favoriteIds.length > 0 
     ? movies.filter(item => favoriteIds.includes(item.id))

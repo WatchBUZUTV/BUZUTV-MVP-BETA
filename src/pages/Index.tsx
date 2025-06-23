@@ -94,13 +94,27 @@ const Index = () => {
             {Object.values(homeContent).some(arr => arr.length > 0) || channels.length > 0 ? (
               <>
                 {/* Content Rows - using pre-computed categories */}
-                <ContentRow title="Trending Now" movies={homeContent.trending} />
-                <ContentRow title="Action" movies={homeContent.action} />
-                <ContentRow title="Drama" movies={homeContent.drama} />
-                <ContentRow title="Romance" movies={homeContent.romance} />
-                <ContentRow title="Comedy" movies={homeContent.comedy} />
-                <ContentRow title="Documentary" movies={homeContent.documentary} />
-                <ContentRow title="Informational" movies={homeContent.informational} />
+                {homeContent.trending.length > 0 && (
+                  <ContentRow title="Trending Now" movies={homeContent.trending} />
+                )}
+                {homeContent.action.length > 0 && (
+                  <ContentRow title="Action" movies={homeContent.action} />
+                )}
+                {homeContent.drama.length > 0 && (
+                  <ContentRow title="Drama" movies={homeContent.drama} />
+                )}
+                {homeContent.romance.length > 0 && (
+                  <ContentRow title="Romance" movies={homeContent.romance} />
+                )}
+                {homeContent.comedy.length > 0 && (
+                  <ContentRow title="Comedy" movies={homeContent.comedy} />
+                )}
+                {homeContent.documentary.length > 0 && (
+                  <ContentRow title="Documentary" movies={homeContent.documentary} />
+                )}
+                {homeContent.informational.length > 0 && (
+                  <ContentRow title="Informational" movies={homeContent.informational} />
+                )}
               </>
             ) : (
               <div className="text-center py-16">

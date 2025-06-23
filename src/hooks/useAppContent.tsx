@@ -45,19 +45,55 @@ export const useAppContent = () => {
   const { content: dbContent, isLoading: dbContentLoading } = useContent();
   const { channels: dbChannels, isLoading: dbChannelsLoading } = useChannels();
 
-  // Memoize transformed content to prevent unnecessary re-computations
-  const transformedContent = useMemo(() => 
-    transformDatabaseContent(dbContent), 
-    [dbContent]
-  );
+  // Early return for loading state
+  const isLoading = dbContentLoading || dbChannelsLoading;
+  
+  // Only transform when data is available and not loading
+  const transformedContent = useMemo(() => {
+    if (isLoading || !dbContent.length) return [];
+    return transformDatabaseContent(dbContent);
+  }, [dbContent, isLoading]);
 
-  const transformedChannels = useMemo(() => 
-    transformDatabaseChannels(dbChannels), 
-    [dbChannels]
-  );
+  const transformedChannels = useMemo(() => {
+    if (isLoading || !dbChannels.length) return [];
+    return transformDatabaseChannels(dbChannels);
+  }, [dbChannels, isLoading]);
 
-  // Pre-compute all categories and filters to avoid recalculation on each page
+  // Pre-compute all categories and filters with targeted memoization
   const processedContent = useMemo(() => {
+    if (!transformedContent.length) {
+      return {
+        movies: {
+          all: [],
+          featured: [],
+          trending: [],
+          topRanked: [],
+          recommended: [],
+          new: [],
+          byGenre: {}
+        },
+        series: {
+          all: [],
+          featured: [],
+          trending: [],
+          topRanked: [],
+          recommended: [],
+          new: [],
+          byGenre: {}
+        },
+        home: {
+          trending: [],
+          action: [],
+          drama: [],
+          romance: [],
+          comedy: [],
+          documentary: [],
+          informational: [],
+        },
+        allContent: []
+      };
+    }
+
     const movies = transformedContent.filter(item => item.type === "movie");
     const series = transformedContent.filter(item => item.type === "tv");
     
@@ -107,8 +143,6 @@ export const useAppContent = () => {
       allContent: transformedContent
     };
   }, [transformedContent]);
-
-  const isLoading = dbContentLoading || dbChannelsLoading;
 
   return {
     // Legacy support - return all movies for components that still need it
