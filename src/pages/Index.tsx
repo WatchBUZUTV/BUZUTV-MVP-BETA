@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useRef } from "react";
 import MovieCard from "@/components/MovieCard";
 import ChannelCard from "@/components/ChannelCard";
 import ChannelModal from "@/components/ChannelModal";
@@ -12,12 +11,14 @@ import { useMockContent } from "@/hooks/useMockContent";
 import { useUserSubscriptions } from "@/hooks/useUserSubscriptions";
 import { useAuth } from "@/contexts/AuthContext";
 import { Movie } from "@/data/mockMovies";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  type CarouselApi,
 } from "@/components/ui/carousel";
 
 const Index = () => {
@@ -74,34 +75,123 @@ const Index = () => {
     );
   }
 
-  const ContentRow = ({ title, movies: movieList }: { title: string; movies: Movie[] }) => (
-    <section className="mb-3">
-      <h2 className="text-2xl font-bold mb-4 px-4">{title}</h2>
-      <Carousel
-        opts={{
-          align: "start",
-          skipSnaps: false,
-        }}
-        className="w-full px-4"
-      >
-        <CarouselContent className="-ml-1">
-          <MovieHoverRow className="flex">
-            {movieList.map((movie) => (
-              <CarouselItem key={movie.id} className="pl-1 basis-auto">
-                <div className="w-64">
-                  <ProtectedContent>
-                    <MovieCard movie={movie} />
-                  </ProtectedContent>
+  const ContentRow = ({ title, movies: movieList }: { title: string; movies: Movie[] }) => {
+    const carouselRef = useRef<CarouselApi>();
+    
+    const scrollPrev = () => {
+      carouselRef.current?.scrollPrev();
+    };
+
+    const scrollNext = () => {
+      carouselRef.current?.scrollNext();
+    };
+
+    return (
+      <section className="mb-3">
+        <div className="flex items-center justify-between mb-4 px-4">
+          <h2 className="text-2xl font-bold">{title}</h2>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={scrollPrev}
+              className="p-2 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <button
+              onClick={scrollNext}
+              className="p-2 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors"
+            >
+              <ArrowRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+        <Carousel
+          setApi={(api) => {
+            carouselRef.current = api;
+          }}
+          opts={{
+            align: "start",
+            skipSnaps: false,
+          }}
+          className="w-full px-4"
+        >
+          <CarouselContent className="-ml-1">
+            <MovieHoverRow className="flex">
+              {movieList.map((movie) => (
+                <CarouselItem key={movie.id} className="pl-1 basis-auto">
+                  <div className="w-64">
+                    <ProtectedContent>
+                      <MovieCard movie={movie} />
+                    </ProtectedContent>
+                  </div>
+                </CarouselItem>
+              ))}
+            </MovieHoverRow>
+          </CarouselContent>
+        </Carousel>
+      </section>
+    );
+  };
+
+  const ChannelRow = () => {
+    const carouselRef = useRef<CarouselApi>();
+    
+    const scrollPrev = () => {
+      carouselRef.current?.scrollPrev();
+    };
+
+    const scrollNext = () => {
+      carouselRef.current?.scrollNext();
+    };
+
+    return (
+      <section className="mb-3">
+        <div className="flex items-center justify-between mb-4 px-4">
+          <h2 className="text-2xl font-bold">Top Channels</h2>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={scrollPrev}
+              className="p-2 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <button
+              onClick={scrollNext}
+              className="p-2 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors"
+            >
+              <ArrowRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+        <Carousel
+          setApi={(api) => {
+            carouselRef.current = api;
+          }}
+          opts={{
+            align: "start",
+            skipSnaps: false,
+          }}
+          className="w-full px-4"
+        >
+          <CarouselContent className="-ml-1">
+            {channels.map((channel) => (
+              <CarouselItem key={channel.id} className="pl-1 basis-auto">
+                <div className="w-48">
+                  <div onClick={() => handleChannelClick(channel)}>
+                    <ChannelCard 
+                      channel={channel}
+                      isSubscribed={subscriptionIds.includes(channel.id)}
+                      onSubscribe={toggleSubscription}
+                    />
+                  </div>
                 </div>
               </CarouselItem>
             ))}
-          </MovieHoverRow>
-        </CarouselContent>
-        <CarouselPrevious />
-        <CarouselNext />
-      </Carousel>
-    </section>
-  );
+          </CarouselContent>
+        </Carousel>
+      </section>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -136,36 +226,7 @@ const Index = () => {
 
           <div className="max-w-full px-2 py-8">
             {/* Top Channels */}
-            {channels && channels.length > 0 && (
-              <section className="mb-3">
-                <h2 className="text-2xl font-bold mb-4 px-4">Top Channels</h2>
-                <Carousel
-                  opts={{
-                    align: "start",
-                    skipSnaps: false,
-                  }}
-                  className="w-full px-4"
-                >
-                  <CarouselContent className="-ml-1">
-                    {channels.map((channel) => (
-                      <CarouselItem key={channel.id} className="pl-1 basis-auto">
-                        <div className="w-48">
-                          <div onClick={() => handleChannelClick(channel)}>
-                            <ChannelCard 
-                              channel={channel}
-                              isSubscribed={subscriptionIds.includes(channel.id)}
-                              onSubscribe={toggleSubscription}
-                            />
-                          </div>
-                        </div>
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                  <CarouselPrevious />
-                  <CarouselNext />
-                </Carousel>
-              </section>
-            )}
+            {channels && channels.length > 0 && <ChannelRow />}
 
             {/* Show content only if we have any */}
             {movies.length > 0 || channels.length > 0 ? (
