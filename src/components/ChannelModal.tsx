@@ -1,6 +1,7 @@
+
 import { useState, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { X, Filter, Play } from 'lucide-react';
+import { X, Filter } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import MovieCard from '@/components/MovieCard';
 import MovieHoverRow from '@/components/MovieHoverRow';
@@ -129,18 +130,43 @@ const ChannelModal = ({ isOpen, onClose, channel }: ChannelModalProps) => {
     return types.filter(Boolean);
   }, [channelContent]);
 
-  const handlePlayMovie = (movie: Movie) => {
-    const contentItem = content.find(item => item.id === movie.id);
-    if (contentItem?.video_url) {
-      const embedUrl = getYouTubeEmbedUrl(contentItem.video_url) || contentItem.video_url;
-      setCurrentVideoUrl(embedUrl);
-      setIsPlaying(true);
-    }
-  };
-
   const handleCloseVideo = () => {
     setIsPlaying(false);
     setCurrentVideoUrl('');
+  };
+
+  // Create a custom MovieCard component for channel modal that uses full-screen video
+  const ChannelMovieCard = ({ movie }: { movie: Movie }) => {
+    const handlePlayClick = () => {
+      const contentItem = content.find(item => item.id === movie.id);
+      if (contentItem?.video_url) {
+        const embedUrl = getYouTubeEmbedUrl(contentItem.video_url) || contentItem.video_url;
+        setCurrentVideoUrl(embedUrl);
+        setIsPlaying(true);
+      }
+    };
+
+    return (
+      <div className="movie-card group">
+        <div className="block cursor-pointer" onClick={handlePlayClick}>
+          <div className="relative overflow-hidden rounded-lg bg-gray-800 shadow-lg"
+               style={{ aspectRatio: '16/9' }}>
+            <div className="w-full h-full overflow-hidden">
+              <img
+                src={movie.posterUrl}
+                alt={movie.title}
+                className="w-full h-full object-cover transition-transform duration-300"
+              />
+            </div>
+            
+            {/* Title always visible at bottom left */}
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+              <h3 className="font-medium text-white text-sm line-clamp-2">{movie.title}</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   if (!channel) return null;
@@ -284,18 +310,8 @@ const ChannelModal = ({ isOpen, onClose, channel }: ChannelModalProps) => {
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-1">
                       <MovieHoverRow className="contents">
                         {filteredAndSortedContent.map((movie) => (
-                          <div key={movie.id} className="w-full relative group">
-                            <MovieCard movie={movie} />
-                            {/* Play overlay for direct playback */}
-                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center rounded-lg">
-                              <button
-                                onClick={() => handlePlayMovie(movie)}
-                                className="bg-white text-black px-4 py-2 rounded-lg font-semibold flex items-center space-x-2 hover:bg-gray-200 transition-colors"
-                              >
-                                <Play className="w-4 h-4" />
-                                <span>Play Now</span>
-                              </button>
-                            </div>
+                          <div key={movie.id} className="w-full">
+                            <ChannelMovieCard movie={movie} />
                           </div>
                         ))}
                       </MovieHoverRow>
