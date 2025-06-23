@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { X, Filter } from 'lucide-react';
@@ -273,19 +272,18 @@ const ChannelModal = ({ isOpen, onClose, channel }: ChannelModalProps) => {
               <ScrollArea className="h-full">
                 <div className="p-6">
                   {filteredAndSortedContent.length > 0 ? (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-1">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
                       <MovieHoverRow className="contents">
                         {filteredAndSortedContent.map((movie) => (
-                          <div key={movie.id} className="w-full">
-                            <MovieCard 
-                              movie={movie}
-                              onPlayFullscreen={(videoUrl) => {
-                                const embedUrl = getYouTubeEmbedUrl(videoUrl) || videoUrl;
-                                setCurrentVideoUrl(embedUrl);
-                                setIsPlaying(true);
-                              }}
-                            />
-                          </div>
+                          <MovieCard 
+                            key={movie.id}
+                            movie={movie}
+                            onPlayFullscreen={(videoUrl) => {
+                              const embedUrl = getYouTubeEmbedUrl(videoUrl) || videoUrl;
+                              setCurrentVideoUrl(embedUrl);
+                              setIsPlaying(true);
+                            }}
+                          />
                         ))}
                       </MovieHoverRow>
                     </div>
