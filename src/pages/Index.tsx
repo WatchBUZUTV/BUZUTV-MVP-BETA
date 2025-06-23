@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import MovieCard from "@/components/MovieCard";
 import ChannelCard from "@/components/ChannelCard";
@@ -9,6 +10,7 @@ import HomeHeroBanner from "@/components/HomeHeroBanner";
 import MovieHoverRow from "@/components/MovieHoverRow";
 import { useMockContent } from "@/hooks/useMockContent";
 import { useUserSubscriptions } from "@/hooks/useUserSubscriptions";
+import { Movie } from "@/data/mockMovies";
 import {
   Carousel,
   CarouselContent,
@@ -66,7 +68,7 @@ const Index = () => {
     );
   }
 
-  const ContentRow = ({ title, movies }: { title: string; movies: typeof movies }) => (
+  const ContentRow = ({ title, movies: movieList }: { title: string; movies: Movie[] }) => (
     <section className="mb-3">
       <h2 className="text-2xl font-bold mb-4 px-4">{title}</h2>
       <Carousel
@@ -78,7 +80,7 @@ const Index = () => {
       >
         <CarouselContent className="-ml-1">
           <MovieHoverRow className="flex">
-            {movies.map((movie) => (
+            {movieList.map((movie) => (
               <CarouselItem key={movie.id} className="pl-1 basis-auto">
                 <div className="w-64">
                   <ProtectedContent>
