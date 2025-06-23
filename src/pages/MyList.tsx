@@ -3,15 +3,26 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import MovieCard from "@/components/MovieCard";
 import ChannelCard from "@/components/ChannelCard";
+import ChannelModal from "@/components/ChannelModal";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Navbar from "@/components/Navbar";
 import SearchOverlay from "@/components/SearchOverlay";
+import MovieHoverRow from "@/components/MovieHoverRow";
 import { useUserFavorites } from "@/hooks/useUserFavorites";
 import { useUserSubscriptions } from "@/hooks/useUserSubscriptions";
 import { useMockContent } from "@/hooks/useMockContent";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const MyList = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedChannel, setSelectedChannel] = useState<any>(null);
+  const [showChannelModal, setShowChannelModal] = useState(false);
   const { favoriteIds, isLoading: favoritesLoading } = useUserFavorites();
   const { subscriptionIds, toggleSubscription, isLoading: subscriptionsLoading } = useUserSubscriptions();
   const { movies, channels } = useMockContent();
@@ -41,6 +52,16 @@ const MyList = () => {
     setSearchQuery("");
   };
 
+  const handleChannelClick = (channel: any) => {
+    setSelectedChannel(channel);
+    setShowChannelModal(true);
+  };
+
+  const handleCloseChannelModal = () => {
+    setShowChannelModal(false);
+    setSelectedChannel(null);
+  };
+
   const showSearchOverlay = searchQuery.trim().length > 0;
   const isLoading = favoritesLoading || subscriptionsLoading;
 
@@ -57,6 +78,13 @@ const MyList = () => {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-gray-900 text-white">
+        {/* Channel Modal */}
+        <ChannelModal 
+          isOpen={showChannelModal}
+          onClose={handleCloseChannelModal}
+          channel={selectedChannel}
+        />
+
         {/* Search Overlay */}
         {showSearchOverlay && (
           <SearchOverlay 
@@ -87,19 +115,31 @@ const MyList = () => {
                 <h2 className="text-2xl font-bold mb-4 px-4">
                   My Subscriptions ({subscribedChannels.length})
                 </h2>
-                <div className="overflow-x-auto">
-                  <div className="flex space-x-2 pb-2 px-4">
+                <Carousel
+                  opts={{
+                    align: "start",
+                    skipSnaps: false,
+                  }}
+                  className="w-full px-4"
+                >
+                  <CarouselContent className="-ml-1">
                     {subscribedChannels.map((channel) => (
-                      <div key={channel.id} className="flex-shrink-0 w-48">
-                        <ChannelCard 
-                          channel={channel}
-                          isSubscribed={true}
-                          onSubscribe={toggleSubscription}
-                        />
-                      </div>
+                      <CarouselItem key={channel.id} className="pl-1 basis-auto">
+                        <div className="w-48">
+                          <div onClick={() => handleChannelClick(channel)}>
+                            <ChannelCard 
+                              channel={channel}
+                              isSubscribed={true}
+                              onSubscribe={toggleSubscription}
+                            />
+                          </div>
+                        </div>
+                      </CarouselItem>
                     ))}
-                  </div>
-                </div>
+                  </CarouselContent>
+                  <CarouselPrevious />
+                  <CarouselNext />
+                </Carousel>
               </section>
             )}
 
@@ -109,15 +149,27 @@ const MyList = () => {
                 <h2 className="text-2xl font-bold mb-4 px-4">
                   Movies ({savedMovies.length})
                 </h2>
-                <div className="overflow-x-auto">
-                  <div className="flex space-x-2 pb-2 px-4">
-                    {savedMovies.map((movie) => (
-                      <div key={movie.id} className="flex-shrink-0 w-64">
-                        <MovieCard movie={movie} showSaveButton={false} />
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <Carousel
+                  opts={{
+                    align: "start",
+                    skipSnaps: false,
+                  }}
+                  className="w-full px-4"
+                >
+                  <CarouselContent className="-ml-1">
+                    <MovieHoverRow className="flex">
+                      {savedMovies.map((movie) => (
+                        <CarouselItem key={movie.id} className="pl-1 basis-auto">
+                          <div className="w-64">
+                            <MovieCard movie={movie} showSaveButton={false} />
+                          </div>
+                        </CarouselItem>
+                      ))}
+                    </MovieHoverRow>
+                  </CarouselContent>
+                  <CarouselPrevious />
+                  <CarouselNext />
+                </Carousel>
               </section>
             )}
 
@@ -127,15 +179,27 @@ const MyList = () => {
                 <h2 className="text-2xl font-bold mb-4 px-4">
                   TV Shows ({savedTVShows.length})
                 </h2>
-                <div className="overflow-x-auto">
-                  <div className="flex space-x-2 pb-2 px-4">
-                    {savedTVShows.map((show) => (
-                      <div key={show.id} className="flex-shrink-0 w-64">
-                        <MovieCard movie={show} showSaveButton={false} />
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <Carousel
+                  opts={{
+                    align: "start",
+                    skipSnaps: false,
+                  }}
+                  className="w-full px-4"
+                >
+                  <CarouselContent className="-ml-1">
+                    <MovieHoverRow className="flex">
+                      {savedTVShows.map((show) => (
+                        <CarouselItem key={show.id} className="pl-1 basis-auto">
+                          <div className="w-64">
+                            <MovieCard movie={show} showSaveButton={false} />
+                          </div>
+                        </CarouselItem>
+                      ))}
+                    </MovieHoverRow>
+                  </CarouselContent>
+                  <CarouselPrevious />
+                  <CarouselNext />
+                </Carousel>
               </section>
             )}
 

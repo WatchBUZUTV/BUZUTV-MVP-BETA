@@ -6,8 +6,16 @@ import SearchOverlay from "@/components/SearchOverlay";
 import ProtectedContent from "@/components/auth/ProtectedContent";
 import Navbar from "@/components/Navbar";
 import HomeHeroBanner from "@/components/HomeHeroBanner";
+import MovieHoverRow from "@/components/MovieHoverRow";
 import { useMockContent } from "@/hooks/useMockContent";
 import { useUserSubscriptions } from "@/hooks/useUserSubscriptions";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const Index = () => {
   console.log('Index component rendering');
@@ -23,7 +31,6 @@ const Index = () => {
 
   // Filter and organize content
   const trendingMovies = movies.filter(item => item.isTrending);
-
   const actionMovies = movies.filter(item => item.genre === "Action");
   const dramaMovies = movies.filter(item => item.genre === "Drama");
   const romanceMovies = movies.filter(item => item.genre === "Romance");
@@ -49,7 +56,6 @@ const Index = () => {
     setSelectedChannel(null);
   };
 
-  // Show search overlay when there's a search query
   const showSearchOverlay = searchQuery.trim().length > 0;
 
   if (isLoading) {
@@ -59,6 +65,35 @@ const Index = () => {
       </div>
     );
   }
+
+  const ContentRow = ({ title, movies }: { title: string; movies: typeof movies }) => (
+    <section className="mb-3">
+      <h2 className="text-2xl font-bold mb-4 px-4">{title}</h2>
+      <Carousel
+        opts={{
+          align: "start",
+          skipSnaps: false,
+        }}
+        className="w-full px-4"
+      >
+        <CarouselContent className="-ml-1">
+          <MovieHoverRow className="flex">
+            {movies.map((movie) => (
+              <CarouselItem key={movie.id} className="pl-1 basis-auto">
+                <div className="w-64">
+                  <ProtectedContent>
+                    <MovieCard movie={movie} />
+                  </ProtectedContent>
+                </div>
+              </CarouselItem>
+            ))}
+          </MovieHoverRow>
+        </CarouselContent>
+        <CarouselPrevious />
+        <CarouselNext />
+      </Carousel>
+    </section>
+  );
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -96,149 +131,47 @@ const Index = () => {
             {channels && channels.length > 0 && (
               <section className="mb-3">
                 <h2 className="text-2xl font-bold mb-4 px-4">Top Channels</h2>
-                <div className="overflow-x-auto">
-                  <div className="flex space-x-2 pb-4 px-4">
+                <Carousel
+                  opts={{
+                    align: "start",
+                    skipSnaps: false,
+                  }}
+                  className="w-full px-4"
+                >
+                  <CarouselContent className="-ml-1">
                     {channels.map((channel) => (
-                      <div key={channel.id} className="flex-shrink-0 w-48">
-                        <ProtectedContent>
-                          <div onClick={() => handleChannelClick(channel)}>
-                            <ChannelCard 
-                              channel={channel}
-                              isSubscribed={subscriptionIds.includes(channel.id)}
-                              onSubscribe={toggleSubscription}
-                            />
-                          </div>
-                        </ProtectedContent>
-                      </div>
+                      <CarouselItem key={channel.id} className="pl-1 basis-auto">
+                        <div className="w-48">
+                          <ProtectedContent>
+                            <div onClick={() => handleChannelClick(channel)}>
+                              <ChannelCard 
+                                channel={channel}
+                                isSubscribed={subscriptionIds.includes(channel.id)}
+                                onSubscribe={toggleSubscription}
+                              />
+                            </div>
+                          </ProtectedContent>
+                        </div>
+                      </CarouselItem>
                     ))}
-                  </div>
-                </div>
+                  </CarouselContent>
+                  <CarouselPrevious />
+                  <CarouselNext />
+                </Carousel>
               </section>
             )}
 
             {/* Show content only if we have any */}
             {movies.length > 0 || channels.length > 0 ? (
               <>
-                {/* Trending Now */}
-                {trendingMovies.length > 0 && (
-                  <section className="mb-3">
-                    <h2 className="text-2xl font-bold mb-4 px-4">Trending Now</h2>
-                    <div className="overflow-x-auto">
-                      <div className="flex space-x-2 pb-4 px-4">
-                        {trendingMovies.map((movie) => (
-                          <div key={movie.id} className="flex-shrink-0 w-64">
-                            <ProtectedContent>
-                              <MovieCard movie={movie} />
-                            </ProtectedContent>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </section>
-                )}
-
-                {/* Genre Sections */}
-                {actionMovies.length > 0 && (
-                  <section className="mb-3">
-                    <h2 className="text-2xl font-bold mb-4 px-4">Action</h2>
-                    <div className="overflow-x-auto">
-                      <div className="flex space-x-2 pb-4 px-4">
-                        {actionMovies.map((movie) => (
-                          <div key={movie.id} className="flex-shrink-0 w-64">
-                            <ProtectedContent>
-                              <MovieCard movie={movie} />
-                            </ProtectedContent>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </section>
-                )}
-
-                {dramaMovies.length > 0 && (
-                  <section className="mb-3">
-                    <h2 className="text-2xl font-bold mb-4 px-4">Drama</h2>
-                    <div className="overflow-x-auto">
-                      <div className="flex space-x-2 pb-4 px-4">
-                        {dramaMovies.map((movie) => (
-                          <div key={movie.id} className="flex-shrink-0 w-64">
-                            <ProtectedContent>
-                              <MovieCard movie={movie} />
-                            </ProtectedContent>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </section>
-                )}
-
-                {romanceMovies.length > 0 && (
-                  <section className="mb-3">
-                    <h2 className="text-2xl font-bold mb-4 px-4">Romance</h2>
-                    <div className="overflow-x-auto">
-                      <div className="flex space-x-2 pb-4 px-4">
-                        {romanceMovies.map((movie) => (
-                          <div key={movie.id} className="flex-shrink-0 w-64">
-                            <ProtectedContent>
-                              <MovieCard movie={movie} />
-                            </ProtectedContent>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </section>
-                )}
-
-                {comedyMovies.length > 0 && (
-                  <section className="mb-3">
-                    <h2 className="text-2xl font-bold mb-4 px-4">Comedy</h2>
-                    <div className="overflow-x-auto">
-                      <div className="flex space-x-2 pb-4 px-4">
-                        {comedyMovies.map((movie) => (
-                          <div key={movie.id} className="flex-shrink-0 w-64">
-                            <ProtectedContent>
-                              <MovieCard movie={movie} />
-                            </ProtectedContent>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </section>
-                )}
-
-                {documentaryMovies.length > 0 && (
-                  <section className="mb-3">
-                    <h2 className="text-2xl font-bold mb-4 px-4">Documentary</h2>
-                    <div className="overflow-x-auto">
-                      <div className="flex space-x-2 pb-4 px-4">
-                        {documentaryMovies.map((movie) => (
-                          <div key={movie.id} className="flex-shrink-0 w-64">
-                            <ProtectedContent>
-                              <MovieCard movie={movie} />
-                            </ProtectedContent>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </section>
-                )}
-
-                {informationalMovies.length > 0 && (
-                  <section className="mb-3">
-                    <h2 className="text-2xl font-bold mb-4 px-4">Informational</h2>
-                    <div className="overflow-x-auto">
-                      <div className="flex space-x-2 pb-4 px-4">
-                        {informationalMovies.map((movie) => (
-                          <div key={movie.id} className="flex-shrink-0 w-64">
-                            <ProtectedContent>
-                              <MovieCard movie={movie} />
-                            </ProtectedContent>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </section>
-                )}
+                {/* Content Rows */}
+                {trendingMovies.length > 0 && <ContentRow title="Trending Now" movies={trendingMovies} />}
+                {actionMovies.length > 0 && <ContentRow title="Action" movies={actionMovies} />}
+                {dramaMovies.length > 0 && <ContentRow title="Drama" movies={dramaMovies} />}
+                {romanceMovies.length > 0 && <ContentRow title="Romance" movies={romanceMovies} />}
+                {comedyMovies.length > 0 && <ContentRow title="Comedy" movies={comedyMovies} />}
+                {documentaryMovies.length > 0 && <ContentRow title="Documentary" movies={documentaryMovies} />}
+                {informationalMovies.length > 0 && <ContentRow title="Informational" movies={informationalMovies} />}
               </>
             ) : (
               <div className="text-center py-16">
