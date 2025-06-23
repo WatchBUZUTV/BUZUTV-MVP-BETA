@@ -10,6 +10,7 @@ import HomeHeroBanner from "@/components/HomeHeroBanner";
 import MovieHoverRow from "@/components/MovieHoverRow";
 import { useMockContent } from "@/hooks/useMockContent";
 import { useUserSubscriptions } from "@/hooks/useUserSubscriptions";
+import { useAuth } from "@/contexts/AuthContext";
 import { Movie } from "@/data/mockMovies";
 import {
   Carousel,
@@ -27,6 +28,7 @@ const Index = () => {
   const [showChannelModal, setShowChannelModal] = useState(false);
   const { movies, channels, isLoading } = useMockContent();
   const { subscriptionIds, toggleSubscription } = useUserSubscriptions();
+  const { isLoggedIn, setShowLoginModal } = useAuth();
 
   console.log('Channels data:', channels);
   console.log('Subscription IDs:', subscriptionIds);
@@ -49,6 +51,10 @@ const Index = () => {
   };
 
   const handleChannelClick = (channel: any) => {
+    if (!isLoggedIn) {
+      setShowLoginModal(true);
+      return;
+    }
     setSelectedChannel(channel);
     setShowChannelModal(true);
   };
@@ -144,15 +150,13 @@ const Index = () => {
                     {channels.map((channel) => (
                       <CarouselItem key={channel.id} className="pl-1 basis-auto">
                         <div className="w-48">
-                          <ProtectedContent>
-                            <div onClick={() => handleChannelClick(channel)}>
-                              <ChannelCard 
-                                channel={channel}
-                                isSubscribed={subscriptionIds.includes(channel.id)}
-                                onSubscribe={toggleSubscription}
-                              />
-                            </div>
-                          </ProtectedContent>
+                          <div onClick={() => handleChannelClick(channel)}>
+                            <ChannelCard 
+                              channel={channel}
+                              isSubscribed={subscriptionIds.includes(channel.id)}
+                              onSubscribe={toggleSubscription}
+                            />
+                          </div>
                         </div>
                       </CarouselItem>
                     ))}

@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Search, Menu, X, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -19,10 +19,15 @@ interface NavbarProps {
 
 const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isLoggedIn, user, logout, setShowLoginModal } = useAuth();
+  const { isLoggedIn, user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleLoginClick = () => {
-    setShowLoginModal(true);
+    navigate('/auth');
+  };
+
+  const handleSignUpClick = () => {
+    navigate('/auth');
   };
 
   const handleLogout = () => {
@@ -103,7 +108,7 @@ const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => 
             ) : (
               <div className="flex items-center space-x-3">
                 <button
-                  onClick={handleLoginClick}
+                  onClick={handleSignUpClick}
                   className="bg-white text-black px-4 py-2 rounded text-sm font-medium hover:bg-gray-200 transition-colors"
                 >
                   Sign Up

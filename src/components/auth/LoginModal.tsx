@@ -82,7 +82,7 @@ const LoginModal = () => {
 
   return (
     <Dialog open={showLoginModal} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md bg-gray-800 text-white border-gray-700">
+      <DialogContent className="sm:max-w-md bg-gray-800 text-white border-gray-700" hideCloseButton>
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl font-bold">
