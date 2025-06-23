@@ -71,10 +71,10 @@ const Series = () => {
         }}
         className="w-full"
       >
-        <CarouselContent className="-ml-2 md:-ml-4">
+        <CarouselContent className="-ml-1">
           <MovieHoverRow className="flex">
             {series.map((show) => (
-              <CarouselItem key={show.id} className="pl-2 md:pl-4 basis-auto">
+              <CarouselItem key={show.id} className="pl-1 basis-auto">
                 <div className="w-64">
                   <MovieCard movie={show} />
                 </div>

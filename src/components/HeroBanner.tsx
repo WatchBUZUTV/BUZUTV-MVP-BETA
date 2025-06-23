@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Play, Info, ChevronLeft, ChevronRight, X, Heart, Star } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
@@ -31,6 +32,7 @@ const getYouTubeEmbedUrl = (url: string): string | null => {
 const HeroBanner = ({ movies }: HeroBannerProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showModal, setShowModal] = useState(false);
+  const [modalMovie, setModalMovie] = useState<Movie | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const { content } = useContent();
   const { channels } = useChannels();
@@ -62,6 +64,7 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
   };
 
   const handleMoreInfo = () => {
+    setModalMovie(currentMovie);
     setShowModal(true);
   };
 
@@ -71,17 +74,19 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
 
   const handleModalPlayClick = () => {
     // Find the content item from backend data
-    const contentItem = content.find(item => item.id === currentMovie.id);
+    const contentItem = content.find(item => item.id === modalMovie?.id);
     if (contentItem?.video_url) {
       setIsPlaying(true);
     }
   };
 
   const handleSave = () => {
+    if (!modalMovie) return;
+    
     if (isSaved) {
-      removeFromFavorites(currentMovie.id);
+      removeFromFavorites(modalMovie.id);
     } else {
-      addToFavorites(currentMovie.id);
+      addToFavorites(modalMovie.id);
     }
   };
 
@@ -89,24 +94,29 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
 
   const currentMovie = movies[currentIndex];
   
-  // Get the video URL from backend content
+  // Get the video URL from backend content for current movie
   const contentItem = content.find(item => item.id === currentMovie.id);
   const videoUrl = contentItem?.video_url;
   const embedUrl = videoUrl ? getYouTubeEmbedUrl(videoUrl) || videoUrl : null;
   
-  // Get channel information
-  const channel = channels.find(ch => ch.id === currentMovie.channelId);
+  // Get modal movie data
+  const modalContentItem = modalMovie ? content.find(item => item.id === modalMovie.id) : null;
+  const modalVideoUrl = modalContentItem?.video_url;
+  const modalEmbedUrl = modalVideoUrl ? getYouTubeEmbedUrl(modalVideoUrl) || modalVideoUrl : null;
+  
+  // Get channel information for modal
+  const channel = modalMovie ? channels.find(ch => ch.id === modalMovie.channelId) : null;
 
-  // Check if movie is in favorites
-  const isSaved = favoriteIds.includes(currentMovie.id);
+  // Check if modal movie is in favorites
+  const isSaved = modalMovie ? favoriteIds.includes(modalMovie.id) : false;
 
   // Get recommended content from backend (same channel or genre)
-  const recommendedContent = content
+  const recommendedContent = modalMovie ? content
     .filter(item => 
-      item.id !== currentMovie.id && 
-      (item.genre === currentMovie.genre || item.channel_id === currentMovie.channelId)
+      item.id !== modalMovie.id && 
+      (item.genre === modalMovie.genre || item.channel_id === modalMovie.channelId)
     )
-    .slice(0, 6);
+    .slice(0, 6) : [];
 
   // Format duration from minutes to "Xh Ym" format
   const formatDuration = (minutes: number | undefined) => {
@@ -140,9 +150,6 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
               <h1 className="text-3xl md:text-4xl font-bold mb-3 text-white">
                 {currentMovie.title}
               </h1>
-              <p className="text-base md:text-lg text-gray-200 mb-4 line-clamp-2">
-                {currentMovie.description}
-              </p>
               <div className="flex items-center space-x-3 mb-6">
                 <span className="bg-blue-600 text-white px-2 py-1 rounded text-sm">
                   {currentMovie.genre}
@@ -210,7 +217,7 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
         )}
       </div>
 
-      {/* Full Screen Video Player */}
+      {/* Full Screen Video Player - Fixed positioning */}
       {isPlaying && embedUrl && (
         <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center">
           {/* Close Button */}
@@ -250,18 +257,18 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
         </div>
       )}
 
-      {/* More Info Modal - Same structure as MovieCard */}
+      {/* More Info Modal - Consistent with MovieCard */}
       <Dialog open={showModal && !isPlaying} onOpenChange={setShowModal}>
         <DialogContent className="max-w-[75vw] max-h-[90vh] bg-gray-900 text-white border-none p-0 overflow-hidden">
-          <DialogTitle className="sr-only">{currentMovie.title}</DialogTitle>
+          <DialogTitle className="sr-only">{modalMovie?.title}</DialogTitle>
           <ScrollArea className="h-[90vh]">
             <div className="relative">
               {/* Hero Section */}
               <div className="relative h-[60vh] overflow-hidden">
                 <div className="absolute inset-0">
                   <img
-                    src={currentMovie.posterUrl}
-                    alt={currentMovie.title}
+                    src={modalMovie?.posterUrl}
+                    alt={modalMovie?.title}
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -269,14 +276,14 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
                 <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent" />
                 
                 <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
-                  <h1 className="text-5xl font-bold text-white mb-6">{currentMovie.title}</h1>
+                  <h1 className="text-5xl font-bold text-white mb-6">{modalMovie?.title}</h1>
                   
                   <div className="flex items-center space-x-4 mb-4">
                     <button
                       onClick={handleModalPlayClick}
-                      disabled={!videoUrl}
+                      disabled={!modalVideoUrl}
                       className={`px-8 py-3 rounded-lg font-semibold flex items-center space-x-3 transition-colors ${
-                        videoUrl 
+                        modalVideoUrl 
                           ? 'bg-white text-black hover:bg-gray-200' 
                           : 'bg-gray-600 text-gray-400 cursor-not-allowed'
                       }`}
@@ -293,20 +300,20 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
                     </button>
                     
                     <span className="text-white text-xl font-medium">
-                      {formatDuration(contentItem?.duration_minutes)}
+                      {formatDuration(modalContentItem?.duration_minutes)}
                     </span>
                   </div>
                   
                   <div className="flex items-center space-x-4 text-sm">
                     <div className="flex items-center space-x-1">
                       <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                      <span className="text-green-400 font-semibold">{currentMovie.rating}</span>
+                      <span className="text-green-400 font-semibold">{modalMovie?.rating}</span>
                     </div>
-                    <span className="text-white font-medium">{currentMovie.year}</span>
+                    <span className="text-white font-medium">{modalMovie?.year}</span>
                     <span className="border border-gray-400 px-2 py-0.5 text-xs text-gray-300 font-medium">
                       TV-MA
                     </span>
-                    <span className="text-white">{currentMovie.genre}</span>
+                    <span className="text-white">{modalMovie?.genre}</span>
                     
                     {channel && channel.logo_url && (
                       <div className="flex items-center">
@@ -321,15 +328,8 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
                 </div>
               </div>
 
-              <div className="bg-gray-900 p-8" style={{ marginTop: '20px' }}>
-                <div className="mb-8">
-                  {currentMovie.description && (
-                    <p className="text-gray-300 text-lg leading-relaxed mb-4">
-                      {currentMovie.description}
-                    </p>
-                  )}
-                </div>
-
+              {/* Content Section - removed margin and description */}
+              <div className="bg-gray-900 p-8">
                 {/* More Like This Section */}
                 {recommendedContent.length > 0 && (
                   <div>
