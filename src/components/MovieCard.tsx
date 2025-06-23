@@ -43,7 +43,6 @@ const MovieCard = ({
   const { favoriteIds, addToFavorites, removeFromFavorites } = useUserFavorites();
   const { content } = useContent();
   const { channels } = useChannels();
-  const [isHovered, setIsHovered] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -62,20 +61,6 @@ const MovieCard = ({
   };
 
   const handleCardClick = () => {
-    setShowModal(true);
-  };
-
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-  };
-
-  const handlePlayClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
     setShowModal(true);
   };
 
@@ -122,7 +107,7 @@ const MovieCard = ({
 
   return (
     <>
-      <div className="movie-card group" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+      <div className="movie-card group">
         <div className="block cursor-pointer" onClick={handleCardClick}>
           <div className="relative overflow-hidden rounded-lg bg-gray-800 shadow-lg"
                style={{ aspectRatio: '16/9' }}>
@@ -149,31 +134,8 @@ const MovieCard = ({
               <h3 className="font-medium text-white text-sm line-clamp-2">{movie.title}</h3>
             </div>
 
-            {/* Hover Controls */}
-            {isHovered && (
-              <>
-                {/* Play Button in Center */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <button
-                    onClick={handlePlayClick}
-                    className="bg-white/90 hover:bg-white text-black p-4 rounded-full transition-all duration-200 hover:scale-110"
-                  >
-                    <Play className="w-6 h-6 fill-current" />
-                  </button>
-                </div>
-
-                {/* Heart Button Bottom Right */}
-                <button
-                  onClick={handleSave}
-                  className="absolute bottom-3 right-3 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full transition-colors"
-                >
-                  <Heart className={`w-4 h-4 ${isSaved ? 'fill-current text-red-500' : ''}`} />
-                </button>
-              </>
-            )}
-
             {/* Resume Button Overlay */}
-            {showResumeButton && !isHovered && (
+            {showResumeButton && (
               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                 <button className="bg-white text-black px-4 py-2 rounded-lg font-semibold flex items-center space-x-2">
                   <Play className="w-4 h-4" />
@@ -185,7 +147,7 @@ const MovieCard = ({
         </div>
       </div>
       
-      {/* Full Screen Video Player */}
+      {/* Full Screen Video Player - Fixed positioning */}
       {isPlaying && embedUrl && (
         <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center">
           {/* Close Button */}
@@ -303,17 +265,8 @@ const MovieCard = ({
                 </div>
               </div>
 
-              {/* Content Section - reduced margin */}
-              <div className="bg-gray-900 p-8" style={{ marginTop: '20px' }}>
-                <div className="mb-8">
-                  {/* Description */}
-                  {movie.description && (
-                    <p className="text-gray-300 text-lg leading-relaxed mb-4">
-                      {movie.description}
-                    </p>
-                  )}
-                </div>
-
+              {/* Content Section - removed margin and description */}
+              <div className="bg-gray-900 p-8">
                 {/* More Like This Section */}
                 {recommendedContent.length > 0 && (
                   <div>
