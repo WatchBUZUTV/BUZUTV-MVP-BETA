@@ -112,14 +112,6 @@
   transform-origin: center center;
 }
 
-.movie-hover-container:hover .movie-card {
-  transform: translateX(-25%);
-}
-
-.movie-hover-container .movie-card:hover ~ .movie-card {
-  transform: translateX(25%);
-}
-
 .movie-hover-container .movie-card:hover {
   transform: scale(1.25) !important;
   z-index: 50;
