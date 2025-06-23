@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { genres } from "@/data/mockMovies";
 import MovieCard from "@/components/MovieCard";
+import MovieHoverRow from "@/components/MovieHoverRow";
 import HeroBanner from "@/components/HeroBanner";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Navbar from "@/components/Navbar";
@@ -71,13 +72,15 @@ const Series = () => {
         className="w-full"
       >
         <CarouselContent className="-ml-2 md:-ml-4">
-          {series.map((show) => (
-            <CarouselItem key={show.id} className="pl-2 md:pl-4 basis-auto">
-              <div className="w-64">
-                <MovieCard movie={show} />
-              </div>
-            </CarouselItem>
-          ))}
+          <MovieHoverRow className="flex">
+            {series.map((show) => (
+              <CarouselItem key={show.id} className="pl-2 md:pl-4 basis-auto">
+                <div className="w-64">
+                  <MovieCard movie={show} />
+                </div>
+              </CarouselItem>
+            ))}
+          </MovieHoverRow>
         </CarouselContent>
         <CarouselPrevious />
         <CarouselNext />

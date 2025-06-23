@@ -17,10 +17,6 @@ interface MovieCardProps {
   showResumeButton?: boolean;
 }
 
-// Global state to manage hover interactions
-let isAnyCardTransitioning = false;
-let currentHoveredCard: string | null = null;
-
 // Helper function to convert YouTube URLs to embed format
 const getYouTubeEmbedUrl = (url: string): string | null => {
   if (!url) return null;
@@ -50,9 +46,6 @@ const MovieCard = ({
   const [isHovered, setIsHovered] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isMouseOver, setIsMouseOver] = useState(false);
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const exitTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Check if movie is in favorites
   const isSaved = favoriteIds.includes(movie.id);
@@ -73,66 +66,12 @@ const MovieCard = ({
   };
 
   const handleMouseEnter = () => {
-    setIsMouseOver(true);
-    
-    // Clear any exit timeout
-    if (exitTimeoutRef.current) {
-      clearTimeout(exitTimeoutRef.current);
-      exitTimeoutRef.current = null;
-    }
-
-    // Don't allow hover if another card is transitioning
-    if (isAnyCardTransitioning) {
-      return;
-    }
-
-    // Set a delay before showing hover effect
-    hoverTimeoutRef.current = setTimeout(() => {
-      if (isMouseOver && !isAnyCardTransitioning) {
-        currentHoveredCard = movie.id;
-        setIsHovered(true);
-      }
-    }, 1000); // 1 second delay
+    setIsHovered(true);
   };
 
   const handleMouseLeave = () => {
-    setIsMouseOver(false);
-    
-    // Clear hover timeout if still pending
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-      hoverTimeoutRef.current = null;
-    }
-
-    // Only proceed if this card is currently hovered
-    if (currentHoveredCard === movie.id) {
-      setIsHovered(false);
-      isAnyCardTransitioning = true;
-      
-      // Set timeout to allow transition to complete before allowing new hovers
-      exitTimeoutRef.current = setTimeout(() => {
-        currentHoveredCard = null;
-        isAnyCardTransitioning = false;
-      }, 300); // Match transition duration
-    }
+    setIsHovered(false);
   };
-
-  // Cleanup timeouts on unmount
-  useEffect(() => {
-    return () => {
-      if (hoverTimeoutRef.current) {
-        clearTimeout(hoverTimeoutRef.current);
-      }
-      if (exitTimeoutRef.current) {
-        clearTimeout(exitTimeoutRef.current);
-      }
-      // Reset global state if this card was the current one
-      if (currentHoveredCard === movie.id) {
-        currentHoveredCard = null;
-        isAnyCardTransitioning = false;
-      }
-    };
-  }, [movie.id]);
 
   const handlePlayClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -183,36 +122,16 @@ const MovieCard = ({
 
   return (
     <>
-      <div className="group" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+      <div className="movie-card group" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
         <div className="block cursor-pointer" onClick={handleCardClick}>
-          <div className={`relative overflow-hidden rounded-lg bg-gray-800 transition-all duration-300 ${
-            isHovered 
-              ? 'scale-125 shadow-2xl shadow-black/60 z-50' 
-              : 'shadow-lg z-10'
-          }`}
-          style={{
-            aspectRatio: '16/9',
-            boxShadow: isHovered ? '0 25px 50px rgba(0,0,0,0.8)' : '0 4px 8px rgba(0,0,0,0.3)',
-            position: 'relative',
-            zIndex: isHovered ? 50 : 10
-          }}>
+          <div className="relative overflow-hidden rounded-lg bg-gray-800 shadow-lg"
+               style={{ aspectRatio: '16/9' }}>
             <div className="w-full h-full overflow-hidden">
-              {isHovered ? (
-                // Video preview on hover
-                <div className="w-full h-full bg-black flex items-center justify-center">
-                  <iframe
-                    src={`https://www.youtube.com/embed/${movie.youtubeId}?autoplay=1&mute=1&controls=0&showinfo=0&rel=0&loop=1&playlist=${movie.youtubeId}`}
-                    className="w-full h-full"
-                    allow="autoplay"
-                  />
-                </div>
-              ) : (
-                <img
-                  src={movie.posterUrl}
-                  alt={movie.title}
-                  className="w-full h-full object-cover transition-transform duration-300"
-                />
-              )}
+              <img
+                src={movie.posterUrl}
+                alt={movie.title}
+                className="w-full h-full object-cover transition-transform duration-300"
+              />
             </div>
             
             {/* Progress Bar */}
