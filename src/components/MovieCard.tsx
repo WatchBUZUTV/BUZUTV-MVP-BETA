@@ -76,6 +76,14 @@ const MovieCard = ({
     setIsPlaying(false);
   };
 
+  const handleSaveModal = () => {
+    if (isSaved) {
+      removeFromFavorites(movie.id);
+    } else {
+      addToFavorites(movie.id);
+    }
+  };
+
   // Get recommended content from backend (same channel or genre)
   const recommendedContent = content
     .filter(item => 
@@ -147,7 +155,7 @@ const MovieCard = ({
         </div>
       </div>
       
-      {/* Full Screen Video Player - Fixed positioning */}
+      {/* Full Screen Video Player - Same as HeroBanner */}
       {isPlaying && embedUrl && (
         <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center">
           {/* Close Button */}
@@ -227,7 +235,7 @@ const MovieCard = ({
                     </button>
                     
                     <button
-                      onClick={handleSave}
+                      onClick={handleSaveModal}
                       className="bg-gray-700/80 hover:bg-gray-600/80 text-white p-3 rounded-full transition-colors backdrop-blur-sm"
                     >
                       <Heart className={`w-6 h-6 ${isSaved ? 'fill-current text-red-500' : ''}`} />
@@ -265,8 +273,8 @@ const MovieCard = ({
                 </div>
               </div>
 
-              {/* Content Section - removed margin and description */}
-              <div className="bg-gray-900 p-8">
+              {/* Content Section - Minimized gap */}
+              <div className="bg-gray-900 p-8 pt-4">
                 {/* More Like This Section */}
                 {recommendedContent.length > 0 && (
                   <div>
