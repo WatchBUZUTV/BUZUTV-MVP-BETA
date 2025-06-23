@@ -27,7 +27,7 @@ const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => 
   };
 
   const handleSignUpClick = () => {
-    navigate('/auth');
+    navigate('/auth?mode=signup');
   };
 
   const handleLogout = () => {

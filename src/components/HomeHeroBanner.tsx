@@ -1,12 +1,13 @@
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
 const HomeHeroBanner = () => {
-  const { isLoggedIn, setShowLoginModal } = useAuth();
+  const { isLoggedIn } = useAuth();
+  const navigate = useNavigate();
 
   const handleSignUpClick = () => {
-    setShowLoginModal(true);
+    navigate('/auth?mode=signup');
   };
 
   return (
