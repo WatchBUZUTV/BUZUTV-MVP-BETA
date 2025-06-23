@@ -1,25 +1,14 @@
-import { useState, useRef } from "react";
-import MovieCard from "@/components/MovieCard";
-import ChannelCard from "@/components/ChannelCard";
+
+import { useState, useMemo } from "react";
 import ChannelModal from "@/components/ChannelModal";
 import SearchOverlay from "@/components/SearchOverlay";
-import ProtectedContent from "@/components/auth/ProtectedContent";
 import Navbar from "@/components/Navbar";
 import HomeHeroBanner from "@/components/HomeHeroBanner";
-import MovieHoverRow from "@/components/MovieHoverRow";
-import { useMockContent } from "@/hooks/useMockContent";
+import ContentRow from "@/components/ContentRow";
+import ChannelRow from "@/components/ChannelRow";
+import { useAppContent } from "@/hooks/useAppContent";
 import { useUserSubscriptions } from "@/hooks/useUserSubscriptions";
 import { useAuth } from "@/contexts/AuthContext";
-import { Movie } from "@/data/mockMovies";
-import { ArrowLeft, ArrowRight } from "lucide-react";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-  type CarouselApi,
-} from "@/components/ui/carousel";
 
 const Index = () => {
   console.log('Index component rendering');
@@ -27,21 +16,23 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedChannel, setSelectedChannel] = useState<any>(null);
   const [showChannelModal, setShowChannelModal] = useState(false);
-  const { movies, channels, isLoading } = useMockContent();
+  const { movies, channels, isLoading } = useAppContent();
   const { subscriptionIds, toggleSubscription } = useUserSubscriptions();
   const { isLoggedIn, setShowLoginModal } = useAuth();
 
   console.log('Channels data:', channels);
   console.log('Subscription IDs:', subscriptionIds);
 
-  // Filter and organize content
-  const trendingMovies = movies.filter(item => item.isTrending);
-  const actionMovies = movies.filter(item => item.genre === "Action");
-  const dramaMovies = movies.filter(item => item.genre === "Drama");
-  const romanceMovies = movies.filter(item => item.genre === "Romance");
-  const comedyMovies = movies.filter(item => item.genre === "Comedy");
-  const documentaryMovies = movies.filter(item => item.genre === "Documentary");
-  const informationalMovies = movies.filter(item => item.genre === "Informational");
+  // Memoize filtered content to prevent unnecessary re-computations
+  const contentSections = useMemo(() => ({
+    trending: movies.filter(item => item.isTrending),
+    action: movies.filter(item => item.genre === "Action"),
+    drama: movies.filter(item => item.genre === "Drama"),
+    romance: movies.filter(item => item.genre === "Romance"),
+    comedy: movies.filter(item => item.genre === "Comedy"),
+    documentary: movies.filter(item => item.genre === "Documentary"),
+    informational: movies.filter(item => item.genre === "Informational"),
+  }), [movies]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -74,124 +65,6 @@ const Index = () => {
       </div>
     );
   }
-
-  const ContentRow = ({ title, movies: movieList }: { title: string; movies: Movie[] }) => {
-    const carouselRef = useRef<CarouselApi>();
-    
-    const scrollPrev = () => {
-      carouselRef.current?.scrollPrev();
-    };
-
-    const scrollNext = () => {
-      carouselRef.current?.scrollNext();
-    };
-
-    return (
-      <section className="mb-3">
-        <div className="flex items-center justify-between mb-4 px-4">
-          <h2 className="text-2xl font-bold">{title}</h2>
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={scrollPrev}
-              className="p-2 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <button
-              onClick={scrollNext}
-              className="p-2 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors"
-            >
-              <ArrowRight className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-        <Carousel
-          setApi={(api) => {
-            carouselRef.current = api;
-          }}
-          opts={{
-            align: "start",
-            skipSnaps: false,
-          }}
-          className="w-full px-4"
-        >
-          <CarouselContent className="-ml-1">
-            <MovieHoverRow className="flex">
-              {movieList.map((movie) => (
-                <CarouselItem key={movie.id} className="pl-1 basis-auto">
-                  <div className="w-64">
-                    <ProtectedContent>
-                      <MovieCard movie={movie} />
-                    </ProtectedContent>
-                  </div>
-                </CarouselItem>
-              ))}
-            </MovieHoverRow>
-          </CarouselContent>
-        </Carousel>
-      </section>
-    );
-  };
-
-  const ChannelRow = () => {
-    const carouselRef = useRef<CarouselApi>();
-    
-    const scrollPrev = () => {
-      carouselRef.current?.scrollPrev();
-    };
-
-    const scrollNext = () => {
-      carouselRef.current?.scrollNext();
-    };
-
-    return (
-      <section className="mb-3">
-        <div className="flex items-center justify-between mb-4 px-4">
-          <h2 className="text-2xl font-bold">Top Channels</h2>
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={scrollPrev}
-              className="p-2 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <button
-              onClick={scrollNext}
-              className="p-2 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors"
-            >
-              <ArrowRight className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-        <Carousel
-          setApi={(api) => {
-            carouselRef.current = api;
-          }}
-          opts={{
-            align: "start",
-            skipSnaps: false,
-          }}
-          className="w-full px-4"
-        >
-          <CarouselContent className="-ml-1">
-            {channels.map((channel) => (
-              <CarouselItem key={channel.id} className="pl-1 basis-auto">
-                <div className="w-48">
-                  <div onClick={() => handleChannelClick(channel)}>
-                    <ChannelCard 
-                      channel={channel}
-                      isSubscribed={subscriptionIds.includes(channel.id)}
-                      onSubscribe={toggleSubscription}
-                    />
-                  </div>
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-        </Carousel>
-      </section>
-    );
-  };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -226,19 +99,24 @@ const Index = () => {
 
           <div className="max-w-full px-2 py-8">
             {/* Top Channels */}
-            {channels && channels.length > 0 && <ChannelRow />}
+            <ChannelRow 
+              channels={channels}
+              onChannelClick={handleChannelClick}
+              subscriptionIds={subscriptionIds}
+              onSubscribe={toggleSubscription}
+            />
 
             {/* Show content only if we have any */}
             {movies.length > 0 || channels.length > 0 ? (
               <>
                 {/* Content Rows */}
-                {trendingMovies.length > 0 && <ContentRow title="Trending Now" movies={trendingMovies} />}
-                {actionMovies.length > 0 && <ContentRow title="Action" movies={actionMovies} />}
-                {dramaMovies.length > 0 && <ContentRow title="Drama" movies={dramaMovies} />}
-                {romanceMovies.length > 0 && <ContentRow title="Romance" movies={romanceMovies} />}
-                {comedyMovies.length > 0 && <ContentRow title="Comedy" movies={comedyMovies} />}
-                {documentaryMovies.length > 0 && <ContentRow title="Documentary" movies={documentaryMovies} />}
-                {informationalMovies.length > 0 && <ContentRow title="Informational" movies={informationalMovies} />}
+                <ContentRow title="Trending Now" movies={contentSections.trending} />
+                <ContentRow title="Action" movies={contentSections.action} />
+                <ContentRow title="Drama" movies={contentSections.drama} />
+                <ContentRow title="Romance" movies={contentSections.romance} />
+                <ContentRow title="Comedy" movies={contentSections.comedy} />
+                <ContentRow title="Documentary" movies={contentSections.documentary} />
+                <ContentRow title="Informational" movies={contentSections.informational} />
               </>
             ) : (
               <div className="text-center py-16">

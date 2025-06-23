@@ -1,13 +1,13 @@
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { genres } from "@/data/mockMovies";
-import MovieCard from "@/components/MovieCard";
+import OptimizedMovieCard from "@/components/OptimizedMovieCard";
 import MovieHoverRow from "@/components/MovieHoverRow";
 import HeroBanner from "@/components/HeroBanner";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Navbar from "@/components/Navbar";
 import SearchOverlay from "@/components/SearchOverlay";
-import { useMockContent } from "@/hooks/useMockContent";
+import { useAppContent } from "@/hooks/useAppContent";
 import {
   Carousel,
   CarouselContent,
@@ -18,24 +18,31 @@ import {
 
 const Series = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const { movies: allMovies, isLoading } = useMockContent();
+  const { movies: allMovies, isLoading } = useAppContent();
 
-  // Filter for series content - database content uses "tv" type after transformation
-  const series = allMovies.filter(item => item.type === "tv");
-  const featuredSeries = series.filter(show => show.isFeatured);
-  const trendingSeries = series.filter(show => show.isTrending);
-  const topRankedSeries = series.sort((a, b) => b.rating - a.rating).slice(0, 5);
-  const recommendedSeries = series.slice(0, 6);
-  const newSeries = series.slice(2, 8);
-  
-  const filteredSeries = series.filter(show => {
-    return show.title.toLowerCase().includes(searchQuery.toLowerCase());
-  });
+  // Memoize filtered content to prevent unnecessary re-computations
+  const seriesContent = useMemo(() => {
+    const series = allMovies.filter(item => item.type === "tv");
+    return {
+      series,
+      featured: series.filter(show => show.isFeatured),
+      trending: series.filter(show => show.isTrending),
+      topRanked: series.sort((a, b) => b.rating - a.rating).slice(0, 5),
+      recommended: series.slice(0, 6),
+      new: series.slice(2, 8),
+      byGenre: genres.reduce((acc, genre) => {
+        acc[genre] = series.filter(show => show.genre === genre);
+        return acc;
+      }, {} as Record<string, typeof series>)
+    };
+  }, [allMovies]);
 
-  const seriesByGenre = genres.reduce((acc, genre) => {
-    acc[genre] = series.filter(show => show.genre === genre);
-    return acc;
-  }, {} as Record<string, typeof series>);
+  const filteredSeries = useMemo(() => 
+    seriesContent.series.filter(show => 
+      show.title.toLowerCase().includes(searchQuery.toLowerCase())
+    ), 
+    [seriesContent.series, searchQuery]
+  );
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -48,7 +55,7 @@ const Series = () => {
   const showSearchOverlay = searchQuery.trim().length > 0;
 
   console.log('Series page - All movies:', allMovies.length);
-  console.log('Series page - Filtered series:', series.length);
+  console.log('Series page - Filtered series:', seriesContent.series.length);
   console.log('Series page - Content types:', allMovies.map(item => ({ title: item.title, type: item.type })));
 
   if (isLoading) {
@@ -76,7 +83,7 @@ const Series = () => {
             {series.map((show) => (
               <CarouselItem key={show.id} className="pl-1 basis-auto">
                 <div className="w-64">
-                  <MovieCard movie={show} />
+                  <OptimizedMovieCard movie={show} />
                 </div>
               </CarouselItem>
             ))}
@@ -117,7 +124,7 @@ const Series = () => {
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 px-4">
                   {filteredSeries.map((show) => (
-                    <MovieCard key={show.id} movie={show} />
+                    <OptimizedMovieCard key={show.id} movie={show} />
                   ))}
                 </div>
               </section>
@@ -127,21 +134,21 @@ const Series = () => {
           {/* Main Layout */}
           {!searchQuery && (
             <>
-              {series.length > 0 ? (
+              {seriesContent.series.length > 0 ? (
                 <>
                   {/* Top Section */}
                   <div className="max-w-full px-2 py-4">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-6 px-4">
                       {/* Left - Hero Banner */}
                       <div className="lg:col-span-2">
-                        <HeroBanner movies={featuredSeries.length > 0 ? featuredSeries : series.slice(0, 3)} />
+                        <HeroBanner movies={seriesContent.featured.length > 0 ? seriesContent.featured : seriesContent.series.slice(0, 3)} />
                       </div>
                       
                       {/* Right - Top Ranked */}
                       <div>
                         <h2 className="text-2xl font-bold mb-3">Top Ranked Series</h2>
                         <div className="space-y-2">
-                          {topRankedSeries.map((show, index) => (
+                          {seriesContent.topRanked.map((show, index) => (
                             <div key={show.id} className="flex items-center space-x-4 bg-gray-800 rounded-lg p-3">
                               <span className="text-2xl font-bold text-blue-500">#{index + 1}</span>
                               <img 
@@ -166,12 +173,12 @@ const Series = () => {
 
                   {/* Content Rows */}
                   <div className="max-w-full pb-4">
-                    <SeriesRow title="Recommended" series={recommendedSeries} />
-                    <SeriesRow title="Trending Series" series={trendingSeries} />
-                    <SeriesRow title="New Series" series={newSeries} />
+                    <SeriesRow title="Recommended" series={seriesContent.recommended} />
+                    <SeriesRow title="Trending Series" series={seriesContent.trending} />
+                    <SeriesRow title="New Series" series={seriesContent.new} />
                     
                     {/* Genre Sections */}
-                    {Object.entries(seriesByGenre).map(([genre, genreShows]) => (
+                    {Object.entries(seriesContent.byGenre).map(([genre, genreShows]) => (
                       genreShows.length > 0 && (
                         <SeriesRow key={genre} title={genre} series={genreShows} />
                       )
@@ -179,7 +186,6 @@ const Series = () => {
                   </div>
                 </>
               ) : (
-                /* Empty state for non-demo users */
                 <div className="text-center py-16">
                   <h2 className="text-2xl font-bold mb-4">No series available</h2>
                   <p className="text-gray-400">Series will appear here once they're added to the platform</p>

@@ -1,13 +1,13 @@
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { genres } from "@/data/mockMovies";
-import MovieCard from "@/components/MovieCard";
+import OptimizedMovieCard from "@/components/OptimizedMovieCard";
 import MovieHoverRow from "@/components/MovieHoverRow";
 import HeroBanner from "@/components/HeroBanner";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Navbar from "@/components/Navbar";
 import SearchOverlay from "@/components/SearchOverlay";
-import { useMockContent } from "@/hooks/useMockContent";
+import { useAppContent } from "@/hooks/useAppContent";
 import {
   Carousel,
   CarouselContent,
@@ -18,23 +18,31 @@ import {
 
 const Movies = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const { movies: allMovies, isLoading } = useMockContent();
+  const { movies: allMovies, isLoading } = useAppContent();
 
-  const movies = allMovies.filter(item => item.type === "movie");
-  const featuredMovies = movies.filter(movie => movie.isFeatured);
-  const trendingMovies = movies.filter(movie => movie.isTrending);
-  const topRankedMovies = movies.sort((a, b) => b.rating - a.rating).slice(0, 5);
-  const recommendedMovies = movies.slice(0, 6);
-  const newMovies = movies.slice(2, 8);
-  
-  const filteredMovies = movies.filter(movie => {
-    return movie.title.toLowerCase().includes(searchQuery.toLowerCase());
-  });
+  // Memoize filtered content to prevent unnecessary re-computations
+  const movieContent = useMemo(() => {
+    const movies = allMovies.filter(item => item.type === "movie");
+    return {
+      movies,
+      featured: movies.filter(movie => movie.isFeatured),
+      trending: movies.filter(movie => movie.isTrending),
+      topRanked: movies.sort((a, b) => b.rating - a.rating).slice(0, 5),
+      recommended: movies.slice(0, 6),
+      new: movies.slice(2, 8),
+      byGenre: genres.reduce((acc, genre) => {
+        acc[genre] = movies.filter(movie => movie.genre === genre);
+        return acc;
+      }, {} as Record<string, typeof movies>)
+    };
+  }, [allMovies]);
 
-  const moviesByGenre = genres.reduce((acc, genre) => {
-    acc[genre] = movies.filter(movie => movie.genre === genre);
-    return acc;
-  }, {} as Record<string, typeof movies>);
+  const filteredMovies = useMemo(() => 
+    movieContent.movies.filter(movie => 
+      movie.title.toLowerCase().includes(searchQuery.toLowerCase())
+    ), 
+    [movieContent.movies, searchQuery]
+  );
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -71,7 +79,7 @@ const Movies = () => {
             {movies.map((movie) => (
               <CarouselItem key={movie.id} className="pl-1 basis-auto">
                 <div className="w-64">
-                  <MovieCard movie={movie} />
+                  <OptimizedMovieCard movie={movie} />
                 </div>
               </CarouselItem>
             ))}
@@ -112,7 +120,7 @@ const Movies = () => {
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 px-4">
                   {filteredMovies.map((movie) => (
-                    <MovieCard key={movie.id} movie={movie} />
+                    <OptimizedMovieCard key={movie.id} movie={movie} />
                   ))}
                 </div>
               </section>
@@ -122,21 +130,21 @@ const Movies = () => {
           {/* Main Layout */}
           {!searchQuery && (
             <>
-              {movies.length > 0 ? (
+              {movieContent.movies.length > 0 ? (
                 <>
                   {/* Top Section */}
                   <div className="max-w-full px-2 py-4">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-6 px-4">
                       {/* Left - Hero Banner */}
                       <div className="lg:col-span-2">
-                        <HeroBanner movies={featuredMovies} />
+                        <HeroBanner movies={movieContent.featured} />
                       </div>
                       
                       {/* Right - Top Ranked */}
                       <div>
                         <h2 className="text-2xl font-bold mb-3">Top Ranked Movies</h2>
                         <div className="space-y-2">
-                          {topRankedMovies.map((movie, index) => (
+                          {movieContent.topRanked.map((movie, index) => (
                             <div key={movie.id} className="flex items-center space-x-4 bg-gray-800 rounded-lg p-3">
                               <span className="text-2xl font-bold text-blue-500">#{index + 1}</span>
                               <img 
@@ -161,12 +169,12 @@ const Movies = () => {
 
                   {/* Content Rows */}
                   <div className="max-w-full pb-4">
-                    <MovieRow title="Recommended" movies={recommendedMovies} />
-                    <MovieRow title="Trending Movies" movies={trendingMovies} />
-                    <MovieRow title="New Movies" movies={newMovies} />
+                    <MovieRow title="Recommended" movies={movieContent.recommended} />
+                    <MovieRow title="Trending Movies" movies={movieContent.trending} />
+                    <MovieRow title="New Movies" movies={movieContent.new} />
                     
                     {/* Genre Sections */}
-                    {Object.entries(moviesByGenre).map(([genre, genreMovies]) => (
+                    {Object.entries(movieContent.byGenre).map(([genre, genreMovies]) => (
                       genreMovies.length > 0 && (
                         <MovieRow key={genre} title={genre} movies={genreMovies} />
                       )
@@ -174,7 +182,6 @@ const Movies = () => {
                   </div>
                 </>
               ) : (
-                /* Empty state for non-demo users */
                 <div className="text-center py-16">
                   <h2 className="text-2xl font-bold mb-4">No movies available</h2>
                   <p className="text-gray-400">Movies will appear here once they're added to the platform</p>
