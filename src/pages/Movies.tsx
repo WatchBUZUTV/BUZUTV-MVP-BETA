@@ -18,30 +18,16 @@ import {
 
 const Movies = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const { movies: allMovies, isLoading } = useAppContent();
+  const { movieContent, isLoading } = useAppContent();
 
-  // Memoize filtered content to prevent unnecessary re-computations
-  const movieContent = useMemo(() => {
-    const movies = allMovies.filter(item => item.type === "movie");
-    return {
-      movies,
-      featured: movies.filter(movie => movie.isFeatured),
-      trending: movies.filter(movie => movie.isTrending),
-      topRanked: movies.sort((a, b) => b.rating - a.rating).slice(0, 5),
-      recommended: movies.slice(0, 6),
-      new: movies.slice(2, 8),
-      byGenre: genres.reduce((acc, genre) => {
-        acc[genre] = movies.filter(movie => movie.genre === genre);
-        return acc;
-      }, {} as Record<string, typeof movies>)
-    };
-  }, [allMovies]);
-
+  // Only filter for search, everything else is pre-computed
   const filteredMovies = useMemo(() => 
-    movieContent.movies.filter(movie => 
-      movie.title.toLowerCase().includes(searchQuery.toLowerCase())
-    ), 
-    [movieContent.movies, searchQuery]
+    searchQuery.trim() 
+      ? movieContent.all.filter(movie => 
+          movie.title.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      : [],
+    [movieContent.all, searchQuery]
   );
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,7 +50,7 @@ const Movies = () => {
     );
   }
 
-  const MovieRow = ({ title, movies }: { title: string; movies: typeof allMovies }) => (
+  const MovieRow = ({ title, movies }: { title: string; movies: typeof movieContent.all }) => (
     <section className="mb-8 px-4">
       <h2 className="text-2xl font-bold mb-4">{title}</h2>
       <Carousel
@@ -130,7 +116,7 @@ const Movies = () => {
           {/* Main Layout */}
           {!searchQuery && (
             <>
-              {movieContent.movies.length > 0 ? (
+              {movieContent.all.length > 0 ? (
                 <>
                   {/* Top Section */}
                   <div className="max-w-full px-2 py-4">

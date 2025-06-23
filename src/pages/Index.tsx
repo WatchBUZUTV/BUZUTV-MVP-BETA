@@ -1,5 +1,5 @@
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import ChannelModal from "@/components/ChannelModal";
 import SearchOverlay from "@/components/SearchOverlay";
 import Navbar from "@/components/Navbar";
@@ -11,28 +11,12 @@ import { useUserSubscriptions } from "@/hooks/useUserSubscriptions";
 import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
-  console.log('Index component rendering');
-  
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedChannel, setSelectedChannel] = useState<any>(null);
   const [showChannelModal, setShowChannelModal] = useState(false);
-  const { movies, channels, isLoading } = useAppContent();
+  const { homeContent, channels, isLoading } = useAppContent();
   const { subscriptionIds, toggleSubscription } = useUserSubscriptions();
   const { isLoggedIn, setShowLoginModal } = useAuth();
-
-  console.log('Channels data:', channels);
-  console.log('Subscription IDs:', subscriptionIds);
-
-  // Memoize filtered content to prevent unnecessary re-computations
-  const contentSections = useMemo(() => ({
-    trending: movies.filter(item => item.isTrending),
-    action: movies.filter(item => item.genre === "Action"),
-    drama: movies.filter(item => item.genre === "Drama"),
-    romance: movies.filter(item => item.genre === "Romance"),
-    comedy: movies.filter(item => item.genre === "Comedy"),
-    documentary: movies.filter(item => item.genre === "Documentary"),
-    informational: movies.filter(item => item.genre === "Informational"),
-  }), [movies]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -107,16 +91,16 @@ const Index = () => {
             />
 
             {/* Show content only if we have any */}
-            {movies.length > 0 || channels.length > 0 ? (
+            {Object.values(homeContent).some(arr => arr.length > 0) || channels.length > 0 ? (
               <>
-                {/* Content Rows */}
-                <ContentRow title="Trending Now" movies={contentSections.trending} />
-                <ContentRow title="Action" movies={contentSections.action} />
-                <ContentRow title="Drama" movies={contentSections.drama} />
-                <ContentRow title="Romance" movies={contentSections.romance} />
-                <ContentRow title="Comedy" movies={contentSections.comedy} />
-                <ContentRow title="Documentary" movies={contentSections.documentary} />
-                <ContentRow title="Informational" movies={contentSections.informational} />
+                {/* Content Rows - using pre-computed categories */}
+                <ContentRow title="Trending Now" movies={homeContent.trending} />
+                <ContentRow title="Action" movies={homeContent.action} />
+                <ContentRow title="Drama" movies={homeContent.drama} />
+                <ContentRow title="Romance" movies={homeContent.romance} />
+                <ContentRow title="Comedy" movies={homeContent.comedy} />
+                <ContentRow title="Documentary" movies={homeContent.documentary} />
+                <ContentRow title="Informational" movies={homeContent.informational} />
               </>
             ) : (
               <div className="text-center py-16">

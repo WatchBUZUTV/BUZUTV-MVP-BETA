@@ -18,30 +18,16 @@ import {
 
 const Series = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const { movies: allMovies, isLoading } = useAppContent();
+  const { seriesContent, isLoading } = useAppContent();
 
-  // Memoize filtered content to prevent unnecessary re-computations
-  const seriesContent = useMemo(() => {
-    const series = allMovies.filter(item => item.type === "tv");
-    return {
-      series,
-      featured: series.filter(show => show.isFeatured),
-      trending: series.filter(show => show.isTrending),
-      topRanked: series.sort((a, b) => b.rating - a.rating).slice(0, 5),
-      recommended: series.slice(0, 6),
-      new: series.slice(2, 8),
-      byGenre: genres.reduce((acc, genre) => {
-        acc[genre] = series.filter(show => show.genre === genre);
-        return acc;
-      }, {} as Record<string, typeof series>)
-    };
-  }, [allMovies]);
-
+  // Only filter for search, everything else is pre-computed
   const filteredSeries = useMemo(() => 
-    seriesContent.series.filter(show => 
-      show.title.toLowerCase().includes(searchQuery.toLowerCase())
-    ), 
-    [seriesContent.series, searchQuery]
+    searchQuery.trim() 
+      ? seriesContent.all.filter(show => 
+          show.title.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      : [],
+    [seriesContent.all, searchQuery]
   );
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,10 +40,6 @@ const Series = () => {
 
   const showSearchOverlay = searchQuery.trim().length > 0;
 
-  console.log('Series page - All movies:', allMovies.length);
-  console.log('Series page - Filtered series:', seriesContent.series.length);
-  console.log('Series page - Content types:', allMovies.map(item => ({ title: item.title, type: item.type })));
-
   if (isLoading) {
     return (
       <ProtectedRoute>
@@ -68,7 +50,7 @@ const Series = () => {
     );
   }
 
-  const SeriesRow = ({ title, series }: { title: string; series: typeof allMovies }) => (
+  const SeriesRow = ({ title, series }: { title: string; series: typeof seriesContent.all }) => (
     <section className="mb-8 px-4">
       <h2 className="text-2xl font-bold mb-4">{title}</h2>
       <Carousel
@@ -134,14 +116,14 @@ const Series = () => {
           {/* Main Layout */}
           {!searchQuery && (
             <>
-              {seriesContent.series.length > 0 ? (
+              {seriesContent.all.length > 0 ? (
                 <>
                   {/* Top Section */}
                   <div className="max-w-full px-2 py-4">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-6 px-4">
                       {/* Left - Hero Banner */}
                       <div className="lg:col-span-2">
-                        <HeroBanner movies={seriesContent.featured.length > 0 ? seriesContent.featured : seriesContent.series.slice(0, 3)} />
+                        <HeroBanner movies={seriesContent.featured.length > 0 ? seriesContent.featured : seriesContent.all.slice(0, 3)} />
                       </div>
                       
                       {/* Right - Top Ranked */}

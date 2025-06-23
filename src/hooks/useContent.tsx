@@ -1,7 +1,7 @@
 
-import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useContentCache } from '@/hooks/useContentCache';
 
 export interface Content {
   id: string;
@@ -24,46 +24,36 @@ export interface Content {
   updated_at: string | null;
 }
 
+const fetchContentData = async (): Promise<Content[]> => {
+  const { data, error } = await supabase
+    .from('content')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching content:', error);
+    toast.error('Failed to load content');
+    throw error;
+  }
+
+  // Transform the data to ensure type compatibility
+  return (data || []).map(item => ({
+    ...item,
+    type: item.type as 'movie' | 'series' // Type assertion for database data
+  }));
+};
+
 export const useContent = () => {
-  const [content, setContent] = useState<Content[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const fetchContent = async () => {
-    try {
-      setIsLoading(true);
-      const { data, error } = await supabase
-        .from('content')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching content:', error);
-        toast.error('Failed to load content');
-        return;
-      }
-
-      // Transform the data to ensure type compatibility
-      const transformedContent: Content[] = (data || []).map(item => ({
-        ...item,
-        type: item.type as 'movie' | 'series' // Type assertion for database data
-      }));
-
-      setContent(transformedContent);
-    } catch (error) {
-      console.error('Error fetching content:', error);
-      toast.error('Failed to load content');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchContent();
-  }, []);
+  const { data: content, isLoading, error, refetch } = useContentCache(
+    'content',
+    fetchContentData,
+    []
+  );
 
   return {
-    content,
+    content: content || [],
     isLoading,
-    refetch: fetchContent
+    error,
+    refetch
   };
 };

@@ -1,7 +1,7 @@
 
-import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useContentCache } from '@/hooks/useContentCache';
 
 export interface Channel {
   id: string;
@@ -14,41 +14,33 @@ export interface Channel {
   updated_at: string | null;
 }
 
+const fetchChannelsData = async (): Promise<Channel[]> => {
+  const { data, error } = await supabase
+    .from('channels')
+    .select('*')
+    .eq('is_active', true)
+    .order('name');
+
+  if (error) {
+    console.error('Error fetching channels:', error);
+    toast.error('Failed to load channels');
+    throw error;
+  }
+
+  return data || [];
+};
+
 export const useChannels = () => {
-  const [channels, setChannels] = useState<Channel[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const fetchChannels = async () => {
-    try {
-      setIsLoading(true);
-      const { data, error } = await supabase
-        .from('channels')
-        .select('*')
-        .eq('is_active', true)
-        .order('name');
-
-      if (error) {
-        console.error('Error fetching channels:', error);
-        toast.error('Failed to load channels');
-        return;
-      }
-
-      setChannels(data || []);
-    } catch (error) {
-      console.error('Error fetching channels:', error);
-      toast.error('Failed to load channels');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchChannels();
-  }, []);
+  const { data: channels, isLoading, error, refetch } = useContentCache(
+    'channels',
+    fetchChannelsData,
+    []
+  );
 
   return {
-    channels,
+    channels: channels || [],
     isLoading,
-    refetch: fetchChannels
+    error,
+    refetch
   };
 };
