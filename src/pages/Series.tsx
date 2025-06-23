@@ -68,22 +68,21 @@ const Series = () => {
         opts={{
           align: "start",
           skipSnaps: false,
+          loop: false,
         }}
         className="w-full"
       >
         <CarouselContent className="-ml-1">
           <MovieHoverRow className="flex">
             {series.map((show) => (
-              <CarouselItem key={show.id} className="pl-1 basis-auto">
-                <div className="w-64">
-                  <MovieCard movie={show} />
-                </div>
+              <CarouselItem key={show.id} className="pl-1 basis-1/6 min-w-0">
+                <MovieCard movie={show} />
               </CarouselItem>
             ))}
           </MovieHoverRow>
         </CarouselContent>
-        <CarouselPrevious />
-        <CarouselNext />
+        <CarouselPrevious className="hover:bg-black/80" />
+        <CarouselNext className="hover:bg-black/80" />
       </Carousel>
     </section>
   );
