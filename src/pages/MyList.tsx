@@ -11,13 +11,6 @@ import MovieHoverRow from "@/components/MovieHoverRow";
 import { useUserFavorites } from "@/hooks/useUserFavorites";
 import { useUserSubscriptions } from "@/hooks/useUserSubscriptions";
 import { useAppContent } from "@/hooks/useAppContent";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
 
 const MyList = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -115,31 +108,19 @@ const MyList = () => {
                 <h2 className="text-2xl font-bold mb-4 px-4">
                   My Subscriptions ({subscribedChannels.length})
                 </h2>
-                <Carousel
-                  opts={{
-                    align: "start",
-                    skipSnaps: false,
-                  }}
-                  className="w-full px-4"
-                >
-                  <CarouselContent className="-ml-1">
-                    {subscribedChannels.map((channel) => (
-                      <CarouselItem key={channel.id} className="pl-1 basis-auto">
-                        <div className="w-48">
-                          <div onClick={() => handleChannelClick(channel)}>
-                            <ChannelCard 
-                              channel={channel}
-                              isSubscribed={true}
-                              onSubscribe={toggleSubscription}
-                            />
-                          </div>
-                        </div>
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                  <CarouselPrevious />
-                  <CarouselNext />
-                </Carousel>
+                <div className="flex space-x-4 overflow-x-auto scrollbar-hide px-4">
+                  {subscribedChannels.map((channel) => (
+                    <div key={channel.id} className="flex-shrink-0 w-48">
+                      <div onClick={() => handleChannelClick(channel)}>
+                        <ChannelCard 
+                          channel={channel}
+                          isSubscribed={true}
+                          onSubscribe={toggleSubscription}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </section>
             )}
 
@@ -149,27 +130,15 @@ const MyList = () => {
                 <h2 className="text-2xl font-bold mb-4 px-4">
                   Movies ({savedMovies.length})
                 </h2>
-                <Carousel
-                  opts={{
-                    align: "start",
-                    skipSnaps: false,
-                  }}
-                  className="w-full px-4"
-                >
-                  <CarouselContent className="-ml-1">
-                    <MovieHoverRow className="flex">
-                      {savedMovies.map((movie) => (
-                        <CarouselItem key={movie.id} className="pl-1 basis-auto">
-                          <div className="w-64">
-                            <MovieCard movie={movie} showSaveButton={false} />
-                          </div>
-                        </CarouselItem>
-                      ))}
-                    </MovieHoverRow>
-                  </CarouselContent>
-                  <CarouselPrevious />
-                  <CarouselNext />
-                </Carousel>
+                <div className="flex space-x-4 overflow-x-auto scrollbar-hide px-4">
+                  <MovieHoverRow className="flex space-x-4">
+                    {savedMovies.map((movie) => (
+                      <div key={movie.id} className="flex-shrink-0 w-64">
+                        <MovieCard movie={movie} showSaveButton={false} />
+                      </div>
+                    ))}
+                  </MovieHoverRow>
+                </div>
               </section>
             )}
 
@@ -179,27 +148,15 @@ const MyList = () => {
                 <h2 className="text-2xl font-bold mb-4 px-4">
                   TV Shows ({savedTVShows.length})
                 </h2>
-                <Carousel
-                  opts={{
-                    align: "start",
-                    skipSnaps: false,
-                  }}
-                  className="w-full px-4"
-                >
-                  <CarouselContent className="-ml-1">
-                    <MovieHoverRow className="flex">
-                      {savedTVShows.map((show) => (
-                        <CarouselItem key={show.id} className="pl-1 basis-auto">
-                          <div className="w-64">
-                            <MovieCard movie={show} showSaveButton={false} />
-                          </div>
-                        </CarouselItem>
-                      ))}
-                    </MovieHoverRow>
-                  </CarouselContent>
-                  <CarouselPrevious />
-                  <CarouselNext />
-                </Carousel>
+                <div className="flex space-x-4 overflow-x-auto scrollbar-hide px-4">
+                  <MovieHoverRow className="flex space-x-4">
+                    {savedTVShows.map((show) => (
+                      <div key={show.id} className="flex-shrink-0 w-64">
+                        <MovieCard movie={show} showSaveButton={false} />
+                      </div>
+                    ))}
+                  </MovieHoverRow>
+                </div>
               </section>
             )}
 

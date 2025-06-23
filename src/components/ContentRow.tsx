@@ -5,12 +5,6 @@ import { Movie } from "@/data/mockMovies";
 import MovieCard from "@/components/MovieCard";
 import ProtectedContent from "@/components/auth/ProtectedContent";
 import MovieHoverRow from "@/components/MovieHoverRow";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  type CarouselApi,
-} from "@/components/ui/carousel";
 
 interface ContentRowProps {
   title: string;
@@ -18,14 +12,24 @@ interface ContentRowProps {
 }
 
 const ContentRow = React.memo(({ title, movies }: ContentRowProps) => {
-  const [api, setApi] = React.useState<CarouselApi>();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   
-  const scrollPrev = () => {
-    api?.scrollPrev();
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({
+        left: -320,
+        behavior: 'smooth'
+      });
+    }
   };
 
-  const scrollNext = () => {
-    api?.scrollNext();
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({
+        left: 320,
+        behavior: 'smooth'
+      });
+    }
   };
 
   if (movies.length === 0) return null;
@@ -36,41 +40,34 @@ const ContentRow = React.memo(({ title, movies }: ContentRowProps) => {
         <h2 className="text-2xl font-bold">{title}</h2>
         <div className="flex items-center space-x-2">
           <button
-            onClick={scrollPrev}
+            onClick={scrollLeft}
             className="p-2 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <button
-            onClick={scrollNext}
+            onClick={scrollRight}
             className="p-2 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors"
           >
             <ArrowRight className="w-5 h-5" />
           </button>
         </div>
       </div>
-      <Carousel
-        setApi={setApi}
-        opts={{
-          align: "start",
-          skipSnaps: false,
-        }}
-        className="w-full px-4"
+      <div 
+        ref={scrollContainerRef}
+        className="flex space-x-4 overflow-x-auto scrollbar-hide px-4"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        <CarouselContent className="-ml-1">
-          <MovieHoverRow className="flex">
-            {movies.map((movie) => (
-              <CarouselItem key={movie.id} className="pl-1 basis-auto">
-                <div className="w-64">
-                  <ProtectedContent>
-                    <MovieCard movie={movie} />
-                  </ProtectedContent>
-                </div>
-              </CarouselItem>
-            ))}
-          </MovieHoverRow>
-        </CarouselContent>
-      </Carousel>
+        <MovieHoverRow className="flex space-x-4">
+          {movies.map((movie) => (
+            <div key={movie.id} className="flex-shrink-0 w-64">
+              <ProtectedContent>
+                <MovieCard movie={movie} />
+              </ProtectedContent>
+            </div>
+          ))}
+        </MovieHoverRow>
+      </div>
     </section>
   );
 });

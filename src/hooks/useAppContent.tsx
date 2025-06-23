@@ -45,101 +45,56 @@ export const useAppContent = () => {
   const { content: dbContent, isLoading: dbContentLoading } = useContent();
   const { channels: dbChannels, isLoading: dbChannelsLoading } = useChannels();
 
-  // Early return for loading state
-  const isLoading = dbContentLoading || dbChannelsLoading;
-  
-  // Only transform when data is available and not loading
+  // Transform data when available
   const transformedContent = useMemo(() => {
-    if (isLoading || !dbContent.length) return [];
+    if (dbContentLoading || !dbContent.length) return [];
     return transformDatabaseContent(dbContent);
-  }, [dbContent, isLoading]);
+  }, [dbContent, dbContentLoading]);
 
   const transformedChannels = useMemo(() => {
-    if (isLoading || !dbChannels.length) return [];
+    if (dbChannelsLoading || !dbChannels.length) return [];
     return transformDatabaseChannels(dbChannels);
-  }, [dbChannels, isLoading]);
+  }, [dbChannels, dbChannelsLoading]);
 
-  // Pre-compute all categories and filters with targeted memoization
-  const processedContent = useMemo(() => {
-    if (!transformedContent.length) {
-      return {
-        movies: {
-          all: [],
-          featured: [],
-          trending: [],
-          topRanked: [],
-          recommended: [],
-          new: [],
-          byGenre: {}
-        },
-        series: {
-          all: [],
-          featured: [],
-          trending: [],
-          topRanked: [],
-          recommended: [],
-          new: [],
-          byGenre: {}
-        },
-        home: {
-          trending: [],
-          action: [],
-          drama: [],
-          romance: [],
-          comedy: [],
-          documentary: [],
-          informational: [],
-        },
-        allContent: []
-      };
-    }
-
+  // Pre-compute all categories and filters
+  const content = useMemo(() => {
     const movies = transformedContent.filter(item => item.type === "movie");
     const series = transformedContent.filter(item => item.type === "tv");
     
-    // Pre-compute movie categories
-    const movieCategories = {
-      all: movies,
-      featured: movies.filter(movie => movie.isFeatured),
-      trending: movies.filter(movie => movie.isTrending),
-      topRanked: [...movies].sort((a, b) => b.rating - a.rating).slice(0, 5),
-      recommended: movies.slice(0, 6),
-      new: movies.slice(2, 8),
-      byGenre: genres.reduce((acc, genre) => {
-        acc[genre] = movies.filter(movie => movie.genre === genre);
-        return acc;
-      }, {} as Record<string, typeof movies>)
-    };
-
-    // Pre-compute series categories
-    const seriesCategories = {
-      all: series,
-      featured: series.filter(show => show.isFeatured),
-      trending: series.filter(show => show.isTrending),
-      topRanked: [...series].sort((a, b) => b.rating - a.rating).slice(0, 5),
-      recommended: series.slice(0, 6),
-      new: series.slice(2, 8),
-      byGenre: genres.reduce((acc, genre) => {
-        acc[genre] = series.filter(show => show.genre === genre);
-        return acc;
-      }, {} as Record<string, typeof series>)
-    };
-
-    // Pre-compute home page categories
-    const homeCategories = {
-      trending: transformedContent.filter(item => item.isTrending),
-      action: transformedContent.filter(item => item.genre === "Action"),
-      drama: transformedContent.filter(item => item.genre === "Drama"),
-      romance: transformedContent.filter(item => item.genre === "Romance"),
-      comedy: transformedContent.filter(item => item.genre === "Comedy"),
-      documentary: transformedContent.filter(item => item.genre === "Documentary"),
-      informational: transformedContent.filter(item => item.genre === "Informational"),
-    };
-
     return {
-      movies: movieCategories,
-      series: seriesCategories,
-      home: homeCategories,
+      movies: {
+        all: movies,
+        featured: movies.filter(movie => movie.isFeatured),
+        trending: movies.filter(movie => movie.isTrending),
+        topRanked: [...movies].sort((a, b) => b.rating - a.rating).slice(0, 5),
+        recommended: movies.slice(0, 6),
+        new: movies.slice(2, 8),
+        byGenre: genres.reduce((acc, genre) => {
+          acc[genre] = movies.filter(movie => movie.genre === genre);
+          return acc;
+        }, {} as Record<string, typeof movies>)
+      },
+      series: {
+        all: series,
+        featured: series.filter(show => show.isFeatured),
+        trending: series.filter(show => show.isTrending),
+        topRanked: [...series].sort((a, b) => b.rating - a.rating).slice(0, 5),
+        recommended: series.slice(0, 6),
+        new: series.slice(2, 8),
+        byGenre: genres.reduce((acc, genre) => {
+          acc[genre] = series.filter(show => show.genre === genre);
+          return acc;
+        }, {} as Record<string, typeof series>)
+      },
+      home: {
+        trending: transformedContent.filter(item => item.isTrending),
+        action: transformedContent.filter(item => item.genre === "Action"),
+        drama: transformedContent.filter(item => item.genre === "Drama"),
+        romance: transformedContent.filter(item => item.genre === "Romance"),
+        comedy: transformedContent.filter(item => item.genre === "Comedy"),
+        documentary: transformedContent.filter(item => item.genre === "Documentary"),
+        informational: transformedContent.filter(item => item.genre === "Informational"),
+      },
       allContent: transformedContent
     };
   }, [transformedContent]);
@@ -148,12 +103,12 @@ export const useAppContent = () => {
     // Legacy support - return all movies for components that still need it
     movies: transformedContent,
     channels: transformedChannels,
-    isLoading,
+    isLoading: dbContentLoading || dbChannelsLoading,
     // New optimized data structure
-    content: processedContent,
+    content,
     // Quick access to specific categories
-    movieContent: processedContent.movies,
-    seriesContent: processedContent.series,
-    homeContent: processedContent.home
+    movieContent: content.movies,
+    seriesContent: content.series,
+    homeContent: content.home
   };
 };
