@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Star, Heart, Play, X } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
@@ -15,6 +14,7 @@ interface MovieCardProps {
   showProgress?: boolean;
   progressPercent?: number;
   showResumeButton?: boolean;
+  onPlayFullscreen?: (videoUrl: string) => void;
 }
 
 // Helper function to convert YouTube URLs to embed format
@@ -38,7 +38,8 @@ const MovieCard = ({
   showSaveButton = true, 
   showProgress = false, 
   progressPercent = 0,
-  showResumeButton = false 
+  showResumeButton = false,
+  onPlayFullscreen
 }: MovieCardProps) => {
   const { favoriteIds, addToFavorites, removeFromFavorites } = useUserFavorites();
   const { content } = useContent();
@@ -68,7 +69,14 @@ const MovieCard = ({
     // Find the content item from backend data
     const contentItem = content.find(item => item.id === movie.id);
     if (contentItem?.video_url) {
-      setIsPlaying(true);
+      if (onPlayFullscreen) {
+        // If we have a fullscreen callback (from ChannelModal), use it
+        onPlayFullscreen(contentItem.video_url);
+        setShowModal(false);
+      } else {
+        // Otherwise, use the normal modal video player
+        setIsPlaying(true);
+      }
     }
   };
 
@@ -155,8 +163,8 @@ const MovieCard = ({
         </div>
       </div>
       
-      {/* Full Screen Video Player - Same as HeroBanner */}
-      {isPlaying && embedUrl && (
+      {/* Full Screen Video Player - Only show if not using fullscreen callback */}
+      {isPlaying && embedUrl && !onPlayFullscreen && (
         <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center">
           {/* Close Button */}
           <button

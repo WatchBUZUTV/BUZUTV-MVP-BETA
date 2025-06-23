@@ -135,40 +135,6 @@ const ChannelModal = ({ isOpen, onClose, channel }: ChannelModalProps) => {
     setCurrentVideoUrl('');
   };
 
-  // Create a custom MovieCard component for channel modal that uses full-screen video
-  const ChannelMovieCard = ({ movie }: { movie: Movie }) => {
-    const handlePlayClick = () => {
-      const contentItem = content.find(item => item.id === movie.id);
-      if (contentItem?.video_url) {
-        const embedUrl = getYouTubeEmbedUrl(contentItem.video_url) || contentItem.video_url;
-        setCurrentVideoUrl(embedUrl);
-        setIsPlaying(true);
-      }
-    };
-
-    return (
-      <div className="movie-card group">
-        <div className="block cursor-pointer" onClick={handlePlayClick}>
-          <div className="relative overflow-hidden rounded-lg bg-gray-800 shadow-lg"
-               style={{ aspectRatio: '16/9' }}>
-            <div className="w-full h-full overflow-hidden">
-              <img
-                src={movie.posterUrl}
-                alt={movie.title}
-                className="w-full h-full object-cover transition-transform duration-300"
-              />
-            </div>
-            
-            {/* Title always visible at bottom left */}
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
-              <h3 className="font-medium text-white text-sm line-clamp-2">{movie.title}</h3>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   if (!channel) return null;
 
   return (
@@ -311,7 +277,14 @@ const ChannelModal = ({ isOpen, onClose, channel }: ChannelModalProps) => {
                       <MovieHoverRow className="contents">
                         {filteredAndSortedContent.map((movie) => (
                           <div key={movie.id} className="w-full">
-                            <ChannelMovieCard movie={movie} />
+                            <MovieCard 
+                              movie={movie}
+                              onPlayFullscreen={(videoUrl) => {
+                                const embedUrl = getYouTubeEmbedUrl(videoUrl) || videoUrl;
+                                setCurrentVideoUrl(embedUrl);
+                                setIsPlaying(true);
+                              }}
+                            />
                           </div>
                         ))}
                       </MovieHoverRow>
