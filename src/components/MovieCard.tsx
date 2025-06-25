@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Star, Heart, Play, X } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
@@ -46,6 +47,8 @@ const MovieCard = ({
   const { channels } = useChannels();
   const [showModal, setShowModal] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   // Check if movie is in favorites
   const isSaved = favoriteIds.includes(movie.id);
@@ -74,15 +77,48 @@ const MovieCard = ({
         onPlayFullscreen(contentItem.video_url);
         setShowModal(false);
       } else {
-        // Otherwise, use the normal modal video player
+        // Close modal and open fullscreen player like movie detail page
+        setShowModal(false);
         setIsPlaying(true);
+        setIsFullscreen(true);
+        
+        // Set up iframe with autoplay
+        setTimeout(() => {
+          if (iframeRef.current) {
+            const embedUrl = getYouTubeEmbedUrl(contentItem.video_url);
+            if (embedUrl) {
+              iframeRef.current.src = `${embedUrl}?autoplay=1&mute=0&controls=1&showinfo=0&rel=0&modestbranding=1&playsinline=1`;
+            }
+          }
+        }, 100);
       }
     }
   };
 
-  const handleCloseVideo = () => {
+  const handleExitFullscreen = () => {
+    setIsFullscreen(false);
     setIsPlaying(false);
+    if (iframeRef.current) {
+      iframeRef.current.src = '';
+    }
   };
+
+  // Handle escape key to exit fullscreen
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isFullscreen) {
+        handleExitFullscreen();
+      }
+    };
+
+    if (isFullscreen) {
+      document.addEventListener('keydown', handleKeyDown);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isFullscreen]);
 
   const handleSaveModal = () => {
     if (isSaved) {
@@ -123,6 +159,27 @@ const MovieCard = ({
 
   return (
     <>
+      {/* Fullscreen Movie Player - Same as MovieDetail page */}
+      {isFullscreen && (
+        <div className="fixed inset-0 z-50 bg-black">
+          <div className="relative w-full h-full">
+            <button
+              onClick={handleExitFullscreen}
+              className="absolute top-4 right-4 z-10 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <iframe
+              ref={iframeRef}
+              title={movie.title}
+              className="w-full h-full"
+              allowFullScreen
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            />
+          </div>
+        </div>
+      )}
+
       <div className="movie-card group">
         <div className="block cursor-pointer" onClick={handleCardClick}>
           <div className="relative overflow-hidden rounded-lg bg-gray-800 shadow-lg"
@@ -162,46 +219,6 @@ const MovieCard = ({
           </div>
         </div>
       </div>
-      
-      {/* Full Screen Video Player - Only show if not using fullscreen callback */}
-      {isPlaying && embedUrl && !onPlayFullscreen && (
-        <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center">
-          {/* Close Button */}
-          <button
-            onClick={handleCloseVideo}
-            className="absolute top-4 right-4 z-[10000] bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
-          >
-            <X className="w-6 h-6" />
-          </button>
-          
-          {/* Video Player */}
-          <div className="w-full h-full flex items-center justify-center">
-            {embedUrl.includes('youtube.com/embed') ? (
-              <iframe
-                src={`${embedUrl}?autoplay=1&controls=1&modestbranding=1&rel=0&fs=1&playsinline=1`}
-                className="w-full h-full"
-                allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-                allowFullScreen
-                sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-                onError={() => {
-                  console.log('YouTube video failed to load');
-                }}
-              />
-            ) : (
-              <video
-                src={embedUrl}
-                controls
-                autoPlay
-                className="w-full h-full object-contain"
-                onError={() => {
-                  console.log('Video failed to load');
-                  setIsPlaying(false);
-                }}
-              />
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Netflix-style Movie Modal */}
       <Dialog open={showModal && !isPlaying} onOpenChange={setShowModal}>
