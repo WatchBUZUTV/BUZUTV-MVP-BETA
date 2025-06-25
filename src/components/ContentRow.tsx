@@ -55,10 +55,10 @@ const ContentRow = React.memo(({ title, movies }: ContentRowProps) => {
       </div>
       <div 
         ref={scrollContainerRef}
-        className="flex space-x-6 overflow-x-auto scrollbar-hide px-4"
+        className="flex space-x-2 overflow-x-auto scrollbar-hide px-4"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        <MovieHoverRow className="flex space-x-6">
+        <MovieHoverRow className="flex space-x-2">
           {movies.map((movie) => (
             <div key={movie.id} className="flex-shrink-0 w-64">
               <ProtectedContent>
