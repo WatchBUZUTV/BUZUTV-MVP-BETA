@@ -23,21 +23,32 @@ const FullscreenPlayer = ({ isOpen, onClose, videoUrl, title }: FullscreenPlayer
 
     if (isOpen) {
       document.addEventListener('keydown', handleKeyDown);
+      // Prevent body scroll when fullscreen is open
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
     }
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'unset';
     };
   }, [isOpen, onClose]);
 
   // Set up iframe with autoplay when opened
   useEffect(() => {
     if (isOpen && iframeRef.current && videoUrl) {
+      console.log('Setting up fullscreen video with URL:', videoUrl);
       const embedUrl = getYouTubeEmbedUrl(videoUrl);
+      console.log('Converted embed URL:', embedUrl);
+      
       if (embedUrl) {
-        iframeRef.current.src = `${embedUrl}?autoplay=1&mute=0&controls=1&showinfo=0&rel=0&modestbranding=1&playsinline=1`;
+        const autoplayUrl = `${embedUrl}?autoplay=1&mute=0&controls=1&showinfo=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1`;
+        console.log('Final autoplay URL:', autoplayUrl);
+        iframeRef.current.src = autoplayUrl;
       }
     } else if (!isOpen && iframeRef.current) {
+      // Clear the iframe when closing to stop playback
       iframeRef.current.src = '';
     }
   }, [isOpen, videoUrl]);
@@ -45,20 +56,21 @@ const FullscreenPlayer = ({ isOpen, onClose, videoUrl, title }: FullscreenPlayer
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black">
+    <div className="fixed inset-0 z-[9999] bg-black">
       <div className="relative w-full h-full">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 z-10 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+          aria-label="Close fullscreen player"
         >
           <X className="w-6 h-6" />
         </button>
         <iframe
           ref={iframeRef}
           title={title}
-          className="w-full h-full"
+          className="w-full h-full border-0"
           allowFullScreen
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         />
       </div>
     </div>

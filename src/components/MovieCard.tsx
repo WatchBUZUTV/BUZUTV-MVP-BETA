@@ -50,22 +50,36 @@ const MovieCard = ({
   };
 
   const handleModalPlayClick = () => {
+    console.log('Modal play button clicked for movie:', movie.title);
+    
     // Find the content item from backend data
     const contentItem = content.find(item => item.id === movie.id);
+    console.log('Found content item:', contentItem);
+    
     if (contentItem?.video_url) {
+      console.log('Video URL found:', contentItem.video_url);
+      
       if (onPlayFullscreen) {
         // If we have a fullscreen callback (from ChannelModal), use it
+        console.log('Using external fullscreen callback');
         onPlayFullscreen(contentItem.video_url);
         setShowModal(false);
       } else {
-        // Close modal and open fullscreen player like movie detail page
+        // Close modal first, then open fullscreen player
+        console.log('Using internal fullscreen player');
         setShowModal(false);
-        setIsFullscreen(true);
+        // Small delay to ensure modal closes before fullscreen opens
+        setTimeout(() => {
+          setIsFullscreen(true);
+        }, 100);
       }
+    } else {
+      console.log('No video URL found for content item');
     }
   };
 
   const handleExitFullscreen = () => {
+    console.log('Exiting fullscreen for movie:', movie.title);
     setIsFullscreen(false);
   };
 
