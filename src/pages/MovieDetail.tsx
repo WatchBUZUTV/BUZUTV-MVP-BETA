@@ -1,18 +1,19 @@
 
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Star, Play, Heart, Plus, X } from "lucide-react";
+import { ArrowLeft, Star, Play, Heart, Plus } from "lucide-react";
 import { mockMovies } from "@/data/mockMovies";
 import MovieCard from "@/components/MovieCard";
-import { useState, useRef, useCallback } from "react";
+import FullscreenPlayer from "@/components/FullscreenPlayer";
+import { useState } from "react";
+import { useContent } from "@/hooks/useContent";
 
 const MovieDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [isFavorited, setIsFavorited] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const { content } = useContent();
+  
   const movie = mockMovies.find(m => m.id === id);
 
   const handleBack = () => {
@@ -28,42 +29,15 @@ const MovieDetail = () => {
     setIsFavorited(!isFavorited);
   };
 
-  const handlePlay = useCallback(() => {
-    if (iframeRef.current && movie) {
-      // Reload iframe with autoplay enabled
-      const playUrl = `https://www.youtube.com/embed/${movie.youtubeId}?autoplay=1&mute=0&controls=1&showinfo=0&rel=0&modestbranding=1&playsinline=1`;
-      iframeRef.current.src = playUrl;
-      setIsPlaying(true);
-      setIsFullscreen(true);
-    }
-  }, [movie]);
+  const handlePlay = () => {
+    console.log('Movie detail play button clicked for:', movie?.title);
+    setIsFullscreen(true);
+  };
 
-  const handleExitFullscreen = useCallback(() => {
+  const handleExitFullscreen = () => {
+    console.log('Exiting fullscreen from movie detail');
     setIsFullscreen(false);
-    if (iframeRef.current && movie) {
-      // Reset to non-autoplay version
-      const normalUrl = `https://www.youtube.com/embed/${movie.youtubeId}?controls=1&showinfo=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1`;
-      iframeRef.current.src = normalUrl;
-      setIsPlaying(false);
-    }
-  }, [movie]);
-
-  // Handle escape key to exit fullscreen
-  useState(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isFullscreen) {
-        handleExitFullscreen();
-      }
-    };
-
-    if (isFullscreen) {
-      document.addEventListener('keydown', handleKeyDown);
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  });
+  };
 
   if (!movie) {
     return (
@@ -83,29 +57,19 @@ const MovieDetail = () => {
     .filter(m => m.id !== movie.id && m.genre === movie.genre)
     .slice(0, 6);
 
+  // Get the video URL from backend content
+  const contentItem = content.find(item => item.id === movie.id);
+  const videoUrl = contentItem?.video_url || '';
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Fullscreen Movie Player */}
-      {isFullscreen && (
-        <div className="fixed inset-0 z-50 bg-black">
-          <div className="relative w-full h-full">
-            <button
-              onClick={handleExitFullscreen}
-              className="absolute top-4 right-4 z-10 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
-            >
-              <X className="w-6 h-6" />
-            </button>
-            <iframe
-              ref={iframeRef}
-              src={`https://www.youtube.com/embed/${movie.youtubeId}?autoplay=1&mute=0&controls=1&showinfo=0&rel=0&modestbranding=1&playsinline=1`}
-              title={movie.title}
-              className="w-full h-full"
-              allowFullScreen
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            />
-          </div>
-        </div>
-      )}
+      <FullscreenPlayer
+        isOpen={isFullscreen}
+        onClose={handleExitFullscreen}
+        videoUrl={videoUrl}
+        title={movie.title}
+      />
 
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800">
@@ -134,26 +98,29 @@ const MovieDetail = () => {
 
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
-          {/* Video Player */}
-          <div className="aspect-video bg-black rounded-lg overflow-hidden mb-8 relative" ref={containerRef}>
-            {!isFullscreen && (
-              <iframe
-                ref={iframeRef}
-                src={`https://www.youtube.com/embed/${movie.youtubeId}?controls=1&showinfo=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1`}
-                title={movie.title}
-                className="w-full h-full"
-                allowFullScreen
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              />
-            )}
-            {!isPlaying && !isFullscreen && (
-              <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                <button
-                  onClick={handlePlay}
-                  className="bg-white/90 hover:bg-white text-black p-6 rounded-full transition-all duration-200 hover:scale-110"
-                >
-                  <Play className="w-12 h-12 fill-current" />
-                </button>
+          {/* Video Preview Section */}
+          <div className="aspect-video bg-gray-800 rounded-lg overflow-hidden mb-8 relative group">
+            <img
+              src={movie.posterUrl}
+              alt={movie.title}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors flex items-center justify-center">
+              <button
+                onClick={handlePlay}
+                disabled={!videoUrl}
+                className={`p-6 rounded-full transition-all duration-200 hover:scale-110 ${
+                  videoUrl 
+                    ? 'bg-white/90 hover:bg-white text-black' 
+                    : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                }`}
+              >
+                <Play className="w-12 h-12 fill-current" />
+              </button>
+            </div>
+            {!videoUrl && (
+              <div className="absolute bottom-4 left-4 bg-black/70 text-white px-3 py-1 rounded text-sm">
+                Video not available
               </div>
             )}
           </div>
@@ -183,7 +150,12 @@ const MovieDetail = () => {
               <div className="flex items-center space-x-4">
                 <button 
                   onClick={handlePlay}
-                  className="flex items-center space-x-3 bg-white text-black px-8 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
+                  disabled={!videoUrl}
+                  className={`flex items-center space-x-3 px-8 py-3 rounded-lg font-semibold transition-colors ${
+                    videoUrl 
+                      ? 'bg-white text-black hover:bg-gray-200' 
+                      : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                  }`}
                 >
                   <Play className="w-6 h-6 fill-current" />
                   <span>Play</span>

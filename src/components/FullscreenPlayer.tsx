@@ -49,6 +49,7 @@ const FullscreenPlayer = ({ isOpen, onClose, videoUrl, title }: FullscreenPlayer
       }
     } else if (!isOpen && iframeRef.current) {
       // Clear the iframe when closing to stop playback
+      console.log('Clearing iframe src to stop playback');
       iframeRef.current.src = '';
     }
   }, [isOpen, videoUrl]);
@@ -56,7 +57,7 @@ const FullscreenPlayer = ({ isOpen, onClose, videoUrl, title }: FullscreenPlayer
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-black">
+    <div className="fixed inset-0 z-[99999] bg-black" style={{ zIndex: 99999 }}>
       <div className="relative w-full h-full">
         <button
           onClick={onClose}

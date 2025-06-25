@@ -65,13 +65,14 @@ const MovieCard = ({
         onPlayFullscreen(contentItem.video_url);
         setShowModal(false);
       } else {
-        // Close modal first, then open fullscreen player
+        // Close modal first, then open fullscreen player after a delay
         console.log('Using internal fullscreen player');
         setShowModal(false);
-        // Small delay to ensure modal closes before fullscreen opens
+        // Delay ensures modal is fully closed and DOM is clean
         setTimeout(() => {
+          console.log('Opening fullscreen player');
           setIsFullscreen(true);
-        }, 100);
+        }, 200);
       }
     } else {
       console.log('No video URL found for content item');
@@ -108,13 +109,15 @@ const MovieCard = ({
 
   return (
     <>
-      {/* Fullscreen Movie Player */}
-      <FullscreenPlayer
-        isOpen={isFullscreen}
-        onClose={handleExitFullscreen}
-        videoUrl={videoUrl || ''}
-        title={movie.title}
-      />
+      {/* Fullscreen Movie Player - Only render when actually needed */}
+      {isFullscreen && videoUrl && (
+        <FullscreenPlayer
+          isOpen={isFullscreen}
+          onClose={handleExitFullscreen}
+          videoUrl={videoUrl}
+          title={movie.title}
+        />
+      )}
 
       <div className="movie-card group">
         <div className="block cursor-pointer" onClick={handleCardClick}>
