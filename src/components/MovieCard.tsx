@@ -1,4 +1,5 @@
 
+
 import { Link } from "react-router-dom";
 import { Star, Heart, Play, X } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
@@ -79,7 +80,6 @@ const MovieCard = ({
       } else {
         // Close modal and open fullscreen player like movie detail page
         setShowModal(false);
-        setIsPlaying(true);
         setIsFullscreen(true);
         
         // Set up iframe with autoplay
@@ -220,8 +220,8 @@ const MovieCard = ({
         </div>
       </div>
 
-      {/* Netflix-style Movie Modal */}
-      <Dialog open={showModal && !isPlaying} onOpenChange={setShowModal}>
+      {/* Netflix-style Movie Modal - Only show when not in fullscreen */}
+      <Dialog open={showModal && !isFullscreen} onOpenChange={setShowModal}>
         <DialogContent className="max-w-[75vw] max-h-[90vh] bg-gray-900 text-white border-none p-0 overflow-hidden">
           <DialogTitle className="sr-only">{movie.title}</DialogTitle>
           <ScrollArea className="h-[90vh]">
@@ -333,3 +333,4 @@ const MovieCard = ({
 };
 
 export default MovieCard;
+
