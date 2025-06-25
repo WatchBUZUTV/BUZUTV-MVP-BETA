@@ -110,7 +110,7 @@ const MyList = () => {
                 </h2>
                 <div className="flex space-x-4 overflow-x-auto scrollbar-hide px-4">
                   {subscribedChannels.map((channel) => (
-                    <div key={channel.id} className="flex-shrink-0 w-64">
+                    <div key={channel.id} className="flex-shrink-0 w-48">
                       <div onClick={() => handleChannelClick(channel)}>
                         <ChannelCard 
                           channel={channel}
@@ -130,8 +130,8 @@ const MyList = () => {
                 <h2 className="text-2xl font-bold mb-4 px-4">
                   Movies ({savedMovies.length})
                 </h2>
-                <div className="flex space-x-4 overflow-x-auto scrollbar-hide px-4">
-                  <MovieHoverRow className="flex space-x-4">
+                <div className="flex space-x-6 overflow-x-auto scrollbar-hide px-4">
+                  <MovieHoverRow className="flex space-x-6">
                     {savedMovies.map((movie) => (
                       <div key={movie.id} className="flex-shrink-0 w-64">
                         <MovieCard movie={movie} showSaveButton={false} />
@@ -148,8 +148,8 @@ const MyList = () => {
                 <h2 className="text-2xl font-bold mb-4 px-4">
                   TV Shows ({savedTVShows.length})
                 </h2>
-                <div className="flex space-x-4 overflow-x-auto scrollbar-hide px-4">
-                  <MovieHoverRow className="flex space-x-4">
+                <div className="flex space-x-6 overflow-x-auto scrollbar-hide px-4">
+                  <MovieHoverRow className="flex space-x-6">
                     {savedTVShows.map((show) => (
                       <div key={show.id} className="flex-shrink-0 w-64">
                         <MovieCard movie={show} showSaveButton={false} />

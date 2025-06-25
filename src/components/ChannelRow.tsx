@@ -62,7 +62,7 @@ const ChannelRow = React.memo(({ channels, onChannelClick, subscriptionIds, onSu
         <CarouselContent className="-ml-1">
           {channels.map((channel) => (
             <CarouselItem key={channel.id} className="pl-1 basis-auto">
-              <div className="w-64">
+              <div className="w-48">
                 <div onClick={() => onChannelClick(channel)}>
                   <ChannelCard 
                     channel={channel}
