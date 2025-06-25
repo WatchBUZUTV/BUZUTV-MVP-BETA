@@ -110,7 +110,7 @@ const MyList = () => {
                 </h2>
                 <div className="flex space-x-4 overflow-x-auto scrollbar-hide px-4">
                   {subscribedChannels.map((channel) => (
-                    <div key={channel.id} className="flex-shrink-0 w-48">
+                    <div key={channel.id} className="flex-shrink-0 w-64">
                       <div onClick={() => handleChannelClick(channel)}>
                         <ChannelCard 
                           channel={channel}
