@@ -35,7 +35,7 @@ const ContentRow = React.memo(({ title, movies }: ContentRowProps) => {
   if (movies.length === 0) return null;
 
   return (
-    <section className="mb-3">
+    <section className="mb-8">
       <div className="flex items-center justify-between mb-4 px-4">
         <h2 className="text-2xl font-bold">{title}</h2>
         <div className="flex items-center space-x-2">

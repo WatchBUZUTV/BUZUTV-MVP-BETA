@@ -47,8 +47,8 @@ const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => 
             </Link>
           </div>
 
-          {/* Center Navigation - moved left */}
-          <div className="hidden md:flex items-center justify-center flex-1 -ml-32">
+          {/* Center Navigation - moved 2 inches to the right */}
+          <div className="hidden md:flex items-center justify-center flex-1 ml-32">
             <div className="flex items-center space-x-8">
               <Link to="/" className="text-white hover:text-gray-300 transition-colors text-sm">
                 Home
