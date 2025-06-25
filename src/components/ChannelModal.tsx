@@ -268,15 +268,15 @@ const ChannelModal = ({ isOpen, onClose, channel }: ChannelModalProps) => {
               </div>
             </div>
 
-            {/* Content Grid */}
+            {/* Content Grid - Updated to match ContentRow spacing and sizing */}
             <div className="flex-1 overflow-hidden">
               <ScrollArea className="h-full">
-                <div className="p-6">
+                <div className="px-4 py-6">
                   {filteredAndSortedContent.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                      <MovieHoverRow className="contents">
+                    <div className="flex flex-wrap gap-4">
+                      <MovieHoverRow className="flex flex-wrap gap-4 w-full">
                         {filteredAndSortedContent.map((movie) => (
-                          <div key={movie.id} className="w-full">
+                          <div key={movie.id} className="flex-shrink-0 w-64">
                             <MovieCard 
                               movie={movie}
                               onPlayFullscreen={(videoUrl) => {
