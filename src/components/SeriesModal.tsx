@@ -57,31 +57,60 @@ const SeriesModal = ({
     return `${mins}m`;
   };
 
-  // Generate mock seasons if none provided
-  const mockSeasons: Season[] = seasons.length > 0 ? seasons : [
-    {
-      season_number: 1,
-      episodes: Array.from({ length: 8 }, (_, i) => ({
-        id: `ep-${i + 1}`,
-        title: `Episode ${i + 1}`,
-        episode_number: i + 1,
-        duration_minutes: 45,
-        description: `Episode ${i + 1} of ${series.title}`,
-        video_url: videoUrl // Use the same video URL for demo
-      }))
+  // Generate episodes with proper video URLs
+  const getEpisodesWithVideoUrls = () => {
+    // First try to use seasons data from database
+    if (contentItem?.seasons_data) {
+      try {
+        const seasonsData = JSON.parse(contentItem.seasons_data);
+        return seasonsData;
+      } catch (error) {
+        console.error('Error parsing seasons data:', error);
+      }
     }
-  ];
+
+    // If seasons prop is provided, use it
+    if (seasons.length > 0) {
+      return seasons;
+    }
+
+    // Generate mock seasons with proper video URLs
+    const mockSeasons: Season[] = [
+      {
+        season_number: 1,
+        episodes: Array.from({ length: 8 }, (_, i) => ({
+          id: `ep-${i + 1}`,
+          title: `Episode ${i + 1}`,
+          episode_number: i + 1,
+          duration_minutes: 45,
+          description: `Episode ${i + 1} of ${series.title}`,
+          // Use the series video URL as fallback for demo purposes
+          video_url: videoUrl || contentItem?.video_url
+        }))
+      }
+    ];
+
+    return mockSeasons;
+  };
+
+  const mockSeasons = getEpisodesWithVideoUrls();
 
   const handlePlayFirstEpisode = () => {
     const firstEpisode = mockSeasons[0]?.episodes[0];
     if (firstEpisode?.video_url) {
+      console.log('Playing first episode:', firstEpisode.title, 'URL:', firstEpisode.video_url);
       onPlayEpisode(firstEpisode.video_url, `${series.title} - ${firstEpisode.title}`);
+    } else {
+      console.warn('No video URL available for first episode');
     }
   };
 
   const handlePlayEpisode = (episode: Episode) => {
     if (episode.video_url) {
+      console.log('Playing episode:', episode.title, 'URL:', episode.video_url);
       onPlayEpisode(episode.video_url, `${series.title} - ${episode.title}`);
+    } else {
+      console.warn('No video URL available for episode:', episode.title);
     }
   };
 
@@ -109,9 +138,9 @@ const SeriesModal = ({
                 <div className="flex items-center space-x-4 mb-4">
                   <button
                     onClick={handlePlayFirstEpisode}
-                    disabled={!videoUrl}
+                    disabled={!mockSeasons[0]?.episodes[0]?.video_url}
                     className={`px-8 py-3 rounded-lg font-semibold flex items-center space-x-3 transition-colors ${
-                      videoUrl 
+                      mockSeasons[0]?.episodes[0]?.video_url
                         ? 'bg-white text-black hover:bg-gray-200' 
                         : 'bg-gray-600 text-gray-400 cursor-not-allowed'
                     }`}
