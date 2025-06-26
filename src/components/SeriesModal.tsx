@@ -79,6 +79,12 @@ const SeriesModal = ({
     }
   };
 
+  const handlePlayEpisode = (episode: Episode) => {
+    if (episode.video_url) {
+      onPlayEpisode(episode.video_url, `${series.title} - ${episode.title}`);
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[75vw] max-h-[90vh] bg-gray-900 text-white border-none p-0 overflow-hidden">
@@ -169,23 +175,25 @@ const SeriesModal = ({
                   
                   {mockSeasons.map((season) => (
                     <TabsContent key={season.season_number} value={`season-${season.season_number}`} className="mt-4">
-                      <div className="space-y-2">
+                      <div className="space-y-1">
                         {season.episodes.map((episode, index) => (
-                          <div key={episode.id} className="flex items-center space-x-4 bg-gray-800 rounded-lg p-4 hover:bg-gray-700 transition-colors group">
-                            <div className="flex-shrink-0 w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-sm font-bold">
+                          <div key={episode.id} className="flex items-center space-x-3 bg-gray-800 rounded-lg p-3 hover:bg-gray-700 transition-colors group h-16">
+                            <div className="flex-shrink-0 w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center text-xs font-bold">
                               {episode.episode_number}
                             </div>
                             
                             <div className="flex-1 min-w-0">
-                              <h4 className="font-medium text-white truncate">{episode.title}</h4>
-                              <p className="text-sm text-gray-400 line-clamp-2">
-                                {episode.description || `Episode ${episode.episode_number} of ${series.title}`}
-                              </p>
-                              <span className="text-xs text-gray-500">{formatDuration(episode.duration_minutes)}</span>
+                              <h4 className="font-medium text-white truncate text-sm">{episode.title}</h4>
+                              <div className="flex items-center space-x-2">
+                                <p className="text-xs text-gray-400 truncate max-w-96">
+                                  {episode.description || `Episode ${episode.episode_number} of ${series.title}`}
+                                </p>
+                                <span className="text-xs text-gray-500 whitespace-nowrap">{formatDuration(episode.duration_minutes)}</span>
+                              </div>
                             </div>
                             
                             <button
-                              onClick={() => episode.video_url && onPlayEpisode(episode.video_url, `${series.title} - ${episode.title}`)}
+                              onClick={() => handlePlayEpisode(episode)}
                               disabled={!episode.video_url}
                               className={`p-2 rounded-full transition-colors ${
                                 episode.video_url 
@@ -193,7 +201,7 @@ const SeriesModal = ({
                                   : 'bg-gray-600 text-gray-400 cursor-not-allowed'
                               }`}
                             >
-                              <Play className="w-5 h-5 fill-current" />
+                              <Play className="w-4 h-4 fill-current" />
                             </button>
                           </div>
                         ))}
