@@ -63,18 +63,23 @@ const SeriesModal = ({
     if (contentItem?.seasons_data) {
       try {
         const seasonsData = JSON.parse(contentItem.seasons_data);
-        return seasonsData;
+        if (Array.isArray(seasonsData) && seasonsData.length > 0) {
+          console.log('Using seasons data from database:', seasonsData);
+          return seasonsData;
+        }
       } catch (error) {
         console.error('Error parsing seasons data:', error);
       }
     }
 
     // If seasons prop is provided, use it
-    if (seasons.length > 0) {
+    if (seasons && seasons.length > 0) {
+      console.log('Using seasons from props:', seasons);
       return seasons;
     }
 
-    // Generate mock seasons with proper video URLs
+    // Always generate mock seasons as fallback
+    console.log('Generating mock seasons for series:', series.title);
     const mockSeasons: Season[] = [
       {
         season_number: 1,
@@ -93,10 +98,10 @@ const SeriesModal = ({
     return mockSeasons;
   };
 
-  const mockSeasons = getEpisodesWithVideoUrls();
+  const availableSeasons = getEpisodesWithVideoUrls();
 
   const handlePlayFirstEpisode = () => {
-    const firstEpisode = mockSeasons[0]?.episodes[0];
+    const firstEpisode = availableSeasons[0]?.episodes[0];
     if (firstEpisode?.video_url) {
       console.log('Playing first episode:', firstEpisode.title, 'URL:', firstEpisode.video_url);
       onPlayEpisode(firstEpisode.video_url, `${series.title} - ${firstEpisode.title}`);
@@ -138,9 +143,9 @@ const SeriesModal = ({
                 <div className="flex items-center space-x-4 mb-4">
                   <button
                     onClick={handlePlayFirstEpisode}
-                    disabled={!mockSeasons[0]?.episodes[0]?.video_url}
+                    disabled={!availableSeasons[0]?.episodes[0]?.video_url}
                     className={`px-8 py-3 rounded-lg font-semibold flex items-center space-x-3 transition-colors ${
-                      mockSeasons[0]?.episodes[0]?.video_url
+                      availableSeasons[0]?.episodes[0]?.video_url
                         ? 'bg-white text-black hover:bg-gray-200' 
                         : 'bg-gray-600 text-gray-400 cursor-not-allowed'
                     }`}
@@ -157,7 +162,7 @@ const SeriesModal = ({
                   </button>
 
                   <span className="text-white text-xl font-medium">
-                    {contentItem?.seasons || mockSeasons.length} Season{(contentItem?.seasons || mockSeasons.length) !== 1 ? 's' : ''}
+                    {contentItem?.seasons || availableSeasons.length} Season{(contentItem?.seasons || availableSeasons.length) !== 1 ? 's' : ''}
                   </span>
                 </div>
                 
@@ -191,7 +196,7 @@ const SeriesModal = ({
               <div className="mb-8">
                 <Tabs defaultValue="season-1" className="w-full">
                   <TabsList className="grid w-full grid-cols-auto bg-gray-800">
-                    {mockSeasons.map((season) => (
+                    {availableSeasons.map((season) => (
                       <TabsTrigger 
                         key={season.season_number} 
                         value={`season-${season.season_number}`}
@@ -202,7 +207,7 @@ const SeriesModal = ({
                     ))}
                   </TabsList>
                   
-                  {mockSeasons.map((season) => (
+                  {availableSeasons.map((season) => (
                     <TabsContent key={season.season_number} value={`season-${season.season_number}`} className="mt-4">
                       <div className="space-y-1">
                         {season.episodes.map((episode, index) => (
