@@ -1,7 +1,7 @@
 
 import { useState, useMemo } from "react";
 import { genres } from "@/data/mockMovies";
-import OptimizedMovieCard from "@/components/OptimizedMovieCard";
+import SeriesCard from "@/components/SeriesCard";
 import MovieHoverRow from "@/components/MovieHoverRow";
 import HeroBanner from "@/components/HeroBanner";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
@@ -20,7 +20,6 @@ const Series = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { seriesContent, isLoading } = useAppContent();
 
-  // Only filter for search, everything else is pre-computed
   const filteredSeries = useMemo(() => 
     searchQuery.trim() 
       ? seriesContent.all.filter(show => 
@@ -65,7 +64,7 @@ const Series = () => {
             {series.map((show) => (
               <CarouselItem key={show.id} className="pl-1 basis-auto">
                 <div className="w-64">
-                  <OptimizedMovieCard movie={show} />
+                  <SeriesCard series={show} />
                 </div>
               </CarouselItem>
             ))}
@@ -80,7 +79,6 @@ const Series = () => {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-gray-900 text-white">
-        {/* Search Overlay */}
         {showSearchOverlay && (
           <SearchOverlay 
             isOpen={true} 
@@ -89,7 +87,6 @@ const Series = () => {
           />
         )}
 
-        {/* Navigation */}
         <Navbar 
           searchQuery={searchQuery}
           onSearchChange={handleSearchChange}
@@ -97,7 +94,6 @@ const Series = () => {
         />
 
         <div className="pt-16">
-          {/* Search Results */}
           {searchQuery && !showSearchOverlay && (
             <div className="max-w-full px-2 py-4">
               <section className="mb-6">
@@ -106,27 +102,23 @@ const Series = () => {
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 px-4">
                   {filteredSeries.map((show) => (
-                    <OptimizedMovieCard key={show.id} movie={show} />
+                    <SeriesCard key={show.id} series={show} />
                   ))}
                 </div>
               </section>
             </div>
           )}
 
-          {/* Main Layout */}
           {!searchQuery && (
             <>
               {seriesContent.all.length > 0 ? (
                 <>
-                  {/* Top Section */}
                   <div className="max-w-full px-2 py-4">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-6 px-4">
-                      {/* Left - Hero Banner */}
                       <div className="lg:col-span-2">
                         <HeroBanner movies={seriesContent.featured.length > 0 ? seriesContent.featured : seriesContent.all.slice(0, 3)} />
                       </div>
                       
-                      {/* Right - Top Ranked */}
                       <div>
                         <h2 className="text-2xl font-bold mb-3">Top Ranked Series</h2>
                         <div className="space-y-2">
@@ -153,13 +145,11 @@ const Series = () => {
                     </div>
                   </div>
 
-                  {/* Content Rows */}
                   <div className="max-w-full pb-4">
                     <SeriesRow title="Recommended" series={seriesContent.recommended} />
                     <SeriesRow title="Trending Series" series={seriesContent.trending} />
                     <SeriesRow title="New Series" series={seriesContent.new} />
                     
-                    {/* Genre Sections */}
                     {Object.entries(seriesContent.byGenre).map(([genre, genreShows]) => (
                       genreShows.length > 0 && (
                         <SeriesRow key={genre} title={genre} series={genreShows} />
