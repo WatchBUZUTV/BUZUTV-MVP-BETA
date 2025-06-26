@@ -57,65 +57,31 @@ const SeriesModal = ({
     return `${mins}m`;
   };
 
-  // Generate episodes with proper video URLs
-  const getEpisodesWithVideoUrls = () => {
-    // First try to use seasons data from database
-    if (contentItem?.seasons_data) {
-      try {
-        const seasonsData = JSON.parse(contentItem.seasons_data);
-        if (Array.isArray(seasonsData) && seasonsData.length > 0) {
-          console.log('Using seasons data from database:', seasonsData);
-          return seasonsData;
-        }
-      } catch (error) {
-        console.error('Error parsing seasons data:', error);
-      }
+  // Generate mock seasons if none provided
+  const mockSeasons: Season[] = seasons.length > 0 ? seasons : [
+    {
+      season_number: 1,
+      episodes: Array.from({ length: 8 }, (_, i) => ({
+        id: `ep-${i + 1}`,
+        title: `Episode ${i + 1}`,
+        episode_number: i + 1,
+        duration_minutes: 45,
+        description: `Episode ${i + 1} of ${series.title}`,
+        video_url: videoUrl // Use the same video URL for demo
+      }))
     }
-
-    // If seasons prop is provided, use it
-    if (seasons && seasons.length > 0) {
-      console.log('Using seasons from props:', seasons);
-      return seasons;
-    }
-
-    // Always generate mock seasons as fallback
-    console.log('Generating mock seasons for series:', series.title);
-    const mockSeasons: Season[] = [
-      {
-        season_number: 1,
-        episodes: Array.from({ length: 8 }, (_, i) => ({
-          id: `ep-${i + 1}`,
-          title: `Episode ${i + 1}`,
-          episode_number: i + 1,
-          duration_minutes: 45,
-          description: `Episode ${i + 1} of ${series.title}`,
-          // Use the series video URL as fallback for demo purposes
-          video_url: videoUrl || contentItem?.video_url
-        }))
-      }
-    ];
-
-    return mockSeasons;
-  };
-
-  const availableSeasons = getEpisodesWithVideoUrls();
+  ];
 
   const handlePlayFirstEpisode = () => {
-    const firstEpisode = availableSeasons[0]?.episodes[0];
+    const firstEpisode = mockSeasons[0]?.episodes[0];
     if (firstEpisode?.video_url) {
-      console.log('Playing first episode:', firstEpisode.title, 'URL:', firstEpisode.video_url);
       onPlayEpisode(firstEpisode.video_url, `${series.title} - ${firstEpisode.title}`);
-    } else {
-      console.warn('No video URL available for first episode');
     }
   };
 
   const handlePlayEpisode = (episode: Episode) => {
     if (episode.video_url) {
-      console.log('Playing episode:', episode.title, 'URL:', episode.video_url);
       onPlayEpisode(episode.video_url, `${series.title} - ${episode.title}`);
-    } else {
-      console.warn('No video URL available for episode:', episode.title);
     }
   };
 
@@ -143,9 +109,9 @@ const SeriesModal = ({
                 <div className="flex items-center space-x-4 mb-4">
                   <button
                     onClick={handlePlayFirstEpisode}
-                    disabled={!availableSeasons[0]?.episodes[0]?.video_url}
+                    disabled={!videoUrl}
                     className={`px-8 py-3 rounded-lg font-semibold flex items-center space-x-3 transition-colors ${
-                      availableSeasons[0]?.episodes[0]?.video_url
+                      videoUrl 
                         ? 'bg-white text-black hover:bg-gray-200' 
                         : 'bg-gray-600 text-gray-400 cursor-not-allowed'
                     }`}
@@ -162,7 +128,7 @@ const SeriesModal = ({
                   </button>
 
                   <span className="text-white text-xl font-medium">
-                    {contentItem?.seasons || availableSeasons.length} Season{(contentItem?.seasons || availableSeasons.length) !== 1 ? 's' : ''}
+                    {contentItem?.seasons || mockSeasons.length} Season{(contentItem?.seasons || mockSeasons.length) !== 1 ? 's' : ''}
                   </span>
                 </div>
                 
@@ -196,7 +162,7 @@ const SeriesModal = ({
               <div className="mb-8">
                 <Tabs defaultValue="season-1" className="w-full">
                   <TabsList className="grid w-full grid-cols-auto bg-gray-800">
-                    {availableSeasons.map((season) => (
+                    {mockSeasons.map((season) => (
                       <TabsTrigger 
                         key={season.season_number} 
                         value={`season-${season.season_number}`}
@@ -207,7 +173,7 @@ const SeriesModal = ({
                     ))}
                   </TabsList>
                   
-                  {availableSeasons.map((season) => (
+                  {mockSeasons.map((season) => (
                     <TabsContent key={season.season_number} value={`season-${season.season_number}`} className="mt-4">
                       <div className="space-y-1">
                         {season.episodes.map((episode, index) => (
