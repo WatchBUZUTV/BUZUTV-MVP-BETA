@@ -164,7 +164,7 @@ const Movies = () => {
                     {/* Genre Sections */}
                     {Object.entries(movieContent.byGenre).map(([genre, genreMovies]) => (
                       genreMovies.length > 0 && (
-                        <MovieRow key={genre} title={genre} movies={genreMovies} />
+                        <ContentRow key={genre} title={genre} movies={genreMovies} />
                       )
                     ))}
                   </div>
