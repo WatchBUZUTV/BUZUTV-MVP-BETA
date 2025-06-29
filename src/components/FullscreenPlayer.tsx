@@ -60,22 +60,36 @@ const FullscreenPlayer = ({ isOpen, onClose, videoUrl, title }: FullscreenPlayer
     <div 
       className="fixed inset-0 bg-black" 
       style={{ 
-        zIndex: 999999,
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-        transform: 'translateZ(0)', // Force hardware acceleration
-        isolation: 'isolate' // Create new stacking context
+        zIndex: 2147483647, // Maximum z-index value
+        position: 'fixed !important' as any,
+        top: '0 !important' as any,
+        left: '0 !important' as any,
+        width: '100vw !important' as any,
+        height: '100vh !important' as any,
+        transform: 'translateZ(0)',
+        isolation: 'isolate',
+        contain: 'layout style paint',
+        willChange: 'transform'
       }}
     >
-      <div className="relative w-full h-full" style={{ isolation: 'isolate' }}>
+      <div 
+        className="relative w-full h-full" 
+        style={{ 
+          isolation: 'isolate',
+          width: '100% !important' as any,
+          height: '100% !important' as any,
+          position: 'relative !important' as any
+        }}
+      >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-[1000000] bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+          className="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
           aria-label="Close fullscreen player"
-          style={{ isolation: 'isolate' }}
+          style={{ 
+            zIndex: 2147483647,
+            isolation: 'isolate',
+            position: 'absolute !important' as any
+          }}
         >
           <X className="w-6 h-6" />
         </button>
@@ -84,10 +98,13 @@ const FullscreenPlayer = ({ isOpen, onClose, videoUrl, title }: FullscreenPlayer
           title={title}
           className="w-full h-full border-0"
           style={{
-            width: '100%',
-            height: '100%',
-            border: 'none',
-            isolation: 'isolate'
+            width: '100% !important' as any,
+            height: '100% !important' as any,
+            border: 'none !important' as any,
+            isolation: 'isolate',
+            position: 'absolute !important' as any,
+            top: '0 !important' as any,
+            left: '0 !important' as any
           }}
           allowFullScreen
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

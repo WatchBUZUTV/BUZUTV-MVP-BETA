@@ -1,23 +1,8 @@
-
-import { Star, Heart, Play } from "lucide-react";
+import { Star, Heart, Play, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Movie } from "@/data/mockMovies";
-
-interface Episode {
-  id: string;
-  title: string;
-  episode_number: number;
-  duration_minutes?: number;
-  description?: string;
-  video_url?: string;
-}
-
-interface Season {
-  season_number: number;
-  episodes: Episode[];
-}
+import { useState, useRef } from "react";
 
 interface SeriesModalProps {
   isOpen: boolean;
@@ -30,7 +15,7 @@ interface SeriesModalProps {
   contentItem?: any;
   channel?: any;
   recommendedContent: any[];
-  seasons?: Season[];
+  onRecommendedClick?: (item: any) => void;
 }
 
 const SeriesModal = ({
@@ -44,90 +29,103 @@ const SeriesModal = ({
   contentItem,
   channel,
   recommendedContent,
-  seasons = []
+  onRecommendedClick
 }: SeriesModalProps) => {
-  // Format duration from minutes to "Xh Ym" format
-  const formatDuration = (minutes: number | undefined) => {
-    if (!minutes) return "N/A";
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    if (hours > 0) {
-      return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
-    }
-    return `${mins}m`;
-  };
+  const [selectedSeason, setSelectedSeason] = useState(1);
+  const [showSeasonDropdown, setShowSeasonDropdown] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Get seasons data from contentItem
-  const getSeasonsData = (): Season[] => {
-    console.log('Getting seasons data for:', series.title);
-    console.log('ContentItem:', contentItem);
-    console.log('ContentItem seasons_data:', contentItem?.seasons_data);
+  const getSeasonsData = () => {
+    if (!contentItem?.seasons_data) {
+      console.log('No seasons_data found for series:', series.title);
+      return [];
+    }
+
+    console.log('Raw seasons_data:', contentItem.seasons_data);
     
-    // Try to get real seasons data from the database
-    if (contentItem?.seasons_data) {
-      try {
-        let seasonsData;
-        
-        // Handle both string and object formats of JSONB data
-        if (typeof contentItem.seasons_data === 'string') {
-          seasonsData = JSON.parse(contentItem.seasons_data);
-        } else {
-          seasonsData = contentItem.seasons_data;
-        }
-        
-        console.log('Parsed seasons data:', seasonsData);
-        
-        // Check if it's an array of seasons
-        if (Array.isArray(seasonsData) && seasonsData.length > 0) {
-          console.log('Using real seasons data from database');
-          // Map the database format to frontend format
-          return seasonsData.map((season: any) => ({
-            season_number: season.seasonNumber, // Map from camelCase to snake_case
-            episodes: (season.episodes || []).map((episode: any) => ({
-              id: episode.id || `ep-${season.seasonNumber}-${episode.episodeNumber}`,
-              title: episode.title,
-              episode_number: episode.episodeNumber, // Map from camelCase to snake_case
-              duration_minutes: episode.duration_minutes || 45,
-              description: episode.description,
-              video_url: episode.videoUrl // Map from camelCase to snake_case
-            }))
-          }));
-        }
-      } catch (error) {
-        console.error('Error parsing seasons_data:', error);
+    try {
+      let parsedData;
+      if (typeof contentItem.seasons_data === 'string') {
+        parsedData = JSON.parse(contentItem.seasons_data);
+      } else {
+        parsedData = contentItem.seasons_data;
       }
+      
+      console.log('Parsed seasons data:', parsedData);
+      
+      // Validate the structure
+      if (Array.isArray(parsedData)) {
+        const validatedData = parsedData.filter(season => {
+          const isValid = season && 
+                         typeof season.seasonNumber === 'number' && 
+                         Array.isArray(season.episodes);
+          if (!isValid) {
+            console.warn('Invalid season data:', season);
+          }
+          return isValid;
+        });
+        
+        console.log('Validated seasons data:', validatedData);
+        return validatedData;
+      } else {
+        console.warn('Seasons data is not an array:', parsedData);
+        return [];
+      }
+    } catch (error) {
+      console.error('Error parsing seasons data:', error);
+      return [];
     }
-
-    // If no real data or parsing failed, return empty array
-    console.log('No seasons data available');
-    return [];
   };
 
   const seasonsData = getSeasonsData();
+  console.log('Final seasons data for rendering:', seasonsData);
 
-  const handlePlayFirstEpisode = () => {
-    const firstEpisode = seasonsData[0]?.episodes[0];
-    if (firstEpisode?.video_url) {
-      console.log('Playing first episode:', firstEpisode.title, 'URL:', firstEpisode.video_url);
-      onPlayEpisode(firstEpisode.video_url, `${series.title} - ${firstEpisode.title}`);
-    }
-  };
-
-  const handlePlayEpisode = (episode: Episode) => {
-    if (episode.video_url) {
-      console.log('Playing episode:', episode.title, 'URL:', episode.video_url);
-      onPlayEpisode(episode.video_url, `${series.title} - ${episode.title}`);
-    }
-  };
+  // Get current season data
+  const currentSeasonData = seasonsData.find(season => season.seasonNumber === selectedSeason);
+  const episodes = currentSeasonData?.episodes || [];
 
   // Show play button if there are episodes available
   const showPlayButton = seasonsData.length > 0 && seasonsData[0]?.episodes?.length > 0;
 
-  // Filter recommended content by same genre or channel
+  // Filter recommended content by BOTH same genre AND channel
   const filteredRecommendedContent = recommendedContent.filter(item => 
     item.id !== series.id && 
-    (item.genre === series.genre || item.channel_id === series.channelId || item.channel_id === contentItem?.channel_id)
+    item.genre === series.genre && 
+    (item.channel_id === series.channelId || item.channel_id === contentItem?.channel_id)
   );
+
+  const handlePlayFirstEpisode = () => {
+    if (seasonsData.length > 0 && seasonsData[0].episodes.length > 0) {
+      const firstEpisode = seasonsData[0].episodes[0];
+      const episodeTitle = `${series.title} - S${seasonsData[0].seasonNumber}E${firstEpisode.episodeNumber}: ${firstEpisode.title}`;
+      console.log('Playing first episode:', episodeTitle, 'URL:', firstEpisode.videoUrl);
+      onPlayEpisode(firstEpisode.videoUrl, episodeTitle);
+    }
+  };
+
+  const handleEpisodePlay = (episode: any, seasonNumber: number) => {
+    const episodeTitle = `${series.title} - S${seasonNumber}E${episode.episodeNumber}: ${episode.title}`;
+    console.log('Playing episode:', episodeTitle, 'URL:', episode.videoUrl);
+    onPlayEpisode(episode.videoUrl, episodeTitle);
+  };
+
+  const scrollLeft = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: -300, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: 300, behavior: 'smooth' });
+    }
+  };
+
+  const handleRecommendedClick = (item: any) => {
+    if (onRecommendedClick) {
+      onRecommendedClick(item);
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -135,7 +133,6 @@ const SeriesModal = ({
         <DialogTitle className="sr-only">{series.title}</DialogTitle>
         <ScrollArea className="h-[90vh]">
           <div className="relative">
-            {/* Hero Section */}
             <div className="relative h-[60vh] overflow-hidden">
               <div className="absolute inset-0">
                 <img
@@ -151,15 +148,18 @@ const SeriesModal = ({
                 <h1 className="text-5xl font-bold text-white mb-6">{series.title}</h1>
                 
                 <div className="flex items-center space-x-4 mb-4">
-                  {showPlayButton && (
-                    <button
-                      onClick={handlePlayFirstEpisode}
-                      className="px-8 py-3 rounded-lg font-semibold flex items-center space-x-3 transition-colors bg-white text-black hover:bg-gray-200"
-                    >
-                      <Play className="w-6 h-6 fill-current" />
-                      <span>Play</span>
-                    </button>
-                  )}
+                  <button
+                    onClick={handlePlayFirstEpisode}
+                    disabled={!showPlayButton}
+                    className={`px-8 py-3 rounded-lg font-semibold flex items-center space-x-3 transition-colors ${
+                      showPlayButton 
+                        ? 'bg-white text-black hover:bg-gray-200' 
+                        : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    <Play className="w-6 h-6 fill-current" />
+                    <span>Play</span>
+                  </button>
                   
                   <button
                     onClick={onSave}
@@ -167,12 +167,6 @@ const SeriesModal = ({
                   >
                     <Heart className={`w-6 h-6 ${isSaved ? 'fill-current text-red-500' : ''}`} />
                   </button>
-
-                  {seasonsData.length > 0 && (
-                    <span className="text-white text-xl font-medium">
-                      {seasonsData.length} Season{seasonsData.length !== 1 ? 's' : ''}
-                    </span>
-                  )}
                 </div>
                 
                 <div className="flex items-center space-x-4 text-sm">
@@ -201,69 +195,93 @@ const SeriesModal = ({
 
             {/* Content Section */}
             <div className="bg-gray-900 p-8 pt-4">
-              {/* Episodes Section - Only show for series with seasons */}
+              {/* Seasons and Episodes */}
               {seasonsData.length > 0 && (
                 <div className="mb-8">
-                  <Tabs defaultValue="season-1" className="w-full">
-                    <TabsList className="grid w-full grid-cols-auto bg-gray-800">
-                      {seasonsData.map((season) => (
-                        <TabsTrigger 
-                          key={season.season_number} 
-                          value={`season-${season.season_number}`}
-                          className="data-[state=active]:bg-white data-[state=active]:text-black"
-                        >
-                          Season {season.season_number}
-                        </TabsTrigger>
-                      ))}
-                    </TabsList>
+                  {/* Season Selector */}
+                  <div className="relative mb-4">
+                    <button
+                      onClick={() => setShowSeasonDropdown(!showSeasonDropdown)}
+                      className="flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg text-white font-medium"
+                    >
+                      <span>Season {selectedSeason}</span>
+                      <ChevronDown className={`w-4 h-4 transition-transform ${showSeasonDropdown ? 'rotate-180' : ''}`} />
+                    </button>
                     
-                    {seasonsData.map((season) => (
-                      <TabsContent key={season.season_number} value={`season-${season.season_number}`} className="mt-4">
-                        <div className="space-y-1">
-                          {season.episodes.map((episode, index) => (
-                            <div key={episode.id} className="flex items-center space-x-3 bg-gray-800 rounded-lg p-3 hover:bg-gray-700 transition-colors group h-16">
-                              <div className="flex-shrink-0 w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center text-xs font-bold">
-                                {episode.episode_number}
-                              </div>
-                              
-                              <div className="flex-1 min-w-0">
-                                <h4 className="font-medium text-white truncate text-sm">{episode.title}</h4>
-                                <div className="flex items-center space-x-2">
-                                  <p className="text-xs text-gray-400 truncate max-w-96">
-                                    {episode.description || `Episode ${episode.episode_number} of ${series.title}`}
-                                  </p>
-                                  <span className="text-xs text-gray-500 whitespace-nowrap">{formatDuration(episode.duration_minutes)}</span>
-                                </div>
-                              </div>
-                              
-                              <button
-                                onClick={() => handlePlayEpisode(episode)}
-                                disabled={!episode.video_url}
-                                className={`p-2 rounded-full transition-colors ${
-                                  episode.video_url 
-                                    ? 'bg-white/10 hover:bg-white/20 text-white' 
-                                    : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                                }`}
-                              >
-                                <Play className="w-4 h-4 fill-current" />
-                              </button>
-                            </div>
-                          ))}
+                    {showSeasonDropdown && (
+                      <div className="absolute top-full left-0 mt-1 bg-gray-800 rounded-lg shadow-lg z-10 min-w-[120px]">
+                        {seasonsData.map((season) => (
+                          <button
+                            key={season.seasonNumber}
+                            onClick={() => {
+                              setSelectedSeason(season.seasonNumber);
+                              setShowSeasonDropdown(false);
+                            }}
+                            className="block w-full text-left px-4 py-2 text-white hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg"
+                          >
+                            Season {season.seasonNumber}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Episodes Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {episodes.map((episode: any, index: number) => (
+                      <div 
+                        key={index}
+                        className="bg-gray-800 rounded-lg overflow-hidden hover:bg-gray-700 transition-colors cursor-pointer"
+                        onClick={() => handleEpisodePlay(episode, selectedSeason)}
+                      >
+                        <div className="aspect-video bg-gray-700 flex items-center justify-center relative group">
+                          <Play className="w-12 h-12 text-white/70 group-hover:text-white transition-colors" />
+                          <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                            E{episode.episodeNumber}
+                          </div>
                         </div>
-                      </TabsContent>
+                        <div className="p-4">
+                          <h4 className="font-medium text-white mb-1 line-clamp-1">{episode.title}</h4>
+                          <p className="text-gray-400 text-sm line-clamp-2">{episode.description || 'No description available'}</p>
+                        </div>
+                      </div>
                     ))}
-                  </Tabs>
+                  </div>
                 </div>
               )}
 
               {/* More Like This Section */}
               {filteredRecommendedContent.length > 0 && (
                 <div>
-                  <h3 className="text-xl font-bold mb-4">More Like This</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-1">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xl font-bold">More Like This</h3>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={scrollLeft}
+                        className="p-2 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors"
+                      >
+                        <ChevronLeft className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={scrollRight}
+                        className="p-2 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors"
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                  <div 
+                    ref={scrollRef}
+                    className="flex space-x-2 overflow-x-auto scrollbar-hide"
+                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                  >
                     {filteredRecommendedContent.map((item) => (
-                      <div key={item.id} className="group cursor-pointer">
-                        <div className="aspect-video relative overflow-hidden rounded-lg bg-gray-800">
+                      <div 
+                        key={item.id} 
+                        className="group cursor-pointer flex-shrink-0"
+                        onClick={() => handleRecommendedClick(item)}
+                      >
+                        <div className="aspect-video relative overflow-hidden rounded-lg bg-gray-800 w-48">
                           <img
                             src={item.poster_url || '/placeholder.svg'}
                             alt={item.title}
@@ -273,7 +291,7 @@ const SeriesModal = ({
                             <Play className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 fill-current" />
                           </div>
                         </div>
-                        <h4 className="text-sm font-medium text-white mt-2 line-clamp-2">{item.title}</h4>
+                        <h4 className="text-sm font-medium text-white mt-2 line-clamp-2 w-48">{item.title}</h4>
                       </div>
                     ))}
                   </div>
