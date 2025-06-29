@@ -123,6 +123,12 @@ const SeriesModal = ({
   // Show play button if there are episodes available
   const showPlayButton = seasonsData.length > 0 && seasonsData[0]?.episodes?.length > 0;
 
+  // Filter recommended content by same genre or channel
+  const filteredRecommendedContent = recommendedContent.filter(item => 
+    item.id !== series.id && 
+    (item.genre === series.genre || item.channel_id === series.channelId || item.channel_id === contentItem?.channel_id)
+  );
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[75vw] max-h-[90vh] bg-gray-900 text-white border-none p-0 overflow-hidden">
@@ -251,11 +257,11 @@ const SeriesModal = ({
               )}
 
               {/* More Like This Section */}
-              {recommendedContent.length > 0 && (
+              {filteredRecommendedContent.length > 0 && (
                 <div>
                   <h3 className="text-xl font-bold mb-4">More Like This</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-1">
-                    {recommendedContent.map((item) => (
+                    {filteredRecommendedContent.map((item) => (
                       <div key={item.id} className="group cursor-pointer">
                         <div className="aspect-video relative overflow-hidden rounded-lg bg-gray-800">
                           <img

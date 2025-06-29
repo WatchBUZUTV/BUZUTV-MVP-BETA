@@ -65,14 +65,17 @@ const FullscreenPlayer = ({ isOpen, onClose, videoUrl, title }: FullscreenPlayer
         top: 0,
         left: 0,
         width: '100vw',
-        height: '100vh'
+        height: '100vh',
+        transform: 'translateZ(0)', // Force hardware acceleration
+        isolation: 'isolate' // Create new stacking context
       }}
     >
-      <div className="relative w-full h-full">
+      <div className="relative w-full h-full" style={{ isolation: 'isolate' }}>
         <button
           onClick={onClose}
           className="absolute top-4 right-4 z-[1000000] bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
           aria-label="Close fullscreen player"
+          style={{ isolation: 'isolate' }}
         >
           <X className="w-6 h-6" />
         </button>
@@ -83,7 +86,8 @@ const FullscreenPlayer = ({ isOpen, onClose, videoUrl, title }: FullscreenPlayer
           style={{
             width: '100%',
             height: '100%',
-            border: 'none'
+            border: 'none',
+            isolation: 'isolate'
           }}
           allowFullScreen
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
