@@ -8,7 +8,6 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Navbar from "@/components/Navbar";
 import SearchOverlay from "@/components/SearchOverlay";
 import { useAppContent } from "@/hooks/useAppContent";
-import ContentRow from "@/components/ContentRow";
 import {
   Carousel,
   CarouselContent,
@@ -153,7 +152,7 @@ const Series = () => {
                     
                     {Object.entries(seriesContent.byGenre).map(([genre, genreShows]) => (
                       genreShows.length > 0 && (
-                        <ContentRow key={genre} title={genre} series={genreShows} />
+                        <SeriesRow key={genre} title={genre} series={genreShows} />
                       )
                     ))}
                   </div>
