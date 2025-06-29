@@ -7,7 +7,7 @@ import HeroBanner from "@/components/HeroBanner";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Navbar from "@/components/Navbar";
 import SearchOverlay from "@/components/SearchOverlay";
-import {ContentRow} from "@/components/ContentRow";
+import ContentRow from "@/components/ContentRow";
 
 import { useAppContent } from "@/hooks/useAppContent";
 import {
