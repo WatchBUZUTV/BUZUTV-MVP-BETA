@@ -57,13 +57,13 @@ const SeriesModal = ({
     return `${mins}m`;
   };
 
-  // Get seasons data from contentItem or use mock data as fallback
+  // Get seasons data from contentItem
   const getSeasonsData = (): Season[] => {
     console.log('Getting seasons data for:', series.title);
     console.log('ContentItem:', contentItem);
     console.log('ContentItem seasons_data:', contentItem?.seasons_data);
     
-    // First, try to get real seasons data from the database
+    // Try to get real seasons data from the database
     if (contentItem?.seasons_data) {
       try {
         let seasonsData;
@@ -80,15 +80,16 @@ const SeriesModal = ({
         // Check if it's an array of seasons
         if (Array.isArray(seasonsData) && seasonsData.length > 0) {
           console.log('Using real seasons data from database');
+          // Map the database format to frontend format
           return seasonsData.map((season: any) => ({
-            season_number: season.season_number,
+            season_number: season.seasonNumber, // Map from camelCase to snake_case
             episodes: (season.episodes || []).map((episode: any) => ({
-              id: episode.id || `ep-${season.season_number}-${episode.episode_number}`,
+              id: episode.id || `ep-${season.seasonNumber}-${episode.episodeNumber}`,
               title: episode.title,
-              episode_number: episode.episode_number,
+              episode_number: episode.episodeNumber, // Map from camelCase to snake_case
               duration_minutes: episode.duration_minutes || 45,
               description: episode.description,
-              video_url: episode.video_url || videoUrl // Use episode-specific URL or fallback to series URL
+              video_url: episode.videoUrl // Map from camelCase to snake_case
             }))
           }));
         }
@@ -97,26 +98,8 @@ const SeriesModal = ({
       }
     }
 
-    // If no real data or parsing failed, generate mock seasons only if series type is 'tv'
-    if (series.type === 'tv' || contentItem?.type === 'series') {
-      console.log('Using mock seasons data for TV series');
-      return [
-        {
-          season_number: 1,
-          episodes: Array.from({ length: 8 }, (_, i) => ({
-            id: `ep-${i + 1}`,
-            title: `Episode ${i + 1}`,
-            episode_number: i + 1,
-            duration_minutes: 45,
-            description: `Episode ${i + 1} of ${series.title}`,
-            video_url: videoUrl
-          }))
-        }
-      ];
-    }
-
-    // For movies, return empty array
-    console.log('No seasons data for movie type content');
+    // If no real data or parsing failed, return empty array
+    console.log('No seasons data available');
     return [];
   };
 
@@ -137,8 +120,8 @@ const SeriesModal = ({
     }
   };
 
-  // Show play button for movies or first episode for series
-  const showPlayButton = contentItem?.type === 'movie' || (seasonsData.length > 0 && seasonsData[0]?.episodes?.length > 0);
+  // Show play button if there are episodes available
+  const showPlayButton = seasonsData.length > 0 && seasonsData[0]?.episodes?.length > 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -164,13 +147,8 @@ const SeriesModal = ({
                 <div className="flex items-center space-x-4 mb-4">
                   {showPlayButton && (
                     <button
-                      onClick={contentItem?.type === 'movie' ? () => onPlayEpisode(videoUrl || '', series.title) : handlePlayFirstEpisode}
-                      disabled={!videoUrl}
-                      className={`px-8 py-3 rounded-lg font-semibold flex items-center space-x-3 transition-colors ${
-                        videoUrl 
-                          ? 'bg-white text-black hover:bg-gray-200' 
-                          : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                      }`}
+                      onClick={handlePlayFirstEpisode}
+                      className="px-8 py-3 rounded-lg font-semibold flex items-center space-x-3 transition-colors bg-white text-black hover:bg-gray-200"
                     >
                       <Play className="w-6 h-6 fill-current" />
                       <span>Play</span>
