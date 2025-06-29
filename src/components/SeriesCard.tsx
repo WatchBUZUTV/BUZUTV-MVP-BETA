@@ -1,4 +1,4 @@
-import React from "react";
+
 import { Star, Heart, Play } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
 import { useState } from "react";
@@ -34,26 +34,6 @@ const SeriesCard = ({
   const [currentVideoTitle, setCurrentVideoTitle] = useState("");
 
   const isSaved = favoriteIds.includes(series.id);
-
-  const handleRecommendedClick = (item: any) => {
-    // Create a new series object from the recommended item
-    const recommendedSeries = {
-      id: item.id,
-      title: item.title,
-      posterUrl: item.poster_url,
-      genre: item.genre,
-      year: item.year || new Date().getFullYear(),
-      rating: item.rating || '7.0',
-      channelId: item.channel_id
-    };
-    
-    // Close current modal and open the recommended series modal
-    setShowModal(false);
-    setTimeout(() => {
-      // You would need to trigger the parent component to handle this
-      console.log('Opening modal for recommended series:', recommendedSeries.title);
-    }, 200);
-  };
 
   const handleSave = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -171,7 +151,6 @@ const SeriesCard = ({
         contentItem={contentItem}
         channel={channel}
         recommendedContent={recommendedContent}
-        onRecommendedClick={handleRecommendedClick}
       />
     </>
   );

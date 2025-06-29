@@ -1,9 +1,8 @@
 
-import { Star, Heart, Play, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, Heart, Play } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Movie } from "@/data/mockMovies";
-import { useState, useRef } from "react";
 
 interface MovieModalProps {
   isOpen: boolean;
@@ -16,7 +15,6 @@ interface MovieModalProps {
   contentItem?: any;
   channel?: any;
   recommendedContent: any[];
-  onRecommendedClick?: (item: any) => void;
 }
 
 const MovieModal = ({
@@ -29,11 +27,8 @@ const MovieModal = ({
   videoUrl,
   contentItem,
   channel,
-  recommendedContent,
-  onRecommendedClick
+  recommendedContent
 }: MovieModalProps) => {
-  const scrollRef = useRef<HTMLDivElement>(null);
-
   // Format duration from minutes to "Xh Ym" format
   const formatDuration = (minutes: number | undefined) => {
     if (!minutes) return "N/A";
@@ -45,30 +40,11 @@ const MovieModal = ({
     return `${mins}m`;
   };
 
-  // Filter recommended content by BOTH same genre AND channel
+  // Filter recommended content by same genre or channel
   const filteredRecommendedContent = recommendedContent.filter(item => 
     item.id !== movie.id && 
-    item.genre === movie.genre && 
-    (item.channel_id === movie.channelId || item.channel_id === contentItem?.channel_id)
+    (item.genre === movie.genre || item.channel_id === movie.channelId || item.channel_id === contentItem?.channel_id)
   );
-
-  const scrollLeft = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: -300, behavior: 'smooth' });
-    }
-  };
-
-  const scrollRight = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: 300, behavior: 'smooth' });
-    }
-  };
-
-  const handleRecommendedClick = (item: any) => {
-    if (onRecommendedClick) {
-      onRecommendedClick(item);
-    }
-  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -153,35 +129,11 @@ const MovieModal = ({
               {/* More Like This Section */}
               {filteredRecommendedContent.length > 0 && (
                 <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-bold">More Like This</h3>
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={scrollLeft}
-                        className="p-2 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors"
-                      >
-                        <ChevronLeft className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={scrollRight}
-                        className="p-2 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors"
-                      >
-                        <ChevronRight className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </div>
-                  <div 
-                    ref={scrollRef}
-                    className="flex space-x-2 overflow-x-auto scrollbar-hide"
-                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                  >
+                  <h3 className="text-xl font-bold mb-4">More Like This</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-1">
                     {filteredRecommendedContent.map((item) => (
-                      <div 
-                        key={item.id} 
-                        className="group cursor-pointer flex-shrink-0"
-                        onClick={() => handleRecommendedClick(item)}
-                      >
-                        <div className="aspect-video relative overflow-hidden rounded-lg bg-gray-800 w-48">
+                      <div key={item.id} className="group cursor-pointer">
+                        <div className="aspect-video relative overflow-hidden rounded-lg bg-gray-800">
                           <img
                             src={item.poster_url || '/placeholder.svg'}
                             alt={item.title}
@@ -191,7 +143,7 @@ const MovieModal = ({
                             <Play className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 fill-current" />
                           </div>
                         </div>
-                        <h4 className="text-sm font-medium text-white mt-2 line-clamp-2 w-48">{item.title}</h4>
+                        <h4 className="text-sm font-medium text-white mt-2 line-clamp-2">{item.title}</h4>
                       </div>
                     ))}
                   </div>

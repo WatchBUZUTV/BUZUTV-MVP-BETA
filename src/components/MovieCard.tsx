@@ -1,4 +1,4 @@
-import React from "react";
+
 import { Star, Heart, Play } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
 import { useState } from "react";
@@ -33,26 +33,6 @@ const MovieCard = ({
 
   // Check if movie is in favorites
   const isSaved = favoriteIds.includes(movie.id);
-
-  const handleRecommendedClick = (item: any) => {
-    // Create a new movie object from the recommended item
-    const recommendedMovie = {
-      id: item.id,
-      title: item.title,
-      posterUrl: item.poster_url,
-      genre: item.genre,
-      year: item.year || new Date().getFullYear(),
-      rating: item.rating || '7.0',
-      channelId: item.channel_id
-    };
-    
-    // Close current modal and open the recommended movie's modal
-    setShowModal(false);
-    setTimeout(() => {
-      // You would need to trigger the parent component to handle this
-      console.log('Opening modal for recommended movie:', recommendedMovie.title);
-    }, 200);
-  };
 
   const handleSave = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -191,7 +171,6 @@ const MovieCard = ({
         contentItem={contentItem}
         channel={channel}
         recommendedContent={recommendedContent}
-        onRecommendedClick={handleRecommendedClick}
       />
     </>
   );
