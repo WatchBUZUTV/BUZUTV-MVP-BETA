@@ -57,30 +57,58 @@ const SeriesModal = ({
     return `${mins}m`;
   };
 
-  // Generate mock seasons if none provided
-  const mockSeasons: Season[] = seasons.length > 0 ? seasons : [
-    {
-      season_number: 1,
-      episodes: Array.from({ length: 8 }, (_, i) => ({
-        id: `ep-${i + 1}`,
-        title: `Episode ${i + 1}`,
-        episode_number: i + 1,
-        duration_minutes: 45,
-        description: `Episode ${i + 1} of ${series.title}`,
-        video_url: videoUrl // Use the same video URL for demo
-      }))
+  // Get seasons data from contentItem or use mock data as fallback
+  const getSeasonsData = (): Season[] => {
+    console.log('Getting seasons data for:', series.title);
+    console.log('ContentItem:', contentItem);
+    console.log('ContentItem seasons_data:', contentItem?.seasons_data);
+    
+    // First, try to get real seasons data from the database
+    if (contentItem?.seasons_data && Array.isArray(contentItem.seasons_data)) {
+      console.log('Using real seasons data from database');
+      return contentItem.seasons_data.map((season: any) => ({
+        season_number: season.season_number,
+        episodes: season.episodes.map((episode: any) => ({
+          id: episode.id || `ep-${season.season_number}-${episode.episode_number}`,
+          title: episode.title,
+          episode_number: episode.episode_number,
+          duration_minutes: episode.duration_minutes || 45,
+          description: episode.description,
+          video_url: episode.video_url || videoUrl // Use episode-specific URL or fallback to series URL
+        }))
+      }));
     }
-  ];
+
+    // If no real data, generate mock seasons
+    console.log('Using mock seasons data');
+    return [
+      {
+        season_number: 1,
+        episodes: Array.from({ length: 8 }, (_, i) => ({
+          id: `ep-${i + 1}`,
+          title: `Episode ${i + 1}`,
+          episode_number: i + 1,
+          duration_minutes: 45,
+          description: `Episode ${i + 1} of ${series.title}`,
+          video_url: videoUrl
+        }))
+      }
+    ];
+  };
+
+  const seasonsData = getSeasonsData();
 
   const handlePlayFirstEpisode = () => {
-    const firstEpisode = mockSeasons[0]?.episodes[0];
+    const firstEpisode = seasonsData[0]?.episodes[0];
     if (firstEpisode?.video_url) {
+      console.log('Playing first episode:', firstEpisode.title, 'URL:', firstEpisode.video_url);
       onPlayEpisode(firstEpisode.video_url, `${series.title} - ${firstEpisode.title}`);
     }
   };
 
   const handlePlayEpisode = (episode: Episode) => {
     if (episode.video_url) {
+      console.log('Playing episode:', episode.title, 'URL:', episode.video_url);
       onPlayEpisode(episode.video_url, `${series.title} - ${episode.title}`);
     }
   };
@@ -128,7 +156,7 @@ const SeriesModal = ({
                   </button>
 
                   <span className="text-white text-xl font-medium">
-                    {contentItem?.seasons || mockSeasons.length} Season{(contentItem?.seasons || mockSeasons.length) !== 1 ? 's' : ''}
+                    {seasonsData.length} Season{seasonsData.length !== 1 ? 's' : ''}
                   </span>
                 </div>
                 
@@ -162,7 +190,7 @@ const SeriesModal = ({
               <div className="mb-8">
                 <Tabs defaultValue="season-1" className="w-full">
                   <TabsList className="grid w-full grid-cols-auto bg-gray-800">
-                    {mockSeasons.map((season) => (
+                    {seasonsData.map((season) => (
                       <TabsTrigger 
                         key={season.season_number} 
                         value={`season-${season.season_number}`}
@@ -173,7 +201,7 @@ const SeriesModal = ({
                     ))}
                   </TabsList>
                   
-                  {mockSeasons.map((season) => (
+                  {seasonsData.map((season) => (
                     <TabsContent key={season.season_number} value={`season-${season.season_number}`} className="mt-4">
                       <div className="space-y-1">
                         {season.episodes.map((episode, index) => (

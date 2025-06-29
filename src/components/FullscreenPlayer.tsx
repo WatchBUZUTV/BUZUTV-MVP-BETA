@@ -57,11 +57,21 @@ const FullscreenPlayer = ({ isOpen, onClose, videoUrl, title }: FullscreenPlayer
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[99999] bg-black" style={{ zIndex: 99999 }}>
+    <div 
+      className="fixed inset-0 bg-black" 
+      style={{ 
+        zIndex: 999999,
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh'
+      }}
+    >
       <div className="relative w-full h-full">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+          className="absolute top-4 right-4 z-[1000000] bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
           aria-label="Close fullscreen player"
         >
           <X className="w-6 h-6" />
@@ -70,6 +80,11 @@ const FullscreenPlayer = ({ isOpen, onClose, videoUrl, title }: FullscreenPlayer
           ref={iframeRef}
           title={title}
           className="w-full h-full border-0"
+          style={{
+            width: '100%',
+            height: '100%',
+            border: 'none'
+          }}
           allowFullScreen
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         />
