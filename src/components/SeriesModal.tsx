@@ -64,36 +64,60 @@ const SeriesModal = ({
     console.log('ContentItem seasons_data:', contentItem?.seasons_data);
     
     // First, try to get real seasons data from the database
-    if (contentItem?.seasons_data && Array.isArray(contentItem.seasons_data)) {
-      console.log('Using real seasons data from database');
-      return contentItem.seasons_data.map((season: any) => ({
-        season_number: season.season_number,
-        episodes: season.episodes.map((episode: any) => ({
-          id: episode.id || `ep-${season.season_number}-${episode.episode_number}`,
-          title: episode.title,
-          episode_number: episode.episode_number,
-          duration_minutes: episode.duration_minutes || 45,
-          description: episode.description,
-          video_url: episode.video_url || videoUrl // Use episode-specific URL or fallback to series URL
-        }))
-      }));
+    if (contentItem?.seasons_data) {
+      try {
+        let seasonsData;
+        
+        // Handle both string and object formats of JSONB data
+        if (typeof contentItem.seasons_data === 'string') {
+          seasonsData = JSON.parse(contentItem.seasons_data);
+        } else {
+          seasonsData = contentItem.seasons_data;
+        }
+        
+        console.log('Parsed seasons data:', seasonsData);
+        
+        // Check if it's an array of seasons
+        if (Array.isArray(seasonsData) && seasonsData.length > 0) {
+          console.log('Using real seasons data from database');
+          return seasonsData.map((season: any) => ({
+            season_number: season.season_number,
+            episodes: (season.episodes || []).map((episode: any) => ({
+              id: episode.id || `ep-${season.season_number}-${episode.episode_number}`,
+              title: episode.title,
+              episode_number: episode.episode_number,
+              duration_minutes: episode.duration_minutes || 45,
+              description: episode.description,
+              video_url: episode.video_url || videoUrl // Use episode-specific URL or fallback to series URL
+            }))
+          }));
+        }
+      } catch (error) {
+        console.error('Error parsing seasons_data:', error);
+      }
     }
 
-    // If no real data, generate mock seasons
-    console.log('Using mock seasons data');
-    return [
-      {
-        season_number: 1,
-        episodes: Array.from({ length: 8 }, (_, i) => ({
-          id: `ep-${i + 1}`,
-          title: `Episode ${i + 1}`,
-          episode_number: i + 1,
-          duration_minutes: 45,
-          description: `Episode ${i + 1} of ${series.title}`,
-          video_url: videoUrl
-        }))
-      }
-    ];
+    // If no real data or parsing failed, generate mock seasons only if series type is 'tv'
+    if (series.type === 'tv' || contentItem?.type === 'series') {
+      console.log('Using mock seasons data for TV series');
+      return [
+        {
+          season_number: 1,
+          episodes: Array.from({ length: 8 }, (_, i) => ({
+            id: `ep-${i + 1}`,
+            title: `Episode ${i + 1}`,
+            episode_number: i + 1,
+            duration_minutes: 45,
+            description: `Episode ${i + 1} of ${series.title}`,
+            video_url: videoUrl
+          }))
+        }
+      ];
+    }
+
+    // For movies, return empty array
+    console.log('No seasons data for movie type content');
+    return [];
   };
 
   const seasonsData = getSeasonsData();
@@ -112,6 +136,9 @@ const SeriesModal = ({
       onPlayEpisode(episode.video_url, `${series.title} - ${episode.title}`);
     }
   };
+
+  // Show play button for movies or first episode for series
+  const showPlayButton = contentItem?.type === 'movie' || (seasonsData.length > 0 && seasonsData[0]?.episodes?.length > 0);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -135,18 +162,20 @@ const SeriesModal = ({
                 <h1 className="text-5xl font-bold text-white mb-6">{series.title}</h1>
                 
                 <div className="flex items-center space-x-4 mb-4">
-                  <button
-                    onClick={handlePlayFirstEpisode}
-                    disabled={!videoUrl}
-                    className={`px-8 py-3 rounded-lg font-semibold flex items-center space-x-3 transition-colors ${
-                      videoUrl 
-                        ? 'bg-white text-black hover:bg-gray-200' 
-                        : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                    }`}
-                  >
-                    <Play className="w-6 h-6 fill-current" />
-                    <span>Play</span>
-                  </button>
+                  {showPlayButton && (
+                    <button
+                      onClick={contentItem?.type === 'movie' ? () => onPlayEpisode(videoUrl || '', series.title) : handlePlayFirstEpisode}
+                      disabled={!videoUrl}
+                      className={`px-8 py-3 rounded-lg font-semibold flex items-center space-x-3 transition-colors ${
+                        videoUrl 
+                          ? 'bg-white text-black hover:bg-gray-200' 
+                          : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                      }`}
+                    >
+                      <Play className="w-6 h-6 fill-current" />
+                      <span>Play</span>
+                    </button>
+                  )}
                   
                   <button
                     onClick={onSave}
@@ -155,9 +184,11 @@ const SeriesModal = ({
                     <Heart className={`w-6 h-6 ${isSaved ? 'fill-current text-red-500' : ''}`} />
                   </button>
 
-                  <span className="text-white text-xl font-medium">
-                    {seasonsData.length} Season{seasonsData.length !== 1 ? 's' : ''}
-                  </span>
+                  {seasonsData.length > 0 && (
+                    <span className="text-white text-xl font-medium">
+                      {seasonsData.length} Season{seasonsData.length !== 1 ? 's' : ''}
+                    </span>
+                  )}
                 </div>
                 
                 <div className="flex items-center space-x-4 text-sm">
@@ -186,58 +217,60 @@ const SeriesModal = ({
 
             {/* Content Section */}
             <div className="bg-gray-900 p-8 pt-4">
-              {/* Episodes Section */}
-              <div className="mb-8">
-                <Tabs defaultValue="season-1" className="w-full">
-                  <TabsList className="grid w-full grid-cols-auto bg-gray-800">
+              {/* Episodes Section - Only show for series with seasons */}
+              {seasonsData.length > 0 && (
+                <div className="mb-8">
+                  <Tabs defaultValue="season-1" className="w-full">
+                    <TabsList className="grid w-full grid-cols-auto bg-gray-800">
+                      {seasonsData.map((season) => (
+                        <TabsTrigger 
+                          key={season.season_number} 
+                          value={`season-${season.season_number}`}
+                          className="data-[state=active]:bg-white data-[state=active]:text-black"
+                        >
+                          Season {season.season_number}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+                    
                     {seasonsData.map((season) => (
-                      <TabsTrigger 
-                        key={season.season_number} 
-                        value={`season-${season.season_number}`}
-                        className="data-[state=active]:bg-white data-[state=active]:text-black"
-                      >
-                        Season {season.season_number}
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
-                  
-                  {seasonsData.map((season) => (
-                    <TabsContent key={season.season_number} value={`season-${season.season_number}`} className="mt-4">
-                      <div className="space-y-1">
-                        {season.episodes.map((episode, index) => (
-                          <div key={episode.id} className="flex items-center space-x-3 bg-gray-800 rounded-lg p-3 hover:bg-gray-700 transition-colors group h-16">
-                            <div className="flex-shrink-0 w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center text-xs font-bold">
-                              {episode.episode_number}
-                            </div>
-                            
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-medium text-white truncate text-sm">{episode.title}</h4>
-                              <div className="flex items-center space-x-2">
-                                <p className="text-xs text-gray-400 truncate max-w-96">
-                                  {episode.description || `Episode ${episode.episode_number} of ${series.title}`}
-                                </p>
-                                <span className="text-xs text-gray-500 whitespace-nowrap">{formatDuration(episode.duration_minutes)}</span>
+                      <TabsContent key={season.season_number} value={`season-${season.season_number}`} className="mt-4">
+                        <div className="space-y-1">
+                          {season.episodes.map((episode, index) => (
+                            <div key={episode.id} className="flex items-center space-x-3 bg-gray-800 rounded-lg p-3 hover:bg-gray-700 transition-colors group h-16">
+                              <div className="flex-shrink-0 w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center text-xs font-bold">
+                                {episode.episode_number}
                               </div>
+                              
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-medium text-white truncate text-sm">{episode.title}</h4>
+                                <div className="flex items-center space-x-2">
+                                  <p className="text-xs text-gray-400 truncate max-w-96">
+                                    {episode.description || `Episode ${episode.episode_number} of ${series.title}`}
+                                  </p>
+                                  <span className="text-xs text-gray-500 whitespace-nowrap">{formatDuration(episode.duration_minutes)}</span>
+                                </div>
+                              </div>
+                              
+                              <button
+                                onClick={() => handlePlayEpisode(episode)}
+                                disabled={!episode.video_url}
+                                className={`p-2 rounded-full transition-colors ${
+                                  episode.video_url 
+                                    ? 'bg-white/10 hover:bg-white/20 text-white' 
+                                    : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                                }`}
+                              >
+                                <Play className="w-4 h-4 fill-current" />
+                              </button>
                             </div>
-                            
-                            <button
-                              onClick={() => handlePlayEpisode(episode)}
-                              disabled={!episode.video_url}
-                              className={`p-2 rounded-full transition-colors ${
-                                episode.video_url 
-                                  ? 'bg-white/10 hover:bg-white/20 text-white' 
-                                  : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                              }`}
-                            >
-                              <Play className="w-4 h-4 fill-current" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </TabsContent>
-                  ))}
-                </Tabs>
-              </div>
+                          ))}
+                        </div>
+                      </TabsContent>
+                    ))}
+                  </Tabs>
+                </div>
+              )}
 
               {/* More Like This Section */}
               {recommendedContent.length > 0 && (
