@@ -50,32 +50,65 @@ const Series = () => {
     );
   }
 
-  const SeriesRow = ({ title, series }: { title: string; series: typeof seriesContent.all }) => (
-    <section className="mb-8 px-4">
-      <h2 className="text-2xl font-bold mb-4">{title}</h2>
-      <Carousel
-        opts={{
-          align: "start",
-          skipSnaps: false,
-        }}
-        className="w-full"
+const SeriesRow = ({ title, series }: { title: string; series: typeof seriesContent.all }) => {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({
+        left: -320,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({
+        left: 320,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  if (series.length === 0) return null;
+
+  return (
+    <section className="mb-8">
+      <div className="flex items-center justify-between mb-4 px-4">
+        <h2 className="text-2xl font-bold">{title}</h2>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={scrollLeft}
+            className="p-2 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <button
+            onClick={scrollRight}
+            className="p-2 rounded-full bg-black/60 hover:bg-black/80 text-white transition-colors"
+          >
+            <ArrowRight className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+
+      <div
+        ref={scrollContainerRef}
+        className="flex space-x-2 overflow-x-auto scrollbar-hide px-4"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
-        <CarouselContent className="-ml-1">
-          <MovieHoverRow className="flex">
-            {series.map((show) => (
-              <CarouselItem key={show.id} className="pl-1 basis-auto">
-                <div className="w-64">
-                  <SeriesCard series={show} />
-                </div>
-              </CarouselItem>
-            ))}
-          </MovieHoverRow>
-        </CarouselContent>
-        <CarouselPrevious />
-        <CarouselNext />
-      </Carousel>
+        <MovieHoverRow className="flex space-x-2">
+          {series.map((show) => (
+            <div key={show.id} className="flex-shrink-0 w-64">
+              <SeriesCard series={show} />
+            </div>
+          ))}
+        </MovieHoverRow>
+      </div>
     </section>
   );
+};
 
   return (
     <ProtectedRoute>
