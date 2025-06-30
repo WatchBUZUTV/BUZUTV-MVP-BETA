@@ -3,6 +3,7 @@ import React, { useRef, useEffect } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
 import MovieCard from "@/components/MovieCard";
+import SeriesCard from "@/components/SeriesCard";
 import ProtectedContent from "@/components/auth/ProtectedContent";
 import MovieHoverRow from "@/components/MovieHoverRow";
 
@@ -12,7 +13,7 @@ interface ContentRowProps {
   series?: Series[];
 }
 
-const content = if(movies) ? movies : series;
+const content = movies ?? series;
 console.log("content is === " + content);
 
 const ContentRow = React.memo(({ title, content }: ContentRowProps) => {
@@ -66,7 +67,7 @@ const ContentRow = React.memo(({ title, content }: ContentRowProps) => {
           {content.map((cont) => (
             <div key={cont.id} className="flex-shrink-0 w-64">
               <ProtectedContent>
-                if(movies) ? <MovieCard movie={cont} /> : <SeriesCard series={cont} />
+                {movies ? (<MovieCard movie={cont} />) : (<SeriesCard series={cont} />)}
               </ProtectedContent>
             </div>
           ))}
