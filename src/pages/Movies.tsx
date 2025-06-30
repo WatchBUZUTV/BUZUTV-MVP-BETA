@@ -3,7 +3,7 @@ import { useState, useMemo } from "react";
 import { genres } from "@/data/mockMovies";
 import OptimizedMovieCard from "@/components/OptimizedMovieCard";
 import MovieHoverRow from "@/components/MovieHoverRow";
-import ContentCard from "@/components/ContentCard";
+import ContentRow from "@/components/ContentRow";
 import HeroBanner from "@/components/HeroBanner";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Navbar from "@/components/Navbar";
