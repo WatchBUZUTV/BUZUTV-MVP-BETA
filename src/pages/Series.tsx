@@ -153,7 +153,7 @@ const Series = () => {
                     
                     {Object.entries(seriesContent.byGenre).map(([genre, genreShows]) => (
                       genreShows.length > 0 && (
-                        <ContentRow key={genre} title={genre} series={genreShows} />
+                        <SeriesRow key={genre} title={genre} series={genreShows} />
                       )
                     ))}
                   </div>
