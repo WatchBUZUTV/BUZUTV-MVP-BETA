@@ -11,7 +11,7 @@ const transformDatabaseContent = (dbContent: any[]) => {
     id: item.id,
     title: item.title,
     description: item.description || '',
-    type: item.type === 'series' : item.type,
+    type: item.type === 'series' ? 'tv' : item.type,
     genre: item.genre || 'Drama',
     year: item.year || new Date().getFullYear(),
     rating: item.rating || 0,
@@ -59,7 +59,7 @@ export const useAppContent = () => {
   // Pre-compute all categories and filters
   const content = useMemo(() => {
     const movies = transformedContent.filter(item => item.type === "movie");
-    const series = transformedContent.filter(item => item.type === "series");
+    const series = transformedContent.filter(item => item.type === "tv");
     
     return {
       movies: {
