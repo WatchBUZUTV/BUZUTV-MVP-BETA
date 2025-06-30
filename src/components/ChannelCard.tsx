@@ -20,7 +20,7 @@ const ChannelCard = ({ channel, isSubscribed = false, onSubscribe }: ChannelCard
 
   return (
     <div className="group cursor-pointer">
-      <div className="relative overflow-hidden rounded-lg bg-gray-800 shadow-sm transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl">
+      <div className="relative overflow-hidden rounded-lg bg-gray-800 shadow-lg transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl">
         <div className="aspect-video overflow-hidden bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
           <img
             src={channel.logoUrl}
