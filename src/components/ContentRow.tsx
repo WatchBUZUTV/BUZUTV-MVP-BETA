@@ -10,7 +10,7 @@ import MovieHoverRow from "@/components/MovieHoverRow";
 interface ContentRowProps {
   title: string;
   movies?: Movie[];
-  series?: Series[];
+  series?: Movie[];
 }
 
 const content = movies ?? series;
