@@ -3,6 +3,7 @@ import { useState, useMemo } from "react";
 import { genres } from "@/data/mockMovies";
 import OptimizedMovieCard from "@/components/OptimizedMovieCard";
 import MovieHoverRow from "@/components/MovieHoverRow";
+import ContentCard from "@/components/ContentCard";
 import HeroBanner from "@/components/HeroBanner";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Navbar from "@/components/Navbar";
@@ -155,14 +156,14 @@ const Movies = () => {
 
                   {/* Content Rows */}
                   <div className="max-w-full pb-4">
-                    <MovieRow title="Recommended" movies={movieContent.recommended} />
-                    <MovieRow title="Trending Movies" movies={movieContent.trending} />
-                    <MovieRow title="New Movies" movies={movieContent.new} />
+                    <ContentRow title="Recommended" movies={movieContent.recommended} />
+                    <ContentRow title="Trending Movies" movies={movieContent.trending} />
+                    <ContentRow title="New Movies" movies={movieContent.new} />
                     
                     {/* Genre Sections */}
                     {Object.entries(movieContent.byGenre).map(([genre, genreMovies]) => (
                       genreMovies.length > 0 && (
-                        <MovieRow key={genre} title={genre} movies={genreMovies} />
+                        <ContentRow key={genre} title={genre} movies={genreMovies} />
                       )
                     ))}
                   </div>
