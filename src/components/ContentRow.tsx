@@ -3,21 +3,19 @@ import React, { useRef, useEffect } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
 import MovieCard from "@/components/MovieCard";
-import SeriesCard from "@/components/SeriesCard";
 import ProtectedContent from "@/components/auth/ProtectedContent";
 import MovieHoverRow from "@/components/MovieHoverRow";
 
 interface ContentRowProps {
   title: string;
   movies?: Movie[];
-  series?: Movie[];
+  series?: Series[];
 }
 
+const content = if(movies) ? movies : series;
+console.log("content is === " + content);
 
-const ContentRow = React.memo(({ title, movies, series }: ContentRowProps) => {
-  const content = movies ?? series;
-  console.log("content is === " + content);
-  
+const ContentRow = React.memo(({ title, content }: ContentRowProps) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   
   const scrollLeft = () => {
@@ -68,7 +66,7 @@ const ContentRow = React.memo(({ title, movies, series }: ContentRowProps) => {
           {content.map((cont) => (
             <div key={cont.id} className="flex-shrink-0 w-64">
               <ProtectedContent>
-                {movies ? (<MovieCard movie={cont} />) : (<SeriesCard series={cont} />)}
+                if(movies) ? <MovieCard movie={cont} /> : <SeriesCard series={cont} />
               </ProtectedContent>
             </div>
           ))}

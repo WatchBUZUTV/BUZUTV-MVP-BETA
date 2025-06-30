@@ -9,7 +9,7 @@ export interface Movie {
   genre: string;
   isTrending: boolean;
   isFeatured: boolean;
-  type: 'movie' | 'series';
+  type: 'movie' | 'tv';
   channelId?: string;
   // Series-specific fields
   seasons?: number;
