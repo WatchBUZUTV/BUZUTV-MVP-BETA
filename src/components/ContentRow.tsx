@@ -13,10 +13,11 @@ interface ContentRowProps {
   series?: Movie[];
 }
 
-const content = movies ?? series;
-console.log("content is === " + content);
 
 const ContentRow = React.memo(({ title, movies, series }: ContentRowProps) => {
+  const content = movies ?? series;
+  console.log("content is === " + content);
+  
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   
   const scrollLeft = () => {
