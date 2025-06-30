@@ -8,14 +8,10 @@ import MovieHoverRow from "@/components/MovieHoverRow";
 
 interface ContentRowProps {
   title: string;
-  movies?: Movie[];
-  series?: Series[];
+  movies: Movie[];
 }
 
-const content = if(movies) ? movies : series;
-console.log("content is === " + content);
-
-const ContentRow = React.memo(({ title, content }: ContentRowProps) => {
+const ContentRow = React.memo(({ title, movies }: ContentRowProps) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   
   const scrollLeft = () => {
@@ -36,7 +32,7 @@ const ContentRow = React.memo(({ title, content }: ContentRowProps) => {
     }
   };
 
-  if (content.length === 0) return null;
+  if (movies.length === 0) return null;
 
   return (
     <section className="mb-8">
@@ -63,10 +59,10 @@ const ContentRow = React.memo(({ title, content }: ContentRowProps) => {
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         <MovieHoverRow className="flex space-x-2">
-          {content.map((cont) => (
-            <div key={cont.id} className="flex-shrink-0 w-64">
+          {movies.map((movie) => (
+            <div key={movie.id} className="flex-shrink-0 w-64">
               <ProtectedContent>
-                if(movies) ? <MovieCard movie={cont} /> : <SeriesCard series={cont} />
+                <MovieCard movie={movie} />
               </ProtectedContent>
             </div>
           ))}

@@ -7,8 +7,6 @@ import HeroBanner from "@/components/HeroBanner";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Navbar from "@/components/Navbar";
 import SearchOverlay from "@/components/SearchOverlay";
-import ContentRow from "@/components/ContentRow";
-
 import { useAppContent } from "@/hooks/useAppContent";
 import {
   Carousel,
@@ -157,14 +155,14 @@ const Movies = () => {
 
                   {/* Content Rows */}
                   <div className="max-w-full pb-4">
-                    <ContentRow title="Recommended" movies={movieContent.recommended} />
-                    <ContentRow title="Trending Movies" movies={movieContent.trending} />
-                    <ContentRow title="New Movies" movies={movieContent.new} />
+                    <MovieRow title="Recommended" movies={movieContent.recommended} />
+                    <MovieRow title="Trending Movies" movies={movieContent.trending} />
+                    <MovieRow title="New Movies" movies={movieContent.new} />
                     
                     {/* Genre Sections */}
                     {Object.entries(movieContent.byGenre).map(([genre, genreMovies]) => (
                       genreMovies.length > 0 && (
-                        <ContentRow key={genre} title={genre} movies={genreMovies} />
+                        <MovieRow key={genre} title={genre} movies={genreMovies} />
                       )
                     ))}
                   </div>

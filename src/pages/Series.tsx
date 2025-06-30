@@ -147,9 +147,9 @@ const Series = () => {
                   </div>
 
                   <div className="max-w-full pb-4">
-                    <ContentRow title="Recommended" series={seriesContent.recommended} />
-                    <ContentRow title="Trending Series" series={seriesContent.trending} />
-                    <ContentRow title="New Series" series={seriesContent.new} />
+                    <SeriesRow title="Recommended" series={seriesContent.recommended} />
+                    <SeriesRow title="Trending Series" series={seriesContent.trending} />
+                    <SeriesRow title="New Series" series={seriesContent.new} />
                     
                     {Object.entries(seriesContent.byGenre).map(([genre, genreShows]) => (
                       genreShows.length > 0 && (
