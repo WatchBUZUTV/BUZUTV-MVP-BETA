@@ -15,7 +15,7 @@ export const contentToMovie = (content: Content): Movie => ({
   genre: content.genre || '',
   isTrending: content.is_trending || false,
   isFeatured: content.is_featured || false,
-  type: content.type === 'series' : 'movie',
+  type: content.type === 'series' ? 'tv' : 'movie',
   seasons: content.seasons || undefined,
   episodes: content.episodes || undefined,
 });
