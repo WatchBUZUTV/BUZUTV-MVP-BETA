@@ -71,7 +71,7 @@ const ChannelModal = ({ isOpen, onClose, channel }: ChannelModalProps) => {
       youtubeId: '',
       isTrending: item.is_trending || false,
       isFeatured: item.is_featured || false,
-      type: item.type === 'series' ? 'tv' : 'movie' as 'movie' | 'tv'
+      type: item.type
     } as Movie));
   }, [channel, content]);
 
@@ -81,8 +81,7 @@ const ChannelModal = ({ isOpen, onClose, channel }: ChannelModalProps) => {
 
     // Filter by type
     if (typeFilter !== 'all') {
-      const filterType = typeFilter === 'movie' ? 'movie' : 'tv';
-      filtered = filtered.filter(item => item.type === filterType);
+      filtered = filtered.filter(item => item.type === typeFilter);
     }
 
     // Filter by genre
