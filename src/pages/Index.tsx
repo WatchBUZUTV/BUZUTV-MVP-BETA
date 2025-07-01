@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import ChannelModal from "@/components/ChannelModal";
 import SearchOverlay from "@/components/SearchOverlay";
@@ -9,6 +8,7 @@ import ChannelRow from "@/components/ChannelRow";
 import { useAppContent } from "@/hooks/useAppContent";
 import { useUserSubscriptions } from "@/hooks/useUserSubscriptions";
 import { useAuth } from "@/contexts/AuthContext";
+import HomeRow from "@/components/HomeRow";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -95,25 +95,25 @@ const Index = () => {
               <>
                 {/* Content Rows - using pre-computed categories */}
                 {homeContent.trending.length > 0 && (
-                  <ContentRow title="Trending Now" movies={homeContent.trending} />
+                  <HomeRow title="Trending Now" items={homeContent.trending} />
                 )}
                 {homeContent.action.length > 0 && (
-                  <ContentRow title="Action" movies={homeContent.action} />
+                  <HomeRow title="Action" items={homeContent.action} />
                 )}
                 {homeContent.drama.length > 0 && (
-                  <ContentRow title="Drama" movies={homeContent.drama} />
+                  <HomeRow title="Drama" items={homeContent.drama} />
                 )}
                 {homeContent.romance.length > 0 && (
-                  <ContentRow title="Romance" movies={homeContent.romance} />
+                  <HomeRow title="Romance" items={homeContent.romance} />
                 )}
                 {homeContent.comedy.length > 0 && (
-                  <ContentRow title="Comedy" movies={homeContent.comedy} />
+                  <HomeRow title="Comedy" items={homeContent.comedy} />
                 )}
                 {homeContent.documentary.length > 0 && (
-                  <ContentRow title="Documentary" movies={homeContent.documentary} />
+                  <HomeRow title="Documentary" items={homeContent.documentary} />
                 )}
                 {homeContent.informational.length > 0 && (
-                  <ContentRow title="Informational" movies={homeContent.informational} />
+                  <HomeRow title="Informational" items={homeContent.informational} />
                 )}
               </>
             ) : (

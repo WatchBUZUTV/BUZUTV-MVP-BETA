@@ -18,7 +18,7 @@ const AdminDashboard = () => {
   }
 
   const totalMovies = mockMovies.filter(item => item.type === 'movie').length;
-  const totalSeries = mockMovies.filter(item => item.type === 'tv').length;
+  const totalSeries = mockMovies.filter(item => item.type === 'series').length;
   const totalChannels = channels.length;
   const trendingCount = mockMovies.filter(movie => movie.isTrending).length;
   const totalContent = mockMovies.length;

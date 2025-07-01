@@ -35,7 +35,7 @@ const MyList = () => {
 
   // Separate movies and TV shows
   const savedMovies = filteredSavedMovies.filter(item => item.type === 'movie');
-  const savedTVShows = filteredSavedMovies.filter(item => item.type === 'tv');
+  const savedTVShows = filteredSavedMovies.filter(item => item.type === 'series');
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
