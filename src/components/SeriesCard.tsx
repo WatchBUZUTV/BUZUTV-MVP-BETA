@@ -1,4 +1,3 @@
-
 import { Star, Heart, Play } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
 import { useState } from "react";
@@ -15,6 +14,7 @@ interface SeriesCardProps {
   progressPercent?: number;
   showResumeButton?: boolean;
   onPlayFullscreen?: (videoUrl: string) => void;
+  onOpen?: () => void;
 }
 
 const SeriesCard = ({ 
@@ -23,7 +23,8 @@ const SeriesCard = ({
   showProgress = false, 
   progressPercent = 0,
   showResumeButton = false,
-  onPlayFullscreen
+  onPlayFullscreen,
+  onOpen
 }: SeriesCardProps) => {
   const { favoriteIds, addToFavorites, removeFromFavorites } = useUserFavorites();
   const { content } = useContent();
@@ -47,6 +48,7 @@ const SeriesCard = ({
   };
 
   const handleCardClick = () => {
+    if (onOpen) onOpen();
     setShowModal(true);
   };
 
