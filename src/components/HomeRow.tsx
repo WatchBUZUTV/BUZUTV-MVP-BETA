@@ -8,9 +8,10 @@ import MovieHoverRow from "@/components/MovieHoverRow";
 interface HomeRowProps {
   title: string;
   items: any[]; // mixed array
+  onCardClick?: () => void;
 }
 
-const HomeRow = ({ title, items }: HomeRowProps) => {
+const HomeRow = ({ title, items, onCardClick }: HomeRowProps) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const scrollLeft = () => {
@@ -52,10 +53,10 @@ const HomeRow = ({ title, items }: HomeRowProps) => {
           {items.map((item) => (
             <div key={item.id} className="flex-shrink-0 w-64">
               {item.type === "series" ? (
-                <SeriesCard series={item} />
+                <SeriesCard series={item} onOpen={onCardClick} />
               ) : (
                 <ProtectedContent>
-                  <MovieCard movie={item} />
+                  <MovieCard movie={item} onOpen={onCardClick} />
                 </ProtectedContent>
               )}
             </div>
