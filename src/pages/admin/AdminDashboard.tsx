@@ -3,6 +3,7 @@ import AdminLayout from "@/components/admin/AdminLayout";
 import { useMockContent } from "@/hooks/useMockContent";
 import { genres } from "@/data/mockMovies";
 import { Film, Tv, Users, TrendingUp, PlayCircle, Calendar } from "lucide-react";
+import BulkImportUpload from "@/components/admin/BulkImportUpload";
 
 const AdminDashboard = () => {
   const { movies: mockMovies, channels, isLoading } = useMockContent();
@@ -82,9 +83,12 @@ const AdminDashboard = () => {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div>
-          <h2 className="text-2xl font-bold text-white mb-2">Dashboard Overview</h2>
-          <p className="text-gray-400">Welcome to BuzuTV Admin Panel</p>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-white mb-2">Dashboard Overview</h2>
+            <p className="text-gray-400">Welcome to BuzuTV Admin Panel</p>
+          </div>
+          <BulkImportUpload />
         </div>
 
         {/* Stats Cards */}
