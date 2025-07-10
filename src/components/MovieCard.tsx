@@ -14,7 +14,7 @@ interface MovieCardProps {
   progressPercent?: number;
   showResumeButton?: boolean;
   onPlayFullscreen?: (videoUrl: string) => void;
-  onOpen?: () => void;
+  onOpen?: () => boolean;
 }
 
 const MovieCard = ({ 
@@ -47,7 +47,10 @@ const MovieCard = ({
   };
 
   const handleCardClick = () => {
-    if (onOpen) onOpen();
+    // If onOpen returns true, it means the login modal was shown and we should NOT open the card modal
+    if (onOpen && onOpen() === true) {
+      return;
+    }
     setShowModal(true);
   };
 

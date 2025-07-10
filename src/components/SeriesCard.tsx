@@ -14,7 +14,7 @@ interface SeriesCardProps {
   progressPercent?: number;
   showResumeButton?: boolean;
   onPlayFullscreen?: (videoUrl: string) => void;
-  onOpen?: () => void;
+  onOpen?: () => boolean;
 }
 
 const SeriesCard = ({ 
@@ -48,7 +48,10 @@ const SeriesCard = ({
   };
 
   const handleCardClick = () => {
-    if (onOpen) onOpen();
+    // If onOpen returns true, it means the login modal was shown and we should NOT open the card modal
+    if (onOpen && onOpen() === true) {
+      return;
+    }
     setShowModal(true);
   };
 
@@ -105,7 +108,7 @@ const SeriesCard = ({
         />
       )}
 
-      <div className="series-card group">
+      <div className="series-card movie-card group">
         <div className="block cursor-pointer" onClick={handleCardClick}>
           <div className="relative overflow-hidden rounded-lg bg-gray-800 shadow-lg"
                style={{ aspectRatio: '16/9' }}>

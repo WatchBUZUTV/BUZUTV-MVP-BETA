@@ -2,13 +2,12 @@ import React, { useRef } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import MovieCard from "@/components/MovieCard";
 import SeriesCard from "@/components/SeriesCard";
-import ProtectedContent from "@/components/auth/ProtectedContent";
 import MovieHoverRow from "@/components/MovieHoverRow";
 
 interface HomeRowProps {
   title: string;
   items: any[]; // mixed array
-  onCardClick?: () => void;
+  onCardClick?: () => boolean;
 }
 
 const HomeRow = ({ title, items, onCardClick }: HomeRowProps) => {
@@ -55,9 +54,7 @@ const HomeRow = ({ title, items, onCardClick }: HomeRowProps) => {
               {item.type === "series" ? (
                 <SeriesCard series={item} onOpen={onCardClick} />
               ) : (
-                <ProtectedContent>
-                  <MovieCard movie={item} onOpen={onCardClick} />
-                </ProtectedContent>
+                <MovieCard movie={item} onOpen={onCardClick} />
               )}
             </div>
           ))}
