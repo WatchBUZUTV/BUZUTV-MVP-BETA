@@ -17,10 +17,22 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import SeriesModal from "@/components/SeriesModal";
+import { useUserFavorites } from "@/hooks/useUserFavorites";
+import { useContent } from "@/hooks/useContent";
+import { useChannels } from "@/hooks/useChannels";
+import FullscreenPlayer from "@/components/FullscreenPlayer";
 
 const Series = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { seriesContent, isLoading } = useAppContent();
+  const [selectedSeries, setSelectedSeries] = useState(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [fullscreenVideoUrl, setFullscreenVideoUrl] = useState("");
+  const [fullscreenVideoTitle, setFullscreenVideoTitle] = useState("");
+  const { favoriteIds, addToFavorites, removeFromFavorites } = useUserFavorites();
+  const { content } = useContent();
+  const { channels } = useChannels();
 
   const filteredSeries = useMemo(() => 
     searchQuery.trim() 
@@ -97,7 +109,7 @@ const SeriesRow = ({ title, series }: { title: string; series: typeof seriesCont
       <div
         ref={scrollContainerRef}
         className="flex space-x-2 overflow-x-auto scrollbar-hide px-4"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none", overflowY: "hidden" }}
       >
         <MovieHoverRow className="flex space-x-2">
           {series.map((show) => (
@@ -156,26 +168,87 @@ const SeriesRow = ({ title, series }: { title: string; series: typeof seriesCont
                       
                       <div>
                         <h2 className="text-2xl font-bold mb-3">Top Ranked Series</h2>
-                        <div className="space-y-2">
-                          {seriesContent.topRanked.map((show, index) => (
-                            <div key={show.id} className="flex items-center space-x-4 bg-gray-800 rounded-lg p-3">
-                              <span className="text-2xl font-bold text-blue-500">#{index + 1}</span>
-                              <img 
-                                src={show.posterUrl} 
+                        <div className="flex flex-col space-y-2 w-full" style={{ height: 'calc(60vh - 2rem)' }}>
+                          {seriesContent.topRanked.slice(0, 5).map((show, index) => (
+                            <div
+                              key={show.id}
+                              className="relative flex items-center bg-gray-800 rounded-lg shadow-lg p-2 group border-2 border-transparent hover:border-blue-500 hover:border-opacity-80 min-h-[60px] h-[calc((60vh-2rem)/5-0.5rem)] cursor-pointer"
+                              onClick={() => setSelectedSeries(show)}
+                            >
+                              {/* Ranking Badge */}
+                              <div className="absolute -left-6 top-1/2 -translate-y-1/2 z-10">
+                                <span className="bg-blue-600 text-white text-base font-bold px-3 py-1 rounded-full shadow-lg border-4 border-gray-900">#{index + 1}</span>
+                              </div>
+                              {/* Poster Image */}
+                              <img
+                                src={show.posterUrl}
                                 alt={show.title}
-                                className="w-16 h-12 object-cover rounded"
+                                className="w-16 h-20 object-cover rounded-lg mr-3 flex-shrink-0 border-2 border-gray-700"
                               />
-                              <div className="flex-1">
-                                <div className="font-medium hover:text-blue-400">
-                                  {show.title}
+                              {/* Info */}
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-semibold text-white text-base mb-0.5 line-clamp-1">{show.title}</h3>
+                                <div className="flex items-center space-x-2 text-xs text-gray-300 mb-0.5">
+                                  <span>{show.year}</span>
+                                  <span>•</span>
+                                  <span className="flex items-center"><span className="text-yellow-400">★</span> {show.rating}</span>
                                 </div>
-                                <div className="text-sm text-gray-400">
-                                  {show.year} • ⭐ {show.rating}
-                                </div>
+                                <span className="inline-block bg-black/60 text-xs text-white px-2 py-0.5 rounded">{show.genre}</span>
                               </div>
                             </div>
                           ))}
                         </div>
+                        {selectedSeries && (() => {
+                          // Match SeriesCard modal logic
+                          const isSaved = favoriteIds.includes(selectedSeries.id);
+                          const contentItem = content.find(item => item.id === selectedSeries.id);
+                          const videoUrl = contentItem?.video_url;
+                          const channel = channels.find(ch => ch.id === selectedSeries.channelId);
+                          const recommendedContent = content
+                            .filter(item => item.id !== selectedSeries.id && (item.genre === selectedSeries.genre || item.channel_id === selectedSeries.channelId))
+                            .slice(0, 6);
+                          const handleSaveModal = () => {
+                            if (isSaved) {
+                              removeFromFavorites(selectedSeries.id);
+                            } else {
+                              addToFavorites(selectedSeries.id);
+                            }
+                          };
+                          const handlePlayEpisode = (videoUrl: string, episodeTitle: string) => {
+                            setFullscreenVideoUrl(videoUrl);
+                            setFullscreenVideoTitle(episodeTitle);
+                            setIsFullscreen(true);
+                          };
+                          const handleExitFullscreen = () => {
+                            setIsFullscreen(false);
+                            setFullscreenVideoUrl("");
+                            setFullscreenVideoTitle("");
+                          };
+                          return (
+                            <>
+                              {isFullscreen && fullscreenVideoUrl && (
+                                <FullscreenPlayer
+                                  isOpen={isFullscreen}
+                                  onClose={handleExitFullscreen}
+                                  videoUrl={fullscreenVideoUrl}
+                                  title={fullscreenVideoTitle}
+                                />
+                              )}
+                              <SeriesModal
+                                isOpen={!!selectedSeries && !isFullscreen}
+                                onClose={() => setSelectedSeries(null)}
+                                series={selectedSeries}
+                                isSaved={isSaved}
+                                onSave={handleSaveModal}
+                                onPlayEpisode={handlePlayEpisode}
+                                videoUrl={videoUrl}
+                                contentItem={contentItem}
+                                channel={channel}
+                                recommendedContent={recommendedContent}
+                              />
+                            </>
+                          );
+                        })()}
                       </div>
                     </div>
                   </div>

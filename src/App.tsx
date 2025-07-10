@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -22,8 +22,27 @@ import AdminAddChannel from "./pages/admin/AdminAddChannel";
 import AdminEditChannel from "./pages/admin/AdminEditChannel";
 import NotFound from "./pages/NotFound";
 import LoginModal from "./components/auth/LoginModal";
+import { useAuth } from "@/contexts/AuthContext";
 
 const queryClient = new QueryClient();
+
+// RequireAuth wrapper
+function RequireAuth({ children }: { children: JSX.Element }) {
+  const { isLoggedIn, isLoading } = useAuth();
+  const location = useLocation();
+  if (isLoading) return null;
+  if (!isLoggedIn) return <Navigate to="/" state={{ from: location }} replace />;
+  return children;
+}
+
+// RequireAdmin wrapper
+function RequireAdmin({ children }: { children: JSX.Element }) {
+  const { isLoggedIn, user, isLoading } = useAuth();
+  const location = useLocation();
+  if (isLoading) return null;
+  if (!isLoggedIn || !user?.isAdmin) return <Navigate to="/" state={{ from: location }} replace />;
+  return children;
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -36,19 +55,19 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/movies" element={<Movies />} />
-            <Route path="/series" element={<Series />} />
-            <Route path="/my-list" element={<MyList />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/movie/:id" element={<MovieDetail />} />
+            <Route path="/movies" element={<RequireAuth><Movies /></RequireAuth>} />
+            <Route path="/series" element={<RequireAuth><Series /></RequireAuth>} />
+            <Route path="/my-list" element={<RequireAuth><MyList /></RequireAuth>} />
+            <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
+            <Route path="/movie/:id" element={<RequireAuth><MovieDetail /></RequireAuth>} />
             <Route path="/admin" element={<AdminLogin />} />
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/admin/movies" element={<AdminMovies />} />
-            <Route path="/admin/channels" element={<AdminChannels />} />
-            <Route path="/admin/add-movie" element={<AdminAddMovie />} />
-            <Route path="/admin/add-channel" element={<AdminAddChannel />} />
-            <Route path="/admin/edit-movie/:id" element={<AdminEditMovie />} />
-            <Route path="/admin/edit-channel/:id" element={<AdminEditChannel />} />
+            <Route path="/admin/dashboard" element={<RequireAdmin><AdminDashboard /></RequireAdmin>} />
+            <Route path="/admin/movies" element={<RequireAdmin><AdminMovies /></RequireAdmin>} />
+            <Route path="/admin/channels" element={<RequireAdmin><AdminChannels /></RequireAdmin>} />
+            <Route path="/admin/add-movie" element={<RequireAdmin><AdminAddMovie /></RequireAdmin>} />
+            <Route path="/admin/add-channel" element={<RequireAdmin><AdminAddChannel /></RequireAdmin>} />
+            <Route path="/admin/edit-movie/:id" element={<RequireAdmin><AdminEditMovie /></RequireAdmin>} />
+            <Route path="/admin/edit-channel/:id" element={<RequireAdmin><AdminEditChannel /></RequireAdmin>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
