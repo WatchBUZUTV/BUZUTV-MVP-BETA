@@ -1,4 +1,3 @@
-
 import { Star, Heart, Play } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
 import { useState } from "react";
@@ -15,6 +14,7 @@ interface SeriesCardProps {
   progressPercent?: number;
   showResumeButton?: boolean;
   onPlayFullscreen?: (videoUrl: string) => void;
+  onOpen?: () => boolean;
 }
 
 const SeriesCard = ({ 
@@ -23,7 +23,8 @@ const SeriesCard = ({
   showProgress = false, 
   progressPercent = 0,
   showResumeButton = false,
-  onPlayFullscreen
+  onPlayFullscreen,
+  onOpen
 }: SeriesCardProps) => {
   const { favoriteIds, addToFavorites, removeFromFavorites } = useUserFavorites();
   const { content } = useContent();
@@ -47,6 +48,10 @@ const SeriesCard = ({
   };
 
   const handleCardClick = () => {
+    // If onOpen returns true, it means the login modal was shown and we should NOT open the card modal
+    if (onOpen && onOpen() === true) {
+      return;
+    }
     setShowModal(true);
   };
 
@@ -103,7 +108,7 @@ const SeriesCard = ({
         />
       )}
 
-      <div className="series-card group">
+      <div className="series-card movie-card group">
         <div className="block cursor-pointer" onClick={handleCardClick}>
           <div className="relative overflow-hidden rounded-lg bg-gray-800 shadow-lg"
                style={{ aspectRatio: '16/9' }}>

@@ -1,4 +1,3 @@
-
 import { Star, Heart, Play } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
 import { useState } from "react";
@@ -15,6 +14,7 @@ interface MovieCardProps {
   progressPercent?: number;
   showResumeButton?: boolean;
   onPlayFullscreen?: (videoUrl: string) => void;
+  onOpen?: () => boolean;
 }
 
 const MovieCard = ({ 
@@ -23,7 +23,8 @@ const MovieCard = ({
   showProgress = false, 
   progressPercent = 0,
   showResumeButton = false,
-  onPlayFullscreen
+  onPlayFullscreen,
+  onOpen
 }: MovieCardProps) => {
   const { favoriteIds, addToFavorites, removeFromFavorites } = useUserFavorites();
   const { content } = useContent();
@@ -46,6 +47,10 @@ const MovieCard = ({
   };
 
   const handleCardClick = () => {
+    // If onOpen returns true, it means the login modal was shown and we should NOT open the card modal
+    if (onOpen && onOpen() === true) {
+      return;
+    }
     setShowModal(true);
   };
 

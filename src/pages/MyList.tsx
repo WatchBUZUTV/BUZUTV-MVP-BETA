@@ -5,15 +5,12 @@ import MovieCard from "@/components/MovieCard";
 import ChannelCard from "@/components/ChannelCard";
 import ChannelModal from "@/components/ChannelModal";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import Navbar from "@/components/Navbar";
-import SearchOverlay from "@/components/SearchOverlay";
 import MovieHoverRow from "@/components/MovieHoverRow";
 import { useUserFavorites } from "@/hooks/useUserFavorites";
 import { useUserSubscriptions } from "@/hooks/useUserSubscriptions";
 import { useAppContent } from "@/hooks/useAppContent";
 
 const MyList = () => {
-  const [searchQuery, setSearchQuery] = useState("");
   const [selectedChannel, setSelectedChannel] = useState<any>(null);
   const [showChannelModal, setShowChannelModal] = useState(false);
   const { favoriteIds, isLoading: favoritesLoading } = useUserFavorites();
@@ -28,22 +25,9 @@ const MyList = () => {
     ? channels.filter(channel => subscriptionIds.includes(channel.id))
     : [];
   
-  // Filter saved movies based on search
-  const filteredSavedMovies = savedContent.filter(movie =>
-    movie.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   // Separate movies and TV shows
-  const savedMovies = filteredSavedMovies.filter(item => item.type === 'movie');
-  const savedTVShows = filteredSavedMovies.filter(item => item.type === 'tv');
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  };
-
-  const handleClearSearch = () => {
-    setSearchQuery("");
-  };
+  const savedMovies = savedContent.filter(item => item.type === 'movie');
+  const savedTVShows = savedContent.filter(item => item.type === 'series');
 
   const handleChannelClick = (channel: any) => {
     setSelectedChannel(channel);
@@ -55,7 +39,6 @@ const MyList = () => {
     setSelectedChannel(null);
   };
 
-  const showSearchOverlay = searchQuery.trim().length > 0;
   const isLoading = favoritesLoading || subscriptionsLoading;
 
   if (isLoading) {
@@ -78,21 +61,8 @@ const MyList = () => {
           channel={selectedChannel}
         />
 
-        {/* Search Overlay */}
-        {showSearchOverlay && (
-          <SearchOverlay 
-            isOpen={true} 
-            onClose={handleClearSearch}
-            searchQuery={searchQuery}
-          />
-        )}
-
         {/* Navigation */}
-        <Navbar 
-          searchQuery={searchQuery}
-          onSearchChange={handleSearchChange}
-          onSearchClear={handleClearSearch}
-        />
+        {/* Removed Navbar */}
 
         <div className="pt-16">
           <div className="max-w-full px-2 py-8">

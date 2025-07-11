@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, Menu, X, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,15 +11,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+// Restore NavbarProps interface
 interface NavbarProps {
   searchQuery: string;
   onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSearchClear: () => void;
 }
 
+// Restore Navbar to accept props
 const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isLoggedIn, user, logout } = useAuth();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const { isLoggedIn, user, logout, setShowLoginModal } = useAuth();
   const navigate = useNavigate();
 
   const handleLoginClick = () => {
@@ -32,6 +36,38 @@ const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => 
 
   const handleLogout = () => {
     logout();
+  };
+
+  // New: Intercept nav for unauth users
+  const handleNavClick = (e: React.MouseEvent, path: string) => {
+    if (!isLoggedIn && path !== "/") {
+      e.preventDefault();
+      setShowLoginModal(true);
+      setIsMenuOpen(false);
+      return;
+    }
+    setIsMenuOpen(false);
+    navigate(path);
+  };
+
+  useEffect(() => {
+    if (isSearchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isSearchOpen]);
+
+  // Collapse search if input loses focus and query is empty
+  const handleSearchBlur = () => {
+    if (!searchQuery) {
+      setIsSearchOpen(false);
+    }
+  };
+
+  // Collapse on Escape if query is empty
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Escape' && !searchQuery) {
+      setIsSearchOpen(false);
+    }
   };
 
   return (
@@ -50,34 +86,47 @@ const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => 
           {/* Center Navigation - moved 2 inches to the right */}
           <div className="hidden md:flex items-center justify-center flex-1 ml-32">
             <div className="flex items-center space-x-8">
-              <Link to="/" className="text-white hover:text-gray-300 transition-colors text-sm">
-                Home
-              </Link>
-              <Link to="/movies" className="text-white hover:text-gray-300 transition-colors text-sm">
-                Movies
-              </Link>
-              <Link to="/series" className="text-white hover:text-gray-300 transition-colors text-sm">
-                TV Shows
-              </Link>
-              <Link to="/my-list" className="text-white hover:text-gray-300 transition-colors text-sm">
-                Favorites
-              </Link>
+              <Link to="/" className="text-white hover:text-gray-300 transition-colors text-sm" onClick={e => handleNavClick(e, "/")}>Home</Link>
+              <Link to="/movies" className="text-white hover:text-gray-300 transition-colors text-sm" onClick={e => handleNavClick(e, "/movies")}>Movies</Link>
+              <Link to="/series" className="text-white hover:text-gray-300 transition-colors text-sm" onClick={e => handleNavClick(e, "/series")}>TV Shows</Link>
+              <Link to="/my-list" className="text-white hover:text-gray-300 transition-colors text-sm" onClick={e => handleNavClick(e, "/my-list")}>Favorites</Link>
             </div>
           </div>
 
           {/* Right Side - Search and User */}
           <div className="flex items-center space-x-4">
-            {/* Search - always visible */}
+            {/* Search - icon by default, expands on click */}
             <div className="relative">
-              <input
-                type="text"
-                placeholder="Search"
-                value={searchQuery}
-                onChange={onSearchChange}
-                className="bg-black text-white pl-3 pr-10 py-1.5 rounded-md w-48 focus:outline-none focus:ring-1 focus:ring-gray-600 border border-gray-700"
-                style={{ height: '75%' }}
-              />
-              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              {isSearchOpen || searchQuery ? (
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  placeholder="Search"
+                  value={searchQuery}
+                  onChange={onSearchChange}
+                  onBlur={handleSearchBlur}
+                  onKeyDown={handleSearchKeyDown}
+                  className="bg-black text-white pl-3 pr-10 py-1.5 rounded-md w-48 focus:outline-none focus:ring-1 focus:ring-gray-600 border border-gray-700 transition-all duration-200"
+                  style={{ height: '75%' }}
+                />
+              ) : (
+                <button
+                  className="p-2 rounded-full hover:bg-gray-800 transition-colors"
+                  onClick={() => {
+                    if (!isLoggedIn) {
+                      setShowLoginModal(true);
+                      return;
+                    }
+                    setIsSearchOpen(true);
+                  }}
+                  aria-label="Open search"
+                >
+                  <Search className="text-gray-400 w-5 h-5" />
+                </button>
+              )}
+              {(isSearchOpen || searchQuery) && (
+                <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
+              )}
             </div>
 
             {/* User Authentication */}
@@ -142,34 +191,10 @@ const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => 
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="md:hidden py-4 space-y-2 border-t border-gray-800">
-            <Link
-              to="/"
-              className="block text-white hover:text-gray-300 transition-colors py-2"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Home
-            </Link>
-            <Link
-              to="/movies"
-              className="block text-white hover:text-gray-300 transition-colors py-2"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Movies
-            </Link>
-            <Link
-              to="/series"
-              className="block text-white hover:text-gray-300 transition-colors py-2"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              TV Shows
-            </Link>
-            <Link
-              to="/my-list"
-              className="block text-white hover:text-gray-300 transition-colors py-2"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Favorites
-            </Link>
+            <Link to="/" className="block text-white hover:text-gray-300 transition-colors py-2" onClick={e => handleNavClick(e, "/")}>Home</Link>
+            <Link to="/movies" className="block text-white hover:text-gray-300 transition-colors py-2" onClick={e => handleNavClick(e, "/movies")}>Movies</Link>
+            <Link to="/series" className="block text-white hover:text-gray-300 transition-colors py-2" onClick={e => handleNavClick(e, "/series")}>TV Shows</Link>
+            <Link to="/my-list" className="block text-white hover:text-gray-300 transition-colors py-2" onClick={e => handleNavClick(e, "/my-list")}>Favorites</Link>
           </div>
         )}
       </div>

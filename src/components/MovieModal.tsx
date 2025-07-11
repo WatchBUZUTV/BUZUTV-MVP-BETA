@@ -1,8 +1,12 @@
-
-import { Star, Heart, Play } from "lucide-react";
+import { Star, Heart, Play, ArrowLeft, ArrowRight } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Movie } from "@/data/mockMovies";
+import SeriesCard from "@/components/SeriesCard";
+import MovieCard from "@/components/MovieCard";
+import HomeRow from "@/components/HomeRow";
+import MoreLikeThisCard from "./MoreLikeThisCard";
+import { useRef } from "react";
 
 interface MovieModalProps {
   isOpen: boolean;
@@ -45,6 +49,23 @@ const MovieModal = ({
     item.id !== movie.id && 
     (item.genre === movie.genre || item.channel_id === movie.channelId || item.channel_id === contentItem?.channel_id)
   );
+
+  const normalizedRecommendedContent = filteredRecommendedContent.map(item => ({
+    ...item,
+    posterUrl: item.posterUrl || item.poster_url,
+  }));
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -320, behavior: "smooth" });
+    }
+  };
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 320, behavior: "smooth" });
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -128,26 +149,11 @@ const MovieModal = ({
             <div className="bg-gray-900 p-8 pt-4">
               {/* More Like This Section */}
               {filteredRecommendedContent.length > 0 && (
-                <div>
-                  <h3 className="text-xl font-bold mb-4">More Like This</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-1">
-                    {filteredRecommendedContent.map((item) => (
-                      <div key={item.id} className="group cursor-pointer">
-                        <div className="aspect-video relative overflow-hidden rounded-lg bg-gray-800">
-                          <img
-                            src={item.poster_url || '/placeholder.svg'}
-                            alt={item.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
-                            <Play className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 fill-current" />
-                          </div>
-                        </div>
-                        <h4 className="text-sm font-medium text-white mt-2 line-clamp-2">{item.title}</h4>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <HomeRow
+                  title="More Like This"
+                  items={normalizedRecommendedContent}
+                  isMoreLikeThis={true}
+                />
               )}
             </div>
           </div>

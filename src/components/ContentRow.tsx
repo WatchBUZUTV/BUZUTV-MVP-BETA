@@ -3,7 +3,6 @@ import React, { useRef, useEffect } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Movie } from "@/data/mockMovies";
 import MovieCard from "@/components/MovieCard";
-import ProtectedContent from "@/components/auth/ProtectedContent";
 import MovieHoverRow from "@/components/MovieHoverRow";
 
 interface ContentRowProps {
@@ -56,14 +55,12 @@ const ContentRow = React.memo(({ title, movies }: ContentRowProps) => {
       <div 
         ref={scrollContainerRef}
         className="flex space-x-2 overflow-x-auto scrollbar-hide px-4"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', overflowY: 'hidden' }}
       >
         <MovieHoverRow className="flex space-x-2">
           {movies.map((movie) => (
             <div key={movie.id} className="flex-shrink-0 w-64">
-              <ProtectedContent>
-                <MovieCard movie={movie} />
-              </ProtectedContent>
+              <MovieCard movie={movie} />
             </div>
           ))}
         </MovieHoverRow>
