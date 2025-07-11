@@ -11,12 +11,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+// Restore NavbarProps interface
 interface NavbarProps {
   searchQuery: string;
   onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSearchClear: () => void;
 }
 
+// Restore Navbar to accept props
 const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -110,7 +112,13 @@ const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => 
               ) : (
                 <button
                   className="p-2 rounded-full hover:bg-gray-800 transition-colors"
-                  onClick={() => setIsSearchOpen(true)}
+                  onClick={() => {
+                    if (!isLoggedIn) {
+                      setShowLoginModal(true);
+                      return;
+                    }
+                    setIsSearchOpen(true);
+                  }}
                   aria-label="Open search"
                 >
                   <Search className="text-gray-400 w-5 h-5" />

@@ -23,6 +23,10 @@ import AdminEditChannel from "./pages/admin/AdminEditChannel";
 import NotFound from "./pages/NotFound";
 import LoginModal from "./components/auth/LoginModal";
 import { useAuth } from "@/contexts/AuthContext";
+import SearchOverlay from "@/components/SearchOverlay";
+import { useAppContent } from "@/hooks/useAppContent";
+import { useState } from "react";
+import Navbar from "./components/Navbar";
 
 const queryClient = new QueryClient();
 
@@ -44,36 +48,87 @@ function RequireAdmin({ children }: { children: JSX.Element }) {
   return children;
 }
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <LoginModal />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/movies" element={<RequireAuth><Movies /></RequireAuth>} />
-            <Route path="/series" element={<RequireAuth><Series /></RequireAuth>} />
-            <Route path="/my-list" element={<RequireAuth><MyList /></RequireAuth>} />
-            <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
-            <Route path="/movie/:id" element={<RequireAuth><MovieDetail /></RequireAuth>} />
-            <Route path="/admin" element={<AdminLogin />} />
-            <Route path="/admin/dashboard" element={<RequireAdmin><AdminDashboard /></RequireAdmin>} />
-            <Route path="/admin/movies" element={<RequireAdmin><AdminMovies /></RequireAdmin>} />
-            <Route path="/admin/channels" element={<RequireAdmin><AdminChannels /></RequireAdmin>} />
-            <Route path="/admin/add-movie" element={<RequireAdmin><AdminAddMovie /></RequireAdmin>} />
-            <Route path="/admin/add-channel" element={<RequireAdmin><AdminAddChannel /></RequireAdmin>} />
-            <Route path="/admin/edit-movie/:id" element={<RequireAdmin><AdminEditMovie /></RequireAdmin>} />
-            <Route path="/admin/edit-channel/:id" element={<RequireAdmin><AdminEditChannel /></RequireAdmin>} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const { content, channels, isLoading } = useAppContent();
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+  const handleClearSearch = () => {
+    setSearchQuery("");
+  };
+  const showSearchOverlay = searchQuery.trim().length > 0;
+  const lowerQuery = searchQuery.trim().toLowerCase();
+  const movieResults = lowerQuery
+    ? content.movies.all.filter(
+        (item) =>
+          item.title.toLowerCase().includes(lowerQuery) ||
+          (item.genre && item.genre.toLowerCase().includes(lowerQuery))
+      )
+    : [];
+  const seriesResults = lowerQuery
+    ? content.series.all.filter(
+        (item) =>
+          item.title.toLowerCase().includes(lowerQuery) ||
+          (item.genre && item.genre.toLowerCase().includes(lowerQuery))
+      )
+    : [];
+  const channelResults = lowerQuery
+    ? channels.filter(
+        (ch) =>
+          ch.name.toLowerCase().includes(lowerQuery) ||
+          (ch.description && ch.description.toLowerCase().includes(lowerQuery))
+      )
+    : [];
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <AuthProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <LoginModal />
+            {/* Global Search Overlay */}
+            {showSearchOverlay && (
+              <SearchOverlay
+                isOpen={true}
+                onClose={handleClearSearch}
+                searchQuery={searchQuery}
+                movieResults={movieResults}
+                seriesResults={seriesResults}
+                channelResults={channelResults}
+              />
+            )}
+            <Navbar
+              searchQuery={searchQuery}
+              onSearchChange={handleSearchChange}
+              onSearchClear={handleClearSearch}
+            />
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/movies" element={<RequireAuth><Movies /></RequireAuth>} />
+              <Route path="/series" element={<RequireAuth><Series /></RequireAuth>} />
+              <Route path="/my-list" element={<RequireAuth><MyList /></RequireAuth>} />
+              <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
+              <Route path="/movie/:id" element={<RequireAuth><MovieDetail /></RequireAuth>} />
+              <Route path="/admin" element={<AdminLogin />} />
+              <Route path="/admin/dashboard" element={<RequireAdmin><AdminDashboard /></RequireAdmin>} />
+              <Route path="/admin/movies" element={<RequireAdmin><AdminMovies /></RequireAdmin>} />
+              <Route path="/admin/channels" element={<RequireAdmin><AdminChannels /></RequireAdmin>} />
+              <Route path="/admin/add-movie" element={<RequireAdmin><AdminAddMovie /></RequireAdmin>} />
+              <Route path="/admin/add-channel" element={<RequireAdmin><AdminAddChannel /></RequireAdmin>} />
+              <Route path="/admin/edit-movie/:id" element={<RequireAdmin><AdminEditMovie /></RequireAdmin>} />
+              <Route path="/admin/edit-channel/:id" element={<RequireAdmin><AdminEditChannel /></RequireAdmin>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

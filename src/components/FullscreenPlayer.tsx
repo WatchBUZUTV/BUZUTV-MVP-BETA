@@ -1,5 +1,6 @@
 
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { getYouTubeEmbedUrl } from "@/utils/youtubeUtils";
 
@@ -56,7 +57,7 @@ const FullscreenPlayer = ({ isOpen, onClose, videoUrl, title }: FullscreenPlayer
 
   if (!isOpen) return null;
 
-  return (
+  const player = (
     <div 
       className="fixed inset-0 bg-black" 
       style={{ 
@@ -95,6 +96,8 @@ const FullscreenPlayer = ({ isOpen, onClose, videoUrl, title }: FullscreenPlayer
       </div>
     </div>
   );
+
+  return createPortal(player, document.body);
 };
 
 export default FullscreenPlayer;
