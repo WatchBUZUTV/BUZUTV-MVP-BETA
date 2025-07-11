@@ -30,6 +30,14 @@ const Index = () => {
     setSelectedChannel(null);
   };
 
+  const handleHomeRowCardClick = () => {
+    if (!isLoggedIn) {
+      setShowLoginModal(true);
+      return true;
+    }
+    return false;
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
@@ -68,25 +76,25 @@ const Index = () => {
             <>
               {/* Content Rows - using pre-computed categories */}
               {homeContent.trending.length > 0 && (
-                <HomeRow title="Trending Now" items={homeContent.trending} />
+                <HomeRow title="Trending Now" items={homeContent.trending} onCardClick={handleHomeRowCardClick} />
               )}
               {homeContent.action.length > 0 && (
-                <HomeRow title="Action" items={homeContent.action} />
+                <HomeRow title="Action" items={homeContent.action} onCardClick={handleHomeRowCardClick} />
               )}
               {homeContent.drama.length > 0 && (
-                <HomeRow title="Drama" items={homeContent.drama} />
+                <HomeRow title="Drama" items={homeContent.drama} onCardClick={handleHomeRowCardClick} />
               )}
               {homeContent.romance.length > 0 && (
-                <HomeRow title="Romance" items={homeContent.romance} />
+                <HomeRow title="Romance" items={homeContent.romance} onCardClick={handleHomeRowCardClick} />
               )}
               {homeContent.comedy.length > 0 && (
-                <HomeRow title="Comedy" items={homeContent.comedy} />
+                <HomeRow title="Comedy" items={homeContent.comedy} onCardClick={handleHomeRowCardClick} />
               )}
               {homeContent.documentary.length > 0 && (
-                <HomeRow title="Documentary" items={homeContent.documentary} />
+                <HomeRow title="Documentary" items={homeContent.documentary} onCardClick={handleHomeRowCardClick} />
               )}
               {homeContent.informational.length > 0 && (
-                <HomeRow title="Informational" items={homeContent.informational} />
+                <HomeRow title="Informational" items={homeContent.informational} onCardClick={handleHomeRowCardClick} />
               )}
             </>
           ) : (
