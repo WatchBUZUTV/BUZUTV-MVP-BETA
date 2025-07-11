@@ -1,10 +1,12 @@
-import { Star, Heart, Play } from "lucide-react";
+import { Star, Heart, Play, ArrowLeft, ArrowRight } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Movie } from "@/data/mockMovies";
 import SeriesCard from "@/components/SeriesCard";
 import MovieCard from "@/components/MovieCard";
 import HomeRow from "@/components/HomeRow";
+import MoreLikeThisCard from "./MoreLikeThisCard";
+import { useRef } from "react";
 
 interface MovieModalProps {
   isOpen: boolean;
@@ -52,6 +54,18 @@ const MovieModal = ({
     ...item,
     posterUrl: item.posterUrl || item.poster_url,
   }));
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -320, behavior: "smooth" });
+    }
+  };
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 320, behavior: "smooth" });
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -135,7 +149,11 @@ const MovieModal = ({
             <div className="bg-gray-900 p-8 pt-4">
               {/* More Like This Section */}
               {filteredRecommendedContent.length > 0 && (
-                <HomeRow title="More Like This" items={normalizedRecommendedContent} onCardClick={() => onClose(false)} />
+                <HomeRow
+                  title="More Like This"
+                  items={normalizedRecommendedContent}
+                  isMoreLikeThis={true}
+                />
               )}
             </div>
           </div>

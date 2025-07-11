@@ -6,6 +6,7 @@ import { Movie } from "@/data/mockMovies";
 import SeriesCard from "@/components/SeriesCard";
 import MovieCard from "@/components/MovieCard";
 import HomeRow from "@/components/HomeRow";
+import MoreLikeThisCard from "./MoreLikeThisCard";
 
 interface Episode {
   id: string;
@@ -265,7 +266,11 @@ const SeriesModal = ({
 
               {/* More Like This Section */}
               {filteredRecommendedContent.length > 0 && (
-                <HomeRow title="More Like This" items={normalizedRecommendedContent} onCardClick={() => onClose(false)} />
+                <HomeRow
+                  title="More Like This"
+                  items={normalizedRecommendedContent}
+                  isMoreLikeThis={true}
+                />
               )}
             </div>
           </div>

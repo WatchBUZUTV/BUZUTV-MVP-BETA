@@ -3,14 +3,16 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import MovieCard from "@/components/MovieCard";
 import SeriesCard from "@/components/SeriesCard";
 import MovieHoverRow from "@/components/MovieHoverRow";
+import MoreLikeThisCard from "./MoreLikeThisCard";
 
 interface HomeRowProps {
   title: string;
   items: any[]; // mixed array
   onCardClick?: () => boolean;
+  isMoreLikeThis?: boolean;
 }
 
-const HomeRow = ({ title, items, onCardClick }: HomeRowProps) => {
+const HomeRow = ({ title, items, onCardClick, isMoreLikeThis = false }: HomeRowProps) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const scrollLeft = () => {
@@ -51,7 +53,9 @@ const HomeRow = ({ title, items, onCardClick }: HomeRowProps) => {
         <MovieHoverRow className="flex space-x-2">
           {items.map((item) => (
             <div key={item.id} className="flex-shrink-0 w-64">
-              {item.type === "series" ? (
+              {isMoreLikeThis ? (
+                <MoreLikeThisCard item={item} />
+              ) : item.type === "series" ? (
                 <SeriesCard series={item} onOpen={onCardClick} />
               ) : (
                 <MovieCard movie={item} onOpen={onCardClick} />
