@@ -9,6 +9,7 @@ import MovieHoverRow from "@/components/MovieHoverRow";
 import { useUserFavorites } from "@/hooks/useUserFavorites";
 import { useUserSubscriptions } from "@/hooks/useUserSubscriptions";
 import { useAppContent } from "@/hooks/useAppContent";
+import SeriesCard from "@/components/SeriesCard";
 
 const MyList = () => {
   const [selectedChannel, setSelectedChannel] = useState<any>(null);
@@ -122,7 +123,7 @@ const MyList = () => {
                   <MovieHoverRow className="flex space-x-2">
                     {savedTVShows.map((show) => (
                       <div key={show.id} className="flex-shrink-0 w-64">
-                        <MovieCard movie={show} showSaveButton={false} />
+                        <SeriesCard series={show} />
                       </div>
                     ))}
                   </MovieHoverRow>

@@ -171,16 +171,6 @@ const LoginModal = () => {
             {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
           </button>
         </div>
-
-        {!isSignUp && (
-          <div className="mt-4 p-3 bg-gray-700 rounded-lg">
-            <p className="text-xs text-gray-300 text-center mb-2">Demo Credentials:</p>
-            <p className="text-xs text-gray-400 text-center">
-              User: user@example.com / password123<br />
-              Admin: admin@example.com / admin123
-            </p>
-          </div>
-        )}
       </DialogContent>
     </Dialog>
   );
