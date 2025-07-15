@@ -8,6 +8,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useContent } from "@/hooks/useContent";
 import { useChannels } from "@/hooks/useChannels";
 import { useUserFavorites } from "@/hooks/useUserFavorites";
+import SeriesModal from './SeriesModal';
+// Remove import MoreLikeThisCard from './MoreLikeThisCard';
 
 interface HeroBannerProps {
   movies: Movie[];
@@ -55,8 +57,25 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
     setCurrentIndex((prev) => (prev - 1 + movies.length) % movies.length);
   };
 
+  // Helper to get first episode video for series
+  const getFirstEpisodeVideo = (item: any) => {
+    if (item?.type === 'series' && item?.seasons_data) {
+      let seasonsData = item.seasons_data;
+      if (typeof seasonsData === 'string') {
+        try {
+          seasonsData = JSON.parse(seasonsData);
+        } catch {}
+      }
+      if (Array.isArray(seasonsData) && seasonsData.length > 0 && seasonsData[0].episodes && seasonsData[0].episodes.length > 0) {
+        const firstEp = seasonsData[0].episodes[0];
+        const videoUrl = firstEp.videoUrl || firstEp.video_url;
+        return { videoUrl, title: `${item.title} - ${firstEp.title}` };
+      }
+    }
+    return null;
+  };
+
   const handleWatchNow = () => {
-    // Find the content item from backend data
     const contentItem = content.find(item => item.id === currentMovie.id);
     if (contentItem?.video_url) {
       setIsPlaying(true);
@@ -68,6 +87,9 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
     setShowModal(true);
   };
 
+  // For fullscreen video
+  const [currentVideoUrl, setCurrentVideoUrl] = useState<string | null>(null);
+  const [currentVideoTitle, setCurrentVideoTitle] = useState<string | null>(null);
   const handleCloseVideo = () => {
     setIsPlaying(false);
   };
@@ -103,6 +125,10 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
   const modalContentItem = modalMovie ? content.find(item => item.id === modalMovie.id) : null;
   const modalVideoUrl = modalContentItem?.video_url;
   const modalEmbedUrl = modalVideoUrl ? getYouTubeEmbedUrl(modalVideoUrl) || modalVideoUrl : null;
+  // For series, get seasons_data
+  const modalSeasonsData = (modalMovie && modalMovie.type === 'series' && modalContentItem)
+    ? modalContentItem.seasons_data
+    : undefined;
   
   // Get channel information for modal
   const channel = modalMovie ? channels.find(ch => ch.id === modalMovie.channelId) : null;
@@ -128,6 +154,9 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
     }
     return `${mins}m`;
   };
+
+  // Determine if Watch Now should be enabled
+  const watchNowEnabled = !!contentItem?.video_url;
 
   return (
     <>
@@ -161,25 +190,35 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
                 </div>
               </div>
               <div className="flex items-center space-x-3">
-                <button
-                  onClick={handleWatchNow}
-                  disabled={!videoUrl}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-semibold transition-colors text-sm ${
-                    videoUrl 
-                      ? 'bg-white text-black hover:bg-gray-200' 
-                      : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                  }`}
-                >
-                  <Play className="w-4 h-4" />
-                  <span>Watch Now</span>
-                </button>
-                <button
-                  onClick={handleMoreInfo}
-                  className="flex items-center space-x-2 bg-gray-800/80 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-700/80 transition-colors text-sm"
-                >
-                  <Info className="w-4 h-4" />
-                  <span>More Info</span>
-                </button>
+                {/* Only show Play button if not a series */}
+                {currentMovie.type !== 'series' && (
+                  <button
+                    onClick={handleWatchNow}
+                    disabled={!watchNowEnabled}
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-semibold transition-colors text-sm ${
+                      watchNowEnabled
+                        ? 'bg-white text-black hover:bg-gray-200'
+                        : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    <Play className="w-4 h-4" />
+                    <span>Watch Now</span>
+                  </button>
+                )}
+                {/* For series, show a non-clickable purple pill instead of More Info */}
+                {currentMovie.type === 'series' ? (
+                  <span className="px-4 py-2 rounded-full font-bold text-sm bg-purple-600 cursor-default select-none" style={{ opacity: 0.85 }}>
+                    Watch Now Below!
+                  </span>
+                ) : (
+                  <button
+                    onClick={handleMoreInfo}
+                    className="flex items-center space-x-2 bg-gray-800/80 text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-700/80 transition-colors text-sm"
+                  >
+                    <Info className="w-4 h-4" />
+                    <span>More Info</span>
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -227,7 +266,6 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
           >
             <X className="w-6 h-6" />
           </button>
-          
           {/* Video Player */}
           <div className="w-full h-full flex items-center justify-center">
             {embedUrl.includes('youtube.com/embed') ? (
@@ -357,6 +395,22 @@ const HeroBanner = ({ movies }: HeroBannerProps) => {
             </div>
           </ScrollArea>
         </DialogContent>
+        {/* Pass seasons_data to the modal if this is a series */}
+        {modalMovie && modalMovie.type === 'series' && modalContentItem && (
+          <SeriesModal
+            isOpen={showModal && !isPlaying}
+            onClose={setShowModal}
+            series={modalMovie}
+            isSaved={isSaved}
+            onSave={handleSave}
+            onPlayEpisode={() => {}}
+            videoUrl={modalVideoUrl}
+            contentItem={{ ...modalContentItem, seasons_data: modalSeasonsData }}
+            channel={channel}
+            recommendedContent={recommendedContent}
+            seasons={modalSeasonsData}
+          />
+        )}
       </Dialog>
     </>
   );

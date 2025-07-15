@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import ChannelModal from "@/components/ChannelModal";
 import Navbar from "@/components/Navbar";
-import HomeHeroBanner from "@/components/HomeHeroBanner";
+import HeroCarousel from "@/components/HeroCarousel";
 import ContentRow from "@/components/ContentRow";
 import ChannelRow from "@/components/ChannelRow";
 import { useAppContent } from "@/hooks/useAppContent";
 import { useUserSubscriptions } from "@/hooks/useUserSubscriptions";
 import { useAuth } from "@/contexts/AuthContext";
 import HomeRow from "@/components/HomeRow";
+import { featuredContentIds } from '@/data/featuredContentIds';
 
 const Index = () => {
   const [selectedChannel, setSelectedChannel] = useState<any>(null);
@@ -15,6 +16,11 @@ const Index = () => {
   const { homeContent, channels, isLoading, content } = useAppContent();
   const { subscriptionIds, toggleSubscription } = useUserSubscriptions();
   const { isLoggedIn, setShowLoginModal } = useAuth();
+
+  // Build featured array from full content objects
+  const featured = featuredContentIds
+    .map(id => content.allContent.find(item => item.id === id))
+    .filter(Boolean);
 
   const handleChannelClick = (channel: any) => {
     if (!isLoggedIn) {
@@ -58,9 +64,9 @@ const Index = () => {
       {/* Navigation is now global, do not render Navbar here */}
 
       {/* Home content */}
-      <div className="pt-16">
+      <div className="pt-14">
         {/* Hero Banner */}
-        <HomeHeroBanner />
+        <HeroCarousel items={featured} allContent={content.allContent} />
 
         <div className="max-w-full px-2 py-8">
           {/* Top Channels */}

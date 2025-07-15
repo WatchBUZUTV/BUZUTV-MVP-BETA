@@ -24,7 +24,8 @@ const transformDatabaseContent = (dbContent: any[]) => {
     episodes: item.episodes,
     isFeatured: item.is_featured || false,
     isTrending: item.is_trending || false,
-    channelId: item.channel_id
+    channelId: item.channel_id,
+    seasons_data: item.seasons_data, // <-- add this line
   }));
 };
 
