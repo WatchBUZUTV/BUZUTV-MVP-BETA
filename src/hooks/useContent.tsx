@@ -22,6 +22,7 @@ export interface Content {
   channel_id: string | null;
   created_at: string | null;
   updated_at: string | null;
+  seasons_data?: any;
 }
 
 const fetchContentData = async (): Promise<Content[]> => {

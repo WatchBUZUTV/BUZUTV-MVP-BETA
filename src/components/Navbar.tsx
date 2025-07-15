@@ -70,31 +70,50 @@ const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => 
     }
   };
 
+  // EXPERIMENTAL: Transparent-on-scroll navbar
+  // --------------------------------------------------
+  // const [scrolled, setScrolled] = useState(false);
+
+  // useEffect(() => {
+  //   const handleScroll = () => {
+  //     setScrolled(window.scrollY > 10);
+  //   };
+  //   window.addEventListener('scroll', handleScroll);
+  //   return () => window.removeEventListener('scroll', handleScroll);
+  // }, []);
+  // --------------------------------------------------
+  // END EXPERIMENTAL
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-black">
-      <div className="max-w-full px-6">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <div className="flex-shrink-0">
-            <Link to="/" className="flex items-center">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 bg-clip-text text-transparent">
-                BUZUTV
-              </h1>
-            </Link>
-          </div>
+    <nav
+      className={
+        // Always solid background now
+        'fixed top-0 left-0 right-0 z-50 flex items-center h-14 bg-black transition-colors duration-500'
+      }
+      style={{ boxShadow: '0 2px 16px 0 rgba(0,0,0,0.25)' }}
+    >
+      <div className="max-w-full px-6 w-full flex items-center justify-between h-14 relative">
+        {/* Logo */}
+        <div className="flex-shrink-0">
+          <Link to="/" className="flex items-center">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 bg-clip-text text-transparent">
+              BUZUTV
+            </h1>
+          </Link>
+        </div>
 
-          {/* Center Navigation - moved 2 inches to the right */}
-          <div className="hidden md:flex items-center justify-center flex-1 ml-32">
-            <div className="flex items-center space-x-8">
-              <Link to="/" className="text-white hover:text-gray-300 transition-colors text-sm" onClick={e => handleNavClick(e, "/")}>Home</Link>
-              <Link to="/movies" className="text-white hover:text-gray-300 transition-colors text-sm" onClick={e => handleNavClick(e, "/movies")}>Movies</Link>
-              <Link to="/series" className="text-white hover:text-gray-300 transition-colors text-sm" onClick={e => handleNavClick(e, "/series")}>TV Shows</Link>
-              <Link to="/my-list" className="text-white hover:text-gray-300 transition-colors text-sm" onClick={e => handleNavClick(e, "/my-list")}>Favorites</Link>
-            </div>
+        {/* Center Navigation - always centered */}
+        <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center flex-1">
+          <div className="flex items-center space-x-12">
+            <Link to="/" className="text-white hover:text-gray-300 transition-colors text-base" onClick={e => handleNavClick(e, "/")}>Home</Link>
+            <Link to="/movies" className="text-white hover:text-gray-300 transition-colors text-base" onClick={e => handleNavClick(e, "/movies")}>Movies</Link>
+            <Link to="/series" className="text-white hover:text-gray-300 transition-colors text-base" onClick={e => handleNavClick(e, "/series")}>TV Shows</Link>
+            <Link to="/my-list" className="text-white hover:text-gray-300 transition-colors text-base" onClick={e => handleNavClick(e, "/my-list")}>Favorites</Link>
           </div>
+        </div>
 
-          {/* Right Side - Search and User */}
-          <div className="flex items-center space-x-4">
+        {/* Right Side - Search and User */}
+        <div className="flex items-center gap-4">
             {/* Search - icon by default, expands on click */}
             <div className="relative">
               {isSearchOpen || searchQuery ? (
@@ -106,8 +125,8 @@ const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => 
                   onChange={onSearchChange}
                   onBlur={handleSearchBlur}
                   onKeyDown={handleSearchKeyDown}
-                  className="bg-black text-white pl-3 pr-10 py-1.5 rounded-md w-48 focus:outline-none focus:ring-1 focus:ring-gray-600 border border-gray-700 transition-all duration-200"
-                  style={{ height: '75%' }}
+                  className="bg-black text-white pl-3 pr-10 py-0.5 rounded-md w-48 focus:outline-none focus:ring-1 focus:ring-gray-600 border border-gray-700 transition-all duration-200"
+                  style={{ height: '32px' }}
                 />
               ) : (
                 <button
@@ -185,8 +204,11 @@ const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => 
             >
               {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
-          </div>
         </div>
+
+        {/* Fade effect at bottom of navbar - REMOVED for experimental transparent navbar */}
+        {/* <div className="absolute left-0 right-0 bottom-0 h-4 pointer-events-none" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0))' }} /> */}
+      </div>
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
@@ -197,7 +219,6 @@ const Navbar = ({ searchQuery, onSearchChange, onSearchClear }: NavbarProps) => 
             <Link to="/my-list" className="block text-white hover:text-gray-300 transition-colors py-2" onClick={e => handleNavClick(e, "/my-list")}>Favorites</Link>
           </div>
         )}
-      </div>
     </nav>
   );
 };
